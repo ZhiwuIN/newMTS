@@ -8,7 +8,7 @@
 					<view class="user-info">
 						<view class="user_avatar" @click="pushAccount">
 							<view class="avatarBox">
-								<image class="avatar_img"
+								<image class="avatar_img" mode="aspectFill"
 									:src="userInfo.avatar ?  userInfo.avatar : '/static/default-avatar.png'">
 								</image>
 								<view class="avatarEdit_img_Box">

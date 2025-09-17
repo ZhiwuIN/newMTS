@@ -20,7 +20,7 @@
 			<view class="avatarList">
 				<view class="avatarItem" v-for="(item, index) in avatarList" :key="item.id"
 					@click="changeAvatar(item.avatar, index)" :class="[currentAvatar === index ? 'activeAvatar' : '']">
-					<image class="avatarImg" :src="item.avatar" mode=""></image>
+					<image class="avatarImg" :src="item.avatar" mode="aspectFill"></image>
 				</view>
 				<view class="btnBox" :class="{'showBtn': showBtn}">
 					<view class="btn" @click="unChangeAvatarApi">{{$t('mine.confirmAvatar')}}</view>

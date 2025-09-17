@@ -14,7 +14,7 @@
 							<view class="avatar_container">
 								<view class="avatar_box">
 									<image :src="userInfo.avatar ?  userInfo.avatar : '/static/default-avatar.png'"
-										alt="" class="avatar_img" />
+										mode="aspectFill" alt="" class="avatar_img" />
 								</view>
 								<view class="level_box">
 									<image src="/static/home/level.svg" mode="" class="level_img"></image>
