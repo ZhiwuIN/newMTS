@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Icon/Checkbox Copy 2备份</title>
+    <g id="页面-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="等级" transform="translate(-36, -327)">
+            <g id="Icon/Checkbox-Copy-2备份" transform="translate(36, 327)">
+                <circle id="background" fill="#1167D1" cx="8" cy="8" r="8"></circle>
+                <path d="M5.08185592,7.58518526 C4.82248956,7.35682145 4.41568608,7.36973717 4.17323492,7.61403335 C3.93078376,7.85832953 3.94449623,8.24149616 4.20386259,8.46985998 L6.89217358,10.8368322 C7.14643504,11.0607013 7.54367536,11.0533153 7.7883587,10.8201691 L12.8143314,6.03117892 C13.0639273,5.79335182 13.0615746,5.40997398 12.8090764,5.17488053 C12.5565782,4.93978708 12.1495504,4.94200314 11.8999545,5.17983023 L7.31347242,9.5500525 L5.08185592,7.58518526 Z" id="check" fill="#FFFFFF" fill-rule="nonzero"></path>
+            </g>
+        </g>
+    </g>
+</svg>

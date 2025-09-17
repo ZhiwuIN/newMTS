@@ -1,0 +1,382 @@
+{
+	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
+		{
+			"path": "pages/guide",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		}, {
+			"path": "pages/HomePage/index",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/TaskPage/index",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/TeamPage/index",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/MessagePage/index",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/TeamPage/details",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/LevelPage/index",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/MinePage/index",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/HomePage/postManage",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/HomePage/postAgreement",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/HomePage/teamExpansion",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/HomePage/lotteryPage",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/HomePage/financePage",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/HomePage/financeDetails",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/HomePage/rechargePage",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/HomePage/companyInfo",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/LoginPage/register",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/LoginPage/login",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/MinePage/withdrawal",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/MinePage/license",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/MinePage/identity",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/MinePage/bills",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/MinePage/account",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/MinePage/password",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/MinePage/privacyPolicy",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/TaskPage/taskDetails",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/HomePage/messagePage",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/HomePage/messageDetailsPage",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/HomePage/setting",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/commonListPage",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/commonDetailsPage",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/MinePage/mobilePayment",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/MinePage/addPayment",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/HomePage/financeOrderDetails",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/MinePage/financePage",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/MinePage/financeDetails",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/MinePage/positionManage",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/MinePage/applicationRecord",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/MinePage/applicationRecordInfo",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/MinePage/headPortrait",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/MessagePage/personMessagePage",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/HomePage/pointsMall",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/HomePage/tirageRecordPage",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/HomePage/exchangeRecordPage",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/HomePage/pointsDetailsPage",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/HomePage/RechargeWebView",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/MinePage/cellPhoneNumber",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/HomePage/RechargeChannel",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/paymentSettlement",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/MinePage/withdrawalInfo",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/appDownload",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		}, {
+			"path": "uni_modules/rt-uni-update/components/rt-uni-update/rt-uni-update",
+			"style": {
+				"app-plus": {
+					"animationDuration": 200,
+					"animationType": "fade-in",
+					"background": "transparent",
+					"backgroundColorTop": "transparent",
+					"popGesture": "none",
+					"scrollIndicator": false,
+					"titleNView": false
+				},
+				"disableScroll": true
+			}
+		}
+	],
+	"tabBar": {
+		"iconfontSrc": "static/fonts/DINPRO-Regular.otf",
+		"color": "#BEBEBE",
+		// "selectedColor": "#5385fa",
+		"selectedColor": "#1167D1",
+		"backgroundColor": "#fff",
+		// "height": "176rpx",
+		// "fontSize": "24rpx",
+		// "iconWidth": "62rpx",
+		"height": "88px",
+		"fontSize": "12px",
+		"iconWidth": "31px",
+		"list": [{
+				"pagePath": "pages/HomePage/index",
+				"iconPath": "/static/tab/home.png",
+				"selectedIconPath": "/static/tab/home_a.png",
+				"text": "%pages.home%"
+			},
+			{
+				"pagePath": "pages/TaskPage/index",
+				"iconPath": "/static/tab/task.png",
+				"selectedIconPath": "/static/tab/task_a.png",
+				"text": "%pages.task%"
+			},
+			// {
+			// 	"pagePath": "pages/TeamPage/index",
+			// 	"iconPath": "/static/tab/team.png",
+			// 	"selectedIconPath": "/static/tab/team_a.png",
+			// 	"text": "%pages.team%"
+			// },
+			{
+				"pagePath": "pages/MessagePage/index",
+				"iconPath": "/static/tab/msg.png",
+				"selectedIconPath": "/static/tab/msg_a.png",
+				"text": "%pages.Message%"
+			},
+			{
+				"pagePath": "pages/LevelPage/index",
+				"iconPath": "/static/tab/level.png",
+				"selectedIconPath": "/static/tab/level_a.png",
+				"text": "%pages.level%"
+			}, {
+				"pagePath": "pages/MinePage/index",
+				"iconPath": "/static/tab/mine.png",
+				"selectedIconPath": "/static/tab/mine_a.png",
+				"text": "%pages.mine%"
+			}
+		]
+	},
+	"globalStyle": {
+		"navigationBarBackgroundColor": "#F8F8F8",
+		"navigationBarTitleText": "CWPC",
+		"backgroundColor": "#F8F8F8",
+		"app-plus": {
+			"bounce": "none",
+			"scrollIndicator": "none"
+		}
+	},
+	"uniIdRouter": {}
+}

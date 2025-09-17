@@ -1,0 +1,9 @@
+{
+	"dependencies": {
+		"@nutui/nutui-bingo": "^1.0.7",
+		"date-fns": "^4.1.0",
+		"date-fns-tz": "^1.0.0",
+		"tdesign-mobile-vue": "^1.10.1",
+		"vue-i18n": "^11.1.9"
+	}
+}

@@ -1,0 +1,350 @@
+<template>
+	<customnavbar :title="$t('pages.task')" backgroundStr="url('/static/task/background.jpg') top left/100% no-repeat"
+		:showBack="false" :whiteTitle="true" @mtop="mtop">
+		<view class="task-page" :style="topStyle2">
+			<view class="task_top_card" :style="topStyle">
+				<!-- 顶部数据卡片 -->
+				<view class="data_box">
+					<view class="dataItem">
+						<view class="num">{{taskInfo.tasksCompletedToday || 0}}</view>
+						<view class="tag">{{$t('Completed.Today')}}</view>
+					</view>
+					<view class="line"></view>
+					<view class="dataItem">
+						<view class="num">{{taskInfo.tasksRemainingToday || 0}}</view>
+						<view class="tag">{{$t('Remaining.Today')}}</view>
+					</view>
+					<view class="line"></view>
+					<view class="dataItem">
+						<view class="num">{{taskInfo.todayTaskCommission || 0}} {{currency}}</view>
+						<view class="tag">{{$t('Task.Commission')}}</view>
+					</view>
+				</view>
+			</view>
+
+			<!-- 瀑布流容器 -->
+			<view class="custom-waterfalls" v-if="isShow">
+				<keep-alive>
+					<scroll-view scroll-y :refresher-enabled="true" :refresher-triggered="isRefreshing"
+						@scrolltolower="onReachBottom" @refresherrefresh="onRefresh" :refresher-threshold="120"
+						:style="scrollViewStyle" ref="scrollViewElement" :scroll-top="scrollTop" @scroll="onPageScroll">
+
+						<custom-waterfalls-flow :taskList="taskList" :currency="currency" @wapperClick="startTask"
+							ref="scrollView">
+						</custom-waterfalls-flow>
+
+						<listbottom :hasMore="hasMore" :loading="loading" :noData='nodata'
+							image="/static/default/No order.png"></listbottom>
+					</scroll-view>
+				</keep-alive>
+			</view>
+		</view>
+	</customnavbar>
+</template>
+
+<script>
+	import customnavbar from '@/component/custom-navbar/custom-navbar.vue'
+	import listbottom from '../../component/list-bottom/list_bottom.vue'
+	import {
+		taskListApi,
+		taskInfoApi
+	} from '@/common/api/task.js'
+	import {
+		userInfoApi
+	} from "@/common/api/users.js";
+
+	export default {
+		components: {
+			customnavbar,
+			listbottom
+		},
+		data() {
+			return {
+				scrollTop: 0,
+				needRestoreScroll: false,
+				topStyle: 0,
+				topStyle2: '',
+				scrollViewStyle: '',
+				currency: '',
+				userInfo: {},
+				taskInfo: {},
+				taskList: [],
+				page: {
+					pageNum: 1,
+					pageSize: 10
+				},
+				nodata: false,
+				hasMore: true,
+				loading: false,
+				isShow: false,
+				isRefreshing: false,
+				levelCode: '',
+				preLoadScrollTop: 0,
+				taskCardHeight: 298 // 顶部卡片固定高度（rpx）
+			};
+		},
+		onLoad() {
+			this.scrollTop = uni.getStorageSync('taskListScrollTop') || 0;
+			this.currency = uni.getStorageSync('settings').currency;
+			this.getTaskList().then(() => {
+				this.$nextTick(() => {
+					this.needRestoreScroll = true;
+				});
+			});
+			this.isShow = true;
+		},
+		onShow() {
+			this.getUserInfo();
+			const completedId = uni.getStorageSync('isTodayCompletedId');
+			if (this.taskList.length && completedId) {
+				this.preLoadScrollTop = this.scrollTop;
+				this.taskList = this.taskList.filter(item => item.taskId != completedId);
+				if (this.taskList.length < 10) {
+					this.onReachBottom()
+				}
+				uni.removeStorageSync('isTodayCompletedId');
+				this.needRestoreScroll = true;
+				this.$nextTick(() => {
+					// 修复：检查scrollView引用是否存在且有refresh方法
+					if (this.$refs.scrollView && typeof this.$refs.scrollView.refresh === 'function') {
+						this.$refs.scrollView.refresh();
+					}
+				});
+			}
+			if (this.levelCode === '') {
+				return
+			} else {
+				if (uni.getStorageSync('levelCode') != this.levelCode) {
+					this.page.pageNum = 1
+					this.getTaskList();
+					this.isShow = true;
+					this.taskList = [];
+				}
+			}
+
+		},
+		onUnload() {
+			uni.setStorageSync('taskListScrollTop', this.scrollTop);
+		},
+		methods: {
+			onPageScroll(e) {
+				this.scrollTop = e.scrollTop;
+			},
+			onRefresh() {
+				this.isRefreshing = true;
+				this.page.pageNum = 1;
+				taskListApi(this.page).then((res) => {
+					this.taskList = res.rows || [];
+					this.taskList = [...new Map(this.taskList.map(item => [item.taskId, item])).values()];
+					this.taskList = this.taskList.filter(item => item.isTodayCompleted !== 1);
+					if (!this.taskList.length && res.rows.length) {
+						this.onReachBottom()
+					}
+					if (this.taskList.length < 10 && res.rows.length) {
+						this.onReachBottom()
+					}
+					this.levelCode = this.taskInfo.levelCode;
+					this.nodata = res.total === 0;
+					this.hasMore = this.taskList.length !== res.total;
+					this.scrollTop = 0;
+					this.isRefreshing = false;
+				}).catch((err) => {
+					console.log('request fail', err);
+					this.$showMessage('warning', err.msg);
+				})
+			},
+			mtop(e) {
+				// 计算可用高度 = 屏幕高度 - 导航栏高度 - 顶部卡片高度
+				const navHeight = e; // 导航栏高度（从组件获取）
+
+				// #ifdef H5
+				// H5端：额外减去底部可能的留白
+				this.topStyle = `margin-top:-${navHeight}rpx;padding-top:${navHeight + 44}rpx`;
+				this.topStyle2 = `height:calc(100vh - ${navHeight}rpx - 200rpx);`;
+				// 固定scroll-view高度：屏幕高度 - 导航栏高度 - 顶部卡片高度 - 额外留白
+				this.scrollViewStyle = `height: calc(100vh - ${navHeight}rpx - ${this.taskCardHeight}rpx - 200rpx);`;
+				// #endif
+
+				// #ifdef APP-PLUS
+				// APP端：更紧凑的计算
+				this.topStyle = `margin-top:-${navHeight}rpx;padding-top:${navHeight - 2}rpx`;
+				this.topStyle2 = `height:calc(100vh - ${navHeight}rpx);`;
+				// 固定scroll-view高度：屏幕高度 - 导航栏高度 - 顶部卡片高度
+				this.scrollViewStyle = `height: calc(100vh - ${navHeight}rpx - ${this.taskCardHeight}rpx);`;
+				// #endif
+			},
+			getUserInfo() {
+				userInfoApi().then((res) => {
+					this.userInfo = res.data;
+					if (this.userInfo.hasMessage) {
+						uni.showTabBarRedDot({
+							index: 2
+						});
+					} else {
+						uni.hideTabBarRedDot({
+							index: 2
+						});
+					}
+					uni.setStorageSync('userInfo', res.data);
+					this.getTaskInfo();
+				}).catch((err) => {
+					console.log('request fail', err);
+					this.$showMessage('warning', err.msg);
+				});
+			},
+			getTaskInfo() {
+				taskInfoApi().then((res) => {
+					this.taskInfo = res.data;
+					uni.setStorageSync('levelCode', res.data.levelCode);
+				}).catch((err) => {
+					console.log('request fail', err);
+					this.$showMessage('warning', err.msg);
+				});
+			},
+			getTaskList() {
+				this.loading = true;
+				uni.showLoading({
+					title: this.$t('loading.btn')
+				});
+
+				return taskListApi(this.page).then((res) => {
+					this.loading = false;
+					if (this.page.pageNum == 1) {
+						this.taskList = res.rows || [];
+					} else {
+						this.taskList = [...this.taskList, ...(res.rows || [])];
+					}
+					this.taskList = [...new Map(this.taskList.map(item => [item.taskId, item])).values()];
+					this.taskList = this.taskList.filter(item => item.isTodayCompleted !== 1);
+					if (!this.taskList.length && res.rows.length) {
+						this.onReachBottom()
+					}
+					if (this.taskList.length < 10 && res.rows.length) {
+						this.onReachBottom()
+					}
+					this.levelCode = this.taskInfo.levelCode;
+					this.nodata = res.total === 0;
+					this.hasMore = this.taskList.length !== res.total;
+					if (this.page.pageNum > 1) {
+						this.scrollTop = this.preLoadScrollTop;
+					}
+				}).catch((err) => {
+					this.loading = false;
+					console.log('request fail', err);
+					this.$showMessage('warning', err.msg);
+				}).finally(() => {
+					uni.hideLoading();
+				});
+			},
+			startTask(e) {
+				if (this.userInfo.levelCode == '0' && this.isOverFourDays(this.userInfo.registerTime)) {
+					this.$showMessage('warning', this.$t('实习期结束'));
+					return;
+				}
+				if (this.userInfo.levelCode != '0' && this.checkGhanaWeekend()) {
+					this.$showMessage('warning', this.$t('不能进行任务'));
+					return;
+				}
+				if (this.taskInfo.tasksRemainingToday <= 0) {
+					this.$showMessage('warning', this.$t('Todayopportunities'));
+					return;
+				}
+				uni.setStorageSync('taskListScrollTop', this.scrollTop);
+				uni.navigateTo({
+					url: `/pages/TaskPage/taskDetails?id=${e.taskId}`
+				});
+			},
+			checkGhanaWeekend() {
+				const now = new Date();
+				const utcDay = now.getUTCDay();
+				const ghanaDay = utcDay === 0 ? 7 : utcDay;
+				return !this.taskInfo?.taskEnabledDaysList?.includes(ghanaDay);
+			},
+			padZero(num) {
+				return num < 10 ? '0' + num : num
+			},
+			isOverFourDays(registerTime) {
+				// 解析注册时间
+				const registerDate = new Date(registerTime);
+
+				// 设置注册日期的零点（清除时分秒）
+				registerDate.setHours(0, 0, 0, 0);
+
+				// 获取当前日期的零点
+				const now = new Date();
+				now.setHours(0, 0, 0, 0);
+
+				// 计算两个日期之间的天数差（毫秒转换为天）
+				const timeDiff = now - registerDate;
+				const dayDiff = timeDiff / (24 * 60 * 60 * 1000);
+
+				return dayDiff > 3;
+			},
+			onReachBottom() {
+				if (!this.loading && this.hasMore) {
+					this.preLoadScrollTop = this.scrollTop;
+					this.page.pageNum += 1;
+					this.getTaskList();
+				}
+			}
+		}
+	};
+</script>
+
+<style lang="scss" scoped>
+	.task-page {
+		display: flex;
+		flex-direction: column;
+		width: 100%;
+
+		.task_top_card {
+			width: 100%;
+			background: url('/static/task/background.jpg') top left/100% no-repeat;
+			height: v-bind(taskCardHeight + 'rpx'); // 使用数据中的高度值
+
+			.data_box {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				padding: 80rpx 60rpx;
+
+				.dataItem {
+					display: flex;
+					flex-direction: column;
+					align-items: center;
+					gap: 20rpx;
+					text-align: center;
+					color: #fff;
+
+					.num {
+						flex: 1;
+						font-family: DINPro, DINPro;
+						font-weight: 500;
+						font-size: 36rpx;
+						color: #FFFFFF;
+					}
+
+					.tag {
+						font-family: DINPro, DINPro;
+						font-weight: 400;
+						font-size: 24rpx;
+						color: #FFFFFF;
+						width: 136rpx;
+						line-height: 30rpx;
+					}
+				}
+
+				.line {
+					width: 2rpx;
+					height: 60rpx;
+					background: rgba(255, 255, 255, 0.6);
+				}
+			}
+		}
+
+		.custom-waterfalls {
+			// flex: 1; // 让瀑布流容器占满剩余空间
+			width: 100%;
+		}
+	}
+</style>
