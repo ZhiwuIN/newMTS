@@ -28,12 +28,12 @@
 				<view class="msg_icon">
 					<!-- 客服 -->
 					<image :src="item?.avatar ?  item?.avatar : '/static/massage/Customer service2.png'" alt=""
-						class="msg_icon" v-if="item?.userType == 'customer'" />
+						class="msg_icon" v-if="item?.userType == 'customer'" mode="aspectFill" />
 					<!-- 代理 -->
 					<image :src="item?.avatar ?  item?.avatar : '/static/massage/Acting3.png'" alt="" class="msg_icon"
-						v-else-if="item.userType == 'business'" />
+						v-else-if="item.userType == 'business'" mode="aspectFill" />
 					<!-- 客服 -->
-					<image :src="item?.avatar" alt="" class="msg_icon" v-else />
+					<image :src="item?.avatar" alt="" class="msg_icon" mode="aspectFill" v-else />
 				</view>
 				<view class="main">
 					<view class="msg_list_head">

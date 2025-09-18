@@ -10,7 +10,7 @@
 						<view class="msg_item" v-for="(item, index) in msgList" :key="item.messageId || index"
 							:class="{'right': item.direction == 'out'}" :id="'msg_' + (item.messageId || index)">
 							<!-- 头像 -->
-							<image class="avatar" :src="item.fromUserInfo?.avatarUrl" mode=""></image>
+							<image class="avatar" :src="item.fromUserInfo?.avatarUrl" mode="aspectFill"></image>
 							<view :class="item.direction == 'out' ? 'msg_right' : 'msg_left'">
 								<!-- 图片消息 -->
 								<image @click="previewImage(item.body.originalUrl)"
