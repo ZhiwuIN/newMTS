@@ -3,6 +3,7 @@ import en from './locale/en.json'
 import ru from './locale/ru.json'
 import es from './locale/es.json'
 import fr from './locale/fr.json'
+import zh from './locale/zh.json'
 import './uni.scss'
 
 import {
@@ -13,7 +14,8 @@ const messages = {
 	'en': en,
 	'ru': ru,
 	'es': es,
-	'fr': fr
+	'fr': fr,
+	'zh': zh
 }
 
 let i18nConfig = {
