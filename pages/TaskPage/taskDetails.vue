@@ -113,7 +113,7 @@ export default {
 		}
 	},
 	onLoad(options) {
-		if (uni.getStorageSync('settings').levelCode == '0' && this.isOverFourDays(uni.getStorageSync('settings')
+		if (uni.getStorageSync('userInfo').levelCode == '0' && this.isOverFourDays(uni.getStorageSync('userInfo')
 			.registerTime)) {
 			this.$showMessage('warning', this.$t('实习期结束'));
 			uni.switchTab({
@@ -144,7 +144,7 @@ export default {
 					})
 					return;
 				}
-				if (uni.getStorageSync('settings').levelCode != '0' && this.checkGhanaWeekend()) {
+				if (uni.getStorageSync('userInfo').levelCode != '0' && this.checkGhanaWeekend()) {
 					this.$showMessage('warning', this.$t('不能进行任务'));
 					uni.switchTab({
 						url: '/pages/TaskPage/index'
