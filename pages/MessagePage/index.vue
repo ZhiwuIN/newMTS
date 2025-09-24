@@ -50,9 +50,14 @@
 							{{item.lastMessage?.time ? formatTimestamp(item.lastMessage?.time) : ''}}
 						</view>
 					</view>
-					<view class="msg_title2">
+					<view class="msg_title2" v-if="!item.lastMessage?.isRevoke">
 						<view v-if="item.lastMessage?.type == 'image'">[{{$t('图片')}}]</view>
 						<view v-html="item.lastMessage?.body.tips || item.lastMessage?.body.text || ''" v-else>
+						</view>
+					</view>
+					<view class="msg_title2" v-else>
+						<view>
+							{{$t('recalled a message')}}
 						</view>
 					</view>
 					<view :class="item.unread?.toString().length > 1 ? 'badge2' : 'badge'" v-if="item?.unread">
@@ -245,19 +250,17 @@
 			// 时间格式化
 			formatTimestamp(timestamp) {
 				const date = new Date(timestamp);
-				return new Intl.DateTimeFormat('en-GB', {
-						timeZone: 'Africa/Accra',
-						year: 'numeric',
-						month: '2-digit',
-						day: '2-digit',
-						hour: '2-digit',
-						minute: '2-digit',
-						second: '2-digit',
-						hour12: false,
-					}).format(date)
-					.replace(/\//g, '-') // 替换 / 为 -
-					.replace(/, /, ' ') // 移除逗号和空格（如 "22-08-2025, 04:21:50" → "22-08-2025 04:21:50"）
-					.replace(/(\d{2})-(\d{2})-(\d{4})/, '$3-$2-$1'); // 调整格式为 yyyy-MM-dd
+
+				// 转换为 Africa/Accra 时区（UTC+0）
+				const utcYear = date.getUTCFullYear();
+				const utcMonth = String(date.getUTCMonth() + 1).padStart(2, '0');
+				const utcDay = String(date.getUTCDate()).padStart(2, '0');
+				const utcHours = String(date.getUTCHours()).padStart(2, '0');
+				const utcMinutes = String(date.getUTCMinutes()).padStart(2, '0');
+				const utcSeconds = String(date.getUTCSeconds()).padStart(2, '0');
+
+				// 组合成 yyyy-MM-dd HH:mm:ss 格式
+				return `${utcYear}-${utcMonth}-${utcDay} ${utcHours}:${utcMinutes}:${utcSeconds}`;
 			}
 		}
 	}

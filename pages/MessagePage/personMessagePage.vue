@@ -7,19 +7,22 @@
 					<scroll-view scroll-y="true" class="scroll-view" :class="{'isFunction': this.isFunction}"
 						id="scroll" :scroll-into-view="scrollIntoId" @scroll="handleScroll"
 						@scrolltoupper="scrolltoupper" @click="this.isFunction = false">
-						<view class="msg_item" v-for="(item, index) in msgList" :key="item.messageId || index"
-							:class="{'right': item.direction == 'out'}" :id="'msg_' + (item.messageId || index)">
-							<!-- 头像 -->
-							<image class="avatar" :src="item.fromUserInfo?.avatarUrl" mode="aspectFill"></image>
-							<view :class="item.direction == 'out' ? 'msg_right' : 'msg_left'">
-								<!-- 图片消息 -->
-								<image @click="previewImage(item.body.originalUrl)"
-									:style="'width:' + item.body.thumbnailWidth + 'rpx;height:' + item.body.thumbnailHeight + 'rpx;max-width: 470rpx'"
-									:src="item.body.thumbnailUrl" mode="" v-if="item.type == 'image'">
-								</image>
-								<view v-html="item.body.tips || item.body.text" v-else></view>
+						<template v-for="(item, index) in msgList" :key="item.messageId || index">
+							<view class="msg_item" :class="{'right': item.direction == 'out'}"
+								:id="'msg_' + (item.messageId || index)" v-if="!item.isRevoke">
+								<!-- 头像 -->
+								<image class="avatar" :src="item.fromUserInfo?.avatarUrl" mode="aspectFill"
+									v-if="!item.isRevoke"></image>
+								<view :class="item.direction == 'out' ? 'msg_right' : 'msg_left'">
+									<!-- 图片消息 -->
+									<image @click="previewImage(item.body.originalUrl)"
+										:style="'width:' + item.body.thumbnailWidth + 'rpx;height:' + item.body.thumbnailHeight + 'rpx;max-width: 470rpx'"
+										:src="item.body.thumbnailUrl" mode="" v-if="item.type == 'image'">
+									</image>
+									<view v-html="item.body.tips || item.body.text" v-else></view>
+								</view>
 							</view>
-						</view>
+						</template>
 						<!-- 锚点 -->
 						<view id="bottomAnchor" style="height: 1px;"></view>
 					</scroll-view>
@@ -319,6 +322,7 @@
 						this.avatarUrl = lastOutItem ? lastOutItem.fromUserInfo.avatarUrl : '';
 						if (res.code == 200) {
 							this.msgList = res.data.list
+							console.log(this.msgList)
 							this.nextMessageId = res.data.nextMessageId
 							if (this.autoScroll) {
 								this.$nextTick(() => {
@@ -396,6 +400,15 @@
 			// 新消息
 			this.$yeIM.getInstance().addEventListener(this.$yeIMDefines.EVENT.MESSAGE_RECEIVED, (res) => {
 				this.onMessageReceived(res)
+			});
+			// 撤回消息监听
+			this.$yeIM.getInstance().addEventListener(this.$yeIMDefines.EVENT.MESSAGE_REVOKED, (res) => {
+				Object.keys(localStorage).forEach(key => {
+					if (key.startsWith('yeim:messageList:')) {
+						uni.removeStorageSync(key)
+						this.getMsgList()
+					}
+				});
 			});
 		},
 		onUnload() {
