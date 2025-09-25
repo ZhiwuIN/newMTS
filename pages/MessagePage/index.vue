@@ -89,8 +89,6 @@
 		},
 		data() {
 			return {
-				url: 'http://13.245.95.135:8888',
-				// url: 'http://192.168.2.35:8080',
 				friendList: [],
 				msgList: [],
 				page: {
@@ -111,6 +109,33 @@
 		},
 		onShow() {
 			this.getUserInfo()
+			// 撤回消息监听
+			this.$yeIM.getInstance().addEventListener(this.$yeIMDefines.EVENT.MESSAGE_REVOKED, (res) => {
+				this.$yeIM.getInstance().disConnect();
+
+				setTimeout(() => {
+					try {
+						// 1. 使用 uni 跨端 API 获取所有存储键名（替代浏览器的 localStorage）
+						const storageInfo = uni.getStorageInfoSync();
+						const allKeys = storageInfo.keys; // 所有存储键的数组
+
+						// 2. 遍历筛选出以 "yeim:messageList:" 开头的键
+						allKeys.forEach(key => {
+							if (key.startsWith('yeim:messageList:')) {
+								uni.removeStorageSync(key); // 3. 删除目标缓存（跨端方法）
+							}
+						});
+
+						// 4. 延迟调用 getMsgList()，确保缓存删除完成（避免时机过短）
+						setTimeout(() => {
+							this.getNotice();
+						}, 300);
+					} catch (err) {
+						// 捕获存储操作异常（如权限问题）
+						console.error('删除撤回消息缓存失败:', err);
+					}
+				}, 100)
+			});
 		},
 		methods: {
 			// 下拉刷新

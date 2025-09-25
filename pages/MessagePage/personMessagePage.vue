@@ -401,19 +401,34 @@
 			this.$yeIM.getInstance().addEventListener(this.$yeIMDefines.EVENT.MESSAGE_RECEIVED, (res) => {
 				this.onMessageReceived(res)
 			});
-			// 撤回消息监听
+			// 撤回消息监听（修复后：跨端支持 App/小程序/浏览器）
 			this.$yeIM.getInstance().addEventListener(this.$yeIMDefines.EVENT.MESSAGE_REVOKED, (res) => {
-				Object.keys(localStorage).forEach(key => {
-					if (key.startsWith('yeim:messageList:')) {
-						uni.removeStorageSync(key)
-						this.getMsgList()
-					}
-				});
+				try {
+					// 1. 使用 uni 跨端 API 获取所有存储键名（替代浏览器的 localStorage）
+					const storageInfo = uni.getStorageInfoSync();
+					const allKeys = storageInfo.keys; // 所有存储键的数组
+
+					// 2. 遍历筛选出以 "yeim:messageList:" 开头的键
+					allKeys.forEach(key => {
+						if (key.startsWith('yeim:messageList:')) {
+							uni.removeStorageSync(key); // 3. 删除目标缓存（跨端方法）
+						}
+					});
+
+					// 4. 延迟调用 getMsgList()，确保缓存删除完成（避免时机过短）
+					setTimeout(() => {
+						this.getMsgList();
+					}, 300);
+				} catch (err) {
+					// 捕获存储操作异常（如权限问题）
+					console.error('删除撤回消息缓存失败:', err);
+				}
 			});
 		},
 		onUnload() {
 			// console.log('离开页面')
 			this.$yeIM.getInstance().removeEventListener(this.$yeIMDefines.EVENT.MESSAGE_RECEIVED);
+			this.$yeIM.getInstance().removeEventListener(this.$yeIMDefines.EVENT.MESSAGE_REVOKED);
 		},
 		onShow() {
 
