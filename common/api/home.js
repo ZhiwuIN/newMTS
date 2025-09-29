@@ -209,3 +209,11 @@ export function versionApi() {
 		method: 'get',
 	})
 }
+
+// 顶部消息通知
+export function messageNoticeApi() {
+	return request({
+		url: '/app/message/notice',
+		method: 'get',
+	})
+}

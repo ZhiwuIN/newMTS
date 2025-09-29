@@ -194,14 +194,20 @@
 				</view>
 			</view>
 		</uni-popup>
+
+
+		<messagePopup v-model:isShow="isShowMessage" :data="msgData" @getMessageNoticeApi="getMessageNoticeApi">
+		</messagePopup>
 	</view>
 </template>
 
 <script>
 	import customnavbar from '@/component/custom-navbar/custom-navbar.vue';
+	import messagePopup from '@/component/message-popup/message-popup.vue';
 	import {
 		companyInfoApi,
-		slideListApi
+		slideListApi,
+		messageNoticeApi
 	} from "@/common/api/home.js";
 	import {
 		userInfoApi,
@@ -214,13 +220,14 @@
 	} from "@/utils/utils.js"
 	export default {
 		components: {
-			customnavbar
+			customnavbar,
+			messagePopup
 		},
 		data() {
 			return {
-				url: 'http://13.245.95.135:8888',
-				// url: 'http://192.168.2.35:8080',
-				content1: ['xxx成功提现2000余额', '恭喜xxx抽中4000奖励'],
+				msgData: {},
+				isShowMessage: false,
+				content1: [],
 				currency: '',
 				topStyle: '',
 				swiperList: [],
@@ -232,6 +239,14 @@
 			}
 		},
 		methods: {
+			getMessageNoticeApi() {
+				messageNoticeApi().then(res => {
+					if (res.data?.id) {
+						this.msgData = res.data
+						this.isShowMessage = true
+					}
+				})
+			},
 			handleMessage(event) {
 				console.log('Message from web:', event.detail.data);
 			},
@@ -402,7 +417,7 @@
 			this.getUserInfo()
 			this.getSlideListApi()
 			this.noticeList = uni.getStorageSync('settings').noticeList
-			// uni.setTabBarBadge({index: 2})
+			this.getMessageNoticeApi()
 		},
 		mounted() {
 			this.getSettings()

@@ -51,10 +51,10 @@ import {
 	YeIMUniSDKDefines // 预定义常量
 } from './uni_modules/wzJun1-YeIM-Uni-SDK/js_sdk/yeim-uni-sdk.min.js'
 YeIMUniSDK.init({
-	baseURL: 'http://192.168.2.35:10010', // YeIMServer http url （如无特殊需求，服务端启动后仅需修改ip或者域名即可）
-	socketURL: 'ws://192.168.2.35:10010/im', // YeIMServer socket url（如无特殊需求，服务端启动后仅需修改ip或者域名即可）
-	// baseURL: 'https://im.cwpc.cc', // YeIMServer http url （如无特殊需求，服务端启动后仅需修改ip或者域名即可）
-	// socketURL: 'wss://im.cwpc.cc/im', // YeIMServer socket url（如无特殊需求，服务端启动后仅需修改ip或者域名即可）
+	// baseURL: 'http://192.168.2.35:10010', // YeIMServer http url （如无特殊需求，服务端启动后仅需修改ip或者域名即可）
+	// socketURL: 'ws://192.168.2.35:10010/im', // YeIMServer socket url（如无特殊需求，服务端启动后仅需修改ip或者域名即可）
+	baseURL: 'https://im.cwpc.cc', // YeIMServer http url （如无特殊需求，服务端启动后仅需修改ip或者域名即可）
+	socketURL: 'wss://im.cwpc.cc/im', // YeIMServer socket url（如无特殊需求，服务端启动后仅需修改ip或者域名即可）
 	logLevel: 0, // SDK日志等级，0 = 打印全部日志， 1 = 打印重要日志，2 = 不打印日志
 	reConnectInterval: 3000, // 断线重连时间间隔（遇到网络波动，IM服务端可能会断线，此时需要重新连接到服务端），单位：毫秒
 	reConnectTotal: 0, // 最大重连次数，0不限制一直重连 
@@ -92,10 +92,10 @@ import {
 	YeIMUniSDKDefines // 预定义常量
 } from './uni_modules/wzJun1-YeIM-Uni-SDK/js_sdk/yeim-uni-sdk.min.js'
 YeIMUniSDK.init({
-	baseURL: 'http://192.168.2.35:10010', // YeIMServer http url （如无特殊需求，服务端启动后仅需修改ip或者域名即可）
-	socketURL: 'ws://192.168.2.35:10010/im', // YeIMServer socket url（如无特殊需求，服务端启动后仅需修改ip或者域名即可）
-	// baseURL: 'https://im.cwpc.cc', // YeIMServer http url （如无特殊需求，服务端启动后仅需修改ip或者域名即可）
-	// socketURL: 'wss://im.cwpc.cc/im', // YeIMServer socket url（如无特殊需求，服务端启动后仅需修改ip或者域名即可）
+	// baseURL: 'http://192.168.2.35:10010', // YeIMServer http url （如无特殊需求，服务端启动后仅需修改ip或者域名即可）
+	// socketURL: 'ws://192.168.2.35:10010/im', // YeIMServer socket url（如无特殊需求，服务端启动后仅需修改ip或者域名即可）
+	baseURL: 'https://im.cwpc.cc', // YeIMServer http url （如无特殊需求，服务端启动后仅需修改ip或者域名即可）
+	socketURL: 'wss://im.cwpc.cc/im', // YeIMServer socket url（如无特殊需求，服务端启动后仅需修改ip或者域名即可）
 	logLevel: 1, // SDK日志等级，0 = 打印全部日志， 1 = 打印重要日志，2 = 不打印日志
 	reConnectInterval: 3000, // 断线重连时间间隔（遇到网络波动，IM服务端可能会断线，此时需要重新连接到服务端），单位：毫秒
 	reConnectTotal: 0, // 最大重连次数，0不限制一直重连 
