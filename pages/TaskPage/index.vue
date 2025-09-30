@@ -39,6 +39,18 @@
 				</keep-alive>
 			</view>
 		</view>
+
+		<uni-popup ref="promptpopup" type="center">
+			<view class="prompt_pop_page">
+				<view class="prompt_pop_top">{{$t('home.Prompt')}}</view>
+				<view class="prompt_pop_taps">{{$t('请先实名')}}</view>
+				<view class="prompt_pop_bottom">
+					<button class="prompt_cancel_btn" @click="prompt_cancel">{{$t('pay.no')}}</button>
+					<button class="prompt_confirm_btn" @click="prompt_confirm">{{$t('pay.yes')}}</button>
+				</view>
+			</view>
+		</uni-popup>
+
 	</customnavbar>
 </template>
 
@@ -127,6 +139,15 @@
 			uni.setStorageSync('taskListScrollTop', this.scrollTop);
 		},
 		methods: {
+			prompt_confirm() {
+				this.$refs.promptpopup.close()
+				uni.navigateTo({
+					url: '/pages/MinePage/identity'
+				})
+			},
+			prompt_cancel() {
+				this.$refs.promptpopup.close()
+			},
 			onPageScroll(e) {
 				this.scrollTop = e.scrollTop;
 			},
@@ -237,6 +258,10 @@
 				});
 			},
 			startTask(e) {
+				if (!this.userInfo.realName) {
+					this.$refs.promptpopup.open()
+					return
+				}
 				if (this.userInfo.levelCode == '0' && this.isOverFourDays(this.userInfo.registerTime)) {
 					this.$showMessage('warning', this.$t('实习期结束'));
 					return;
@@ -345,6 +370,69 @@
 		.custom-waterfalls {
 			// flex: 1; // 让瀑布流容器占满剩余空间
 			width: 100%;
+		}
+	}
+
+	.prompt_pop_page {
+		width: 570rpx;
+		background: #FFFFFF;
+		border-radius: 28rpx;
+		padding: 40rpx 54rpx 28rpx 54rpx;
+
+		.prompt_pop_top {
+			font-family: "DINPro-Medium", sans-serif;
+			font-weight: 500;
+			font-size: 32rpx;
+			color: #000000;
+			line-height: 42rpx;
+			text-align: center;
+			font-style: normal;
+		}
+
+		.prompt_pop_taps {
+			font-family: "DINPro-Regular", sans-serif;
+			font-weight: 400;
+			font-size: 28rpx;
+			color: #1C2D57;
+			line-height: 36rpx;
+			text-align: center;
+			font-style: normal;
+			margin-top: 40rpx;
+		}
+
+		.prompt_pop_bottom {
+			display: flex;
+			margin-top: 54rpx;
+		}
+
+		.prompt_cancel_btn {
+			width: 212rpx;
+			height: 72rpx;
+			background: #EBEBEB;
+			border-radius: 16rpx;
+			font-family: "DINPro-Medium", sans-serif;
+			font-weight: 500;
+			font-size: 32rpx;
+			color: #000000;
+			line-height: 72rpx;
+			text-align: center;
+			font-style: normal;
+		}
+
+		.prompt_confirm_btn {
+			width: 212rpx;
+			height: 72rpx;
+			background: $themeColor;
+			box-shadow: 0rpx 4rpx 16rpx 0rpx #B2C8FB;
+			border-radius: 16rpx;
+			font-family: "DINPro-Black", sans-serif;
+			font-family: DINPro, DINPro;
+			font-weight: 500;
+			font-size: 32rpx;
+			color: #FFFFFF;
+			line-height: 72rpx;
+			text-align: center;
+			font-style: normal;
 		}
 	}
 </style>

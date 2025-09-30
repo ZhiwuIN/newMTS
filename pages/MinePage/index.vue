@@ -69,7 +69,7 @@
 						<view class="btn deposit" @click="toPage2('/pages/HomePage/RechargeChannel')">
 							{{$t('mine.Deposit')}}
 						</view>
-						<view class="btn withdraw" @click="toPage('/pages/MinePage/withdrawal')">
+						<view class="btn withdraw" @click="toPage2('/pages/MinePage/withdrawal')">
 							{{$t('mine.Withdrawal')}}
 						</view>
 					</view>
@@ -112,7 +112,7 @@
 							<image src="/static/mine/Privacy Policy.png"></image>
 							<text>{{splitText($t('mine.PrivacyPolicy'))}}</text>
 						</view>
-						<view class="function-item" @click="toPage('/pages/MinePage/ElectronicContract')">
+						<view class="function-item" @click="toPage2('/pages/MinePage/ElectronicContract')">
 							<image src="/static/mine/Electronic Contract.svg"></image>
 							<text>{{splitText($t('mine.ElectronicContract'))}}</text>
 						</view>
@@ -151,9 +151,6 @@
 		},
 		data() {
 			return {
-				url: 'http://13.245.95.135:8888',
-
-				// url: 'http://192.168.2.35:8080',
 				topStyle: 0,
 				userInfo: {}
 			}
@@ -181,10 +178,10 @@
 		},
 		methods: {
 			toPage2(path) {
-				// if (!this.userInfo.realName) {
-				// 	this.$refs.promptpopup.open()
-				// 	return
-				// }
+				if (!this.userInfo.realName) {
+					this.$refs.promptpopup.open()
+					return
+				}
 				uni.navigateTo({
 					url: path
 				})

@@ -118,7 +118,8 @@
 			},
 			handleSubmit() {
 				let userInfo = uni.getStorageSync('userInfo')
-				if (!this.formData.realName && userInfo.realName != 'African User') {
+				this.formData.realName = this.formData.realName.trim()
+				if (!this.formData.realName) {
 					this.$showMessage('warning', this.$t('identity.placeholder1'));
 					return
 				}
@@ -142,7 +143,12 @@
 				// 	this.$showMessage('warning', this.$t('identity.placeholder'));
 				// 	return
 				// }
-				this.formData.realName = this.formData.realName.trim()
+				if(!this.formData.realName) {
+					if (!this.validatePhoneFormat()) {
+						this.$showMessage('warning', this.$t('login.invalidGhanaPhone'))
+						return
+					}
+				}
 				this.formData.email = this.formData.email.trim()
 				let params = {
 					"address": this.formData.address,
@@ -151,10 +157,6 @@
 					"nationality": this.formData.nationality,
 					'email': this.formData.email,
 					"realName": this.formData.realName
-				}
-
-				if (!this.formData.realName && userInfo.realName == 'African User') {
-					params.realName = 'African User'
 				}
 
 				changeUserInfoApi(params).then((res) => {
@@ -166,10 +168,6 @@
 				}).catch((err) => {
 					console.log('request fail', err);
 					this.$showMessage('warning', err.msg);
-					// uni.showToast({
-					// 	title: err.msg,
-					// 	icon: 'none'
-					// })
 				})
 			},
 			validatePhoneFormat() {

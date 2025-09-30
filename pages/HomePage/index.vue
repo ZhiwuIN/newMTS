@@ -329,10 +329,10 @@
 				})
 			},
 			toPage(path) {
-				// if (path == '/pages/HomePage/RechargeChannel' && !this.userInfo.realName) {
-				// 	this.$refs.promptpopup.open()
-				// 	return
-				// }
+				if (path == '/pages/HomePage/RechargeChannel' && !this.userInfo.realName) {
+					this.$refs.promptpopup.open()
+					return
+				}
 				uni.navigateTo({
 					url: path
 				})
@@ -406,6 +406,10 @@
 				})
 			},
 			toWithdrawal() {
+				if (!this.userInfo.realName) {
+					this.$refs.promptpopup.open()
+					return
+				}
 				uni.navigateTo({
 					url: '/pages/MinePage/withdrawal'
 				})
