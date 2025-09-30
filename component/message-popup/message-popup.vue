@@ -1,13 +1,15 @@
 <template>
 	<view class="message-popup_box" :class="{'conceal': !isShow}" @click="info(data?.id)">
-		<!-- 图标 -->
-		<view>
-			<image class="remind" src="/static/message-popup/remind.png" mode=""></image>
-		</view>
-		<!-- 主要内容 -->
-		<view class="main">
-			<view>{{data?.title}}</view>
-			<view>{{data?.content}}</view>
+		<view style="display: flex;">
+			<!-- 图标 -->
+			<view>
+				<image class="remind" src="/static/message-popup/remind.png" mode=""></image>
+			</view>
+			<!-- 主要内容 -->
+			<view class="main">
+				<view>{{data?.title}}</view>
+				<view>{{data?.content}}</view>
+			</view>
 		</view>
 		<!-- 关闭按钮 -->
 		<view @click.stop="close(data?.id)">
@@ -63,7 +65,12 @@
 	.message-popup_box {
 		box-sizing: border-box;
 		position: fixed;
+		// #ifdef H5
 		top: 22rpx;
+		// #endif
+		// #ifdef APP-PLUS
+		top: 5%;
+		// #endif
 		left: 50%;
 		transform: translateX(-50%);
 		display: flex;
@@ -80,10 +87,12 @@
 		}
 
 		.main {
-			flex: 1;
+			max-width: 540rpx;
+			// flex: 1;
 			font-family: "DINPro-Medium", sans-serif;
 			font-size: 28rpx;
 			line-height: 40rpx;
+			overflow-wrap: break-word;
 		}
 
 		.remind {

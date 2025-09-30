@@ -36,7 +36,6 @@ export function formatRichText(html) {
 				let srcUrl;
 				if (/^https?:\/\//i.test(srcValue)) {
 					srcUrl = new URL(srcValue);
-					// 如果域名不是baseUrl，替换为baseUrl
 					if (
 						srcUrl.protocol !== base.protocol ||
 						srcUrl.host !== base.host ||
@@ -47,16 +46,16 @@ export function formatRichText(html) {
 							srcUrl.search || '') + (srcUrl.hash || '');
 					}
 				} else if (srcValue.startsWith('/')) {
-					newSrc = baseUrl + srcValue;
+					newSrc = srcValue;
 				} else {
-					newSrc = baseUrl + '/' + srcValue;
+					newSrc = srcValue;
 				}
 			} catch (e) {
 				// fallback: 直接拼接
 				if (srcValue.startsWith('/')) {
-					newSrc = baseUrl + srcValue;
+					newSrc = srcValue;
 				} else {
-					newSrc = baseUrl + '/' + srcValue;
+					newSrc = srcValue;
 				}
 			}
 			return `src=${quote}${newSrc}${quote}`;
@@ -74,7 +73,7 @@ export function formatRichText(html) {
 	});
 
 	// 去掉<br/>标签
-	newContent = newContent.replace(/<br\s*\/?>/gi, '');
+	// newContent = newContent.replace(/<br\s*\/?>/gi, '');
 	return newContent;
 }
 

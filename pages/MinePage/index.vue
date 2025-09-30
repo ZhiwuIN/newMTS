@@ -112,6 +112,10 @@
 							<image src="/static/mine/Privacy Policy.png"></image>
 							<text>{{splitText($t('mine.PrivacyPolicy'))}}</text>
 						</view>
+						<view class="function-item" @click="toPage('/pages/MinePage/ElectronicContract')">
+							<image src="/static/mine/Electronic Contract.svg"></image>
+							<text>{{splitText($t('mine.ElectronicContract'))}}</text>
+						</view>
 						<!-- #ifdef H5 -->
 						<view class="function-item" @click="onDownload()">
 							<image src="/static/mine/APP Download.png"></image>

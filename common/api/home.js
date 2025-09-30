@@ -217,3 +217,11 @@ export function messageNoticeApi() {
 		method: 'get',
 	})
 }
+
+// 电子合同
+export function contractAllApi() {
+	return request({
+		url: '/contract/getContractAll',
+		method: 'get',
+	})
+}
