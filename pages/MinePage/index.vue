@@ -56,11 +56,13 @@
 						</view>
 						<view style="grid-template-columns: repeat(2, 1fr);padding: 0 48rpx;" class="money-grid">
 							<view class="money-item">
-								<view class="amount">{{userInfo.depositAmount || '0'}}</view>
+								<view class="amount" v-if="userInfo.levelCode == '0'">{{'0'}}</view>
+								<view class="amount" v-else>{{userInfo.depositAmount || '0'}}</view>
 								<view class="label"><text>{{splitText($t('保证金'))}}</text></view>
 							</view>
 							<view class="money-item" style="transform: translateX(-6rpx);">
-								<view class="amount">{{userInfo.firstPurchaseLevelDate || '--'}}</view>
+								<view class="amount" v-if="userInfo.levelCode == '0'">{{'--'}}</view>
+								<view class="amount" v-else>{{userInfo.firstPurchaseLevelDate || '--'}}</view>
 								<view class="label"><text>{{$t('第一次购买等级日期')}}</text></view>
 							</view>
 						</view>

@@ -42,10 +42,10 @@
 							placeholder-style="color: #E4E4E4;font-size: 28rpx;font-weight: 500;" />
 						<text class="clear" @tap="clearWithdrawAmount" v-if="withdrawAmount">×</text>
 					</view>
-					<view class="step2-t2"
+					<!-- <view class="step2-t2"
 						v-if="customizedAmountList.length && userInfo.levelCode == '0' && withdrawalInfo.balance < withdrawalInfo.limitAmount">
 						{{$t('余额达到才可输入') + withdrawalInfo.limitAmount}}{{withdrawalInfo.currency}}
-					</view>
+					</view> -->
 					<view class="step2-t2" v-if="customizedAmountList.length">
 						{{$t('Deposit.balance')}}{{withdrawalInfo.balance}}{{withdrawalInfo.currency}}
 					</view>
