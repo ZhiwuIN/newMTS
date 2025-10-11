@@ -475,5 +475,13 @@
 	"请遵循正确的提现规则": "Please follow the correct withdrawal rules",
 	"保证金": "Work Deposit",
 	"第一次购买等级日期": "First Purchase \n Date of Level",
-	"recalled a message": "The other party has recalled a message"
+	"recalled a message": "The other party has recalled a message",
+	"home.TodaySalary": "Today's salary",
+	"home.received": "Received",
+	"home.get": "Get",
+	"home.receivedSuccessfully": "Received successfully!",
+	"home.alreadyReceived": "Today, it has been collected.",
+	"pages.contractSigning": "Contract Signing",
+	"identity.idCard": "Identity Card",
+	"identity.placeholderIdCard": "Please enter your identity card"
 }

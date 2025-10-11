@@ -14,7 +14,7 @@
 							<view class="avatar_container">
 								<view class="avatar_box">
 									<image :src="userInfo.avatar ?  userInfo.avatar : '/static/default-avatar.png'"
-										mode="aspectFill" alt="" class="avatar_img" />
+										alt="" class="avatar_img" />
 								</view>
 								<view class="level_box">
 									<image src="/static/home/level.svg" mode="" class="level_img"></image>
@@ -35,7 +35,20 @@
 							</view>
 						</view>
 					</view>
-
+				</view>
+				<!-- 每日工资提取 -->
+				<view class="home_salary_box">
+					<image src="/static/home/darller.png" mode="" class="home_salary_box_img"></image>
+					<view class="home_salary_box_v_c">
+						<text class="home_salary_box_v_c_t" v-if="userInfo.position" >{{$t('home.TodaySalary')}} : {{todaySalary}} {{ currency }}</text>
+						<text class="home_salary_box_v_c_t" v-else >{{$t('home.getPositions')}}</text>
+					</view>
+					<view @tap="onGetDailyWage" class="home_salary_box_r_btn">
+						<image
+							:src="(userInfo.position && !salaryIsGet) ? icon.get : (userInfo.position ? icon.already : icon.arrow)"
+							mode="" class="home_salary_box_img"></image>
+						<text> {{ salaryIsGet ? $t("home.received") : "" }}</text>
+					</view>
 				</view>
 				<view class="home_center_box">
 					<view class="center_item_box">
@@ -194,40 +207,39 @@
 				</view>
 			</view>
 		</uni-popup>
-
-
-		<messagePopup v-model:isShow="isShowMessage" :data="msgData" @getMessageNoticeApi="getMessageNoticeApi">
-		</messagePopup>
 	</view>
 </template>
 
 <script>
+	import getIcon from '/static/home/get.png';
+	import alreadyIcon from '/static/home/already.png';
+	import arrowIcon from '/static/home/arrowright.png';
 	import customnavbar from '@/component/custom-navbar/custom-navbar.vue';
-	import messagePopup from '@/component/message-popup/message-popup.vue';
 	import {
 		companyInfoApi,
-		slideListApi,
-		messageNoticeApi
+		slideListApi
 	} from "@/common/api/home.js";
 	import {
 		userInfoApi,
 		settingsApi
 	} from "@/common/api/users.js";
-
+	import {
+		withdrawalSalaryApi
+	} from '@/common/api/withdrawal.js'
 	import {
 		formatRichText,
-		getFirstTextTagWithEllipsis
+		getFirstTextTagWithEllipsis,
+		showMessage
 	} from "@/utils/utils.js"
 	export default {
 		components: {
-			customnavbar,
-			messagePopup
+			customnavbar
 		},
 		data() {
 			return {
-				msgData: {},
-				isShowMessage: false,
-				content1: [],
+				url: 'http://13.245.95.135:8888',
+				// url: 'http://192.168.2.35:8080',
+				content1: ['xxx成功提现2000余额', '恭喜xxx抽中4000奖励'],
 				currency: '',
 				topStyle: '',
 				swiperList: [],
@@ -235,16 +247,45 @@
 				currentSwiperi: 0,
 				userInfo: {},
 				noticeList: [],
-				userType: 'test'
+				userType: 'test',
+				icon: {
+					get: getIcon,
+					already: alreadyIcon,
+					arrow: arrowIcon,
+				},
+				todaySalary: "",
+				salaryIsGet: false
 			}
 		},
 		methods: {
-			getMessageNoticeApi() {
-				messageNoticeApi().then(res => {
-					if (res.data?.id) {
-						this.msgData = res.data
-						this.isShowMessage = true
+			onGetDailyWage() {
+				if(!this.userInfo.position){
+					uni.navigateTo({
+						url: '/pages/HomePage/postManage'
+					})
+					return
+				}
+				if(!this.todaySalary){
+					this.$showMessage('warning', this.$t("home.unableClaim"))
+					return
+				}
+				withdrawalSalaryApi(1).then(res => {
+					this.salaryIsGet = res.data.whetherToReceive ? true : false;
+					if (res.data.whetherToReceive) {
+						this.$showMessage('warning', this.$t("home.alreadyReceived"))
+						return
 					}
+					this.$showMessage('warning',this.$t("receivedSuccessfully"))
+				}).catch(e => {
+					this.$showMessage('warning', err.msg);
+				})
+			},
+			getTadaySalary() {
+				withdrawalSalaryApi().then(res => {
+					this.todaySalary = res.data.todayAmount
+					this.salaryIsGet = res.data.whetherToReceive ? true : false;
+				}).catch(e => {
+					this.$showMessage('warning', err.msg);
 				})
 			},
 			handleMessage(event) {
@@ -329,10 +370,10 @@
 				})
 			},
 			toPage(path) {
-				if (path == '/pages/HomePage/RechargeChannel' && !this.userInfo.realName) {
-					this.$refs.promptpopup.open()
-					return
-				}
+				// if (path == '/pages/HomePage/RechargeChannel' && !this.userInfo.realName) {
+				// 	this.$refs.promptpopup.open()
+				// 	return
+				// }
 				uni.navigateTo({
 					url: path
 				})
@@ -406,10 +447,6 @@
 				})
 			},
 			toWithdrawal() {
-				if (!this.userInfo.realName) {
-					this.$refs.promptpopup.open()
-					return
-				}
 				uni.navigateTo({
 					url: '/pages/MinePage/withdrawal'
 				})
@@ -421,7 +458,8 @@
 			this.getUserInfo()
 			this.getSlideListApi()
 			this.noticeList = uni.getStorageSync('settings').noticeList
-			this.getMessageNoticeApi()
+			// uni.setTabBarBadge({index: 2})
+			this.getTadaySalary()
 		},
 		mounted() {
 			this.getSettings()
@@ -431,6 +469,48 @@
 </script>
 
 <style lang="scss" scoped>
+	.home_salary_box {
+		width: 650rpx;
+		margin: 40rpx auto;
+		padding: 20rpx 0rpx;
+		background: rgb(23, 94, 183);
+		background: linear-gradient(90deg, rgba(23, 94, 183, 1) 0%, rgba(40, 112, 204, 1) 56%, rgba(54, 133, 227, 1) 100%);
+		border-radius: 20rpx;
+		display: flex;
+		justify-content: space-around;
+		align-items: center;
+		color: white;
+
+		.home_salary_box_img {
+			width: 80rpx;
+			height: 80rpx;
+		}
+
+		.home_salary_box_v_c {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+
+			.home_salary_box_v_c_t {
+				line-height: 100rpx;
+				font-family: "DINPro-Medium", sans-serif;
+				font-weight: 300;
+				font-size: 32rpx;
+			}
+		}
+
+		.home_salary_box_r_btn {
+			display: flex;
+			align-items: center;
+			flex-direction: column;
+			justify-content: center;
+			font-family: "DINPro-Medium", sans-serif;
+			font-size: 20rpx;
+			font-weight: 200;
+			line-height: 42rpx;
+		}
+	}
+
 	.prompt_pop_page {
 		width: 570rpx;
 		background: #FFFFFF;

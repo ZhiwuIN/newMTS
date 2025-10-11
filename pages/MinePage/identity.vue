@@ -7,6 +7,11 @@
 					<input v-model="formData.realName" :placeholder="$t('identity.placeholder1')"
 						placeholder-style="color: #E4E4E4;font-size: 28rpx;font-weight: 500;" />
 				</view>
+				<view class="identity_set_t1" style="margin-top: 50rpx;">{{$t('identity.idCard')}}</view>
+				<view class="identity_set_input">
+					<input v-model="formData.idCard" type="number" maxlength="13" :placeholder="$t('identity.placeholderIdCard')"
+						placeholder-style="color: #E4E4E4;font-size: 28rpx;font-weight: 500;" />
+				</view>
 				<view style="display: flex;align-items: center; margin-top: 76rpx;">
 					<view class="identity_set_t1">
 						{{$t('identity.Gender')}}
@@ -39,7 +44,7 @@
 							:clear="false"></uni-data-select>
 					</view>
 				</view>
-				<!-- <view class="identity_set_input">
+			<!-- 	<view class="identity_set_input">
 					<input v-model="formData.nationality" :placeholder="$t('identity.placeholder')"
 						placeholder-style="color: #E4E4E4;font-size: 28rpx;font-weight: 500;" />
 				</view> -->
@@ -77,7 +82,8 @@
 					phone: '',
 					nationality: '',
 					email: '',
-					address: ''
+					address: '',
+					idCard: '',
 				},
 				nationalityValue: 0,
 				nationalityList: [{
@@ -100,7 +106,8 @@
 				phone: userInfo.phone,
 				nationality: userInfo.nationality,
 				email: userInfo.email,
-				address: userInfo.address
+				address: userInfo.address,
+				idCard: userInfo.idCard,
 			}
 			if (this.formData.realName == 'African User') {
 				this.formData.realName = ''
@@ -118,8 +125,7 @@
 			},
 			handleSubmit() {
 				let userInfo = uni.getStorageSync('userInfo')
-				this.formData.realName = this.formData.realName.trim()
-				if (!this.formData.realName) {
+				if (!this.formData.realName && userInfo.realName != 'African User') {
 					this.$showMessage('warning', this.$t('identity.placeholder1'));
 					return
 				}
@@ -135,6 +141,10 @@
 					this.$showMessage('warning', this.$t('请选择') + ' ' + this.$t('identity.Nationality'));
 					return
 				}
+				if(!this.formData.idCard){
+					this.$showMessage('warning', this.$t('identity.placeholderIdCard'));
+					return
+				}
 				// if (!this.formData.email) {
 				// 	this.$showMessage('warning', this.$t('请输入邮箱'));
 				// 	return
@@ -143,20 +153,20 @@
 				// 	this.$showMessage('warning', this.$t('identity.placeholder'));
 				// 	return
 				// }
-				if(!this.formData.realName) {
-					if (!this.validatePhoneFormat()) {
-						this.$showMessage('warning', this.$t('login.invalidGhanaPhone'))
-						return
-					}
-				}
-				this.formData.email = this.formData.email.trim()
+				this.formData.realName = this.formData.realName?.trim()
+				this.formData.email = this.formData.email?.trim()
 				let params = {
 					"address": this.formData.address,
 					"gender": this.formData.gender,
 					"phone": this.formData.phone,
 					"nationality": this.formData.nationality,
 					'email': this.formData.email,
-					"realName": this.formData.realName
+					"realName": this.formData.realName,
+					"idCard": this.formData.idCard,
+				}
+
+				if (!this.formData.realName && userInfo.realName == 'African User') {
+					params.realName = 'African User'
 				}
 
 				changeUserInfoApi(params).then((res) => {
@@ -168,6 +178,10 @@
 				}).catch((err) => {
 					console.log('request fail', err);
 					this.$showMessage('warning', err.msg);
+					// uni.showToast({
+					// 	title: err.msg,
+					// 	icon: 'none'
+					// })
 				})
 			},
 			validatePhoneFormat() {

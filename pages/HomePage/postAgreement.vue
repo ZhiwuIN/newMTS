@@ -3,12 +3,16 @@
 		<customnavbar :title="$t('pages.postAgreement')" @mtop='mtop'>
 			<view class="agreement_page" :style="topStyle">
 				<view class="agreement_content" :style="contentStyle">
-					<rich-text :nodes="agreement" class="agreement_content_text">
-					</rich-text>
+		<!-- 			<rich-text :nodes="agreement" class="agreement_content_text">
+					</rich-text> -->
+					<scroll-view style="height: 100%; width: 100%;" scroll-y="true" direction="vertical" >
+						<view v-html="contract"></view>
+					</scroll-view>
 				</view>
-				<view class="agreement-apply-btn-box flex-center" v-if="agreement">
+				<view class="agreement-apply-btn-box flex-center" :style=" isScrollEnd ? '' : `opacity: 60%;` " v-if="contract" >
 					<view class="agreement-apply-btn" @click="handleAgree">
 						{{$t('post.agree')}}
+						<text v-if="this.num">{{this.num}}</text>
 					</view>
 				</view>
 			</view>
@@ -16,7 +20,7 @@
 		<uni-popup ref="popup" type="center" border-radius="10px 10px 0 0">
 			<view class="pop_page">
 				<view class="pop_top">{{$t('home.Prompt')}}</view>
-				<view class="pop_content">{{this.applyPrompt}}</view>
+				<!-- <view class="pop_content">{{this.applyPrompt}}</view> -->
 				<view class="pop_bottom">
 					<view class="pop_bottom_btn" @click="confirm2">{{$t('home.Postmanage')}}</view>
 					<view class="pop_bottom_btn" @click="confirm">{{$t('home.Sure')}}</view>
@@ -48,7 +52,10 @@
 				contentStyle: "",
 				details: {},
 				agreement: "",
-				applyPrompt: ""
+				applyPrompt: "",
+				contract: "",
+				isScrollEnd: false,
+				num: "10"
 			}
 		},
 		onLoad(options) {
@@ -57,6 +64,7 @@
 			});
 			positionDetailsApi(options.id).then((res) => {
 				this.details = res.data
+				this.contract = res.data.contract
 				// this.agreement = formatRichText(res.data.agreemet)
 				this.agreement = res.data.agreement
 			}).catch((err) => {
@@ -65,9 +73,21 @@
 			}).finally(() => {
 				uni.hideLoading();
 			})
+			if(this.num == 10){
+				let inter = setInterval(()=>{
+					this.num--
+				},1000)
+				setTimeout(()=>{
+					clearInterval(inter)
+					this.isScrollEnd = true
+				},10000)
+			}
 		},
 		methods: {
 			handleAgree() {
+				if (!this.isScrollEnd){
+					return
+				};
 				uni.showLoading({
 					title: this.$t('loading.btn')
 				});
@@ -88,6 +108,11 @@
 					uni.hideLoading();
 				})
 			},
+			// handleAgree() {
+			// 	uni.navigateTo({
+			// 		url: `/pages/HomePage/contractSigning?pid=${this.details.pid}`,
+			// 	})
+			// },
 			getUserInfo() {
 				userInfoApi().then((res) => {
 					uni.setStorageSync('userInfo', res.data)
@@ -110,7 +135,6 @@
 				this.contentStyle = "height:calc(100vh - " + (e + 204) + "rpx)"
 			}
 		},
-
 	}
 </script>
 

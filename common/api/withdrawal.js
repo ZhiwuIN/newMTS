@@ -1,7 +1,7 @@
 import request from './request.js'
 
 //修改提现密码
-export function withdrawalPasswordApi(params){
+export function withdrawalPasswordApi(params) {
 	return request({
 		url: '/app/withdrawal/password',
 		method: 'post',
@@ -10,7 +10,7 @@ export function withdrawalPasswordApi(params){
 }
 
 //银行列表
-export function bankListApi(){
+export function bankListApi() {
 	return request({
 		url: '/app/withdrawal/list',
 		method: 'get'
@@ -18,7 +18,7 @@ export function bankListApi(){
 }
 
 // 提现接口
-export function withdrawalApi(data){
+export function withdrawalApi(data) {
 	return request({
 		url: '/app/withdrawal',
 		method: 'post',
@@ -27,15 +27,24 @@ export function withdrawalApi(data){
 }
 
 // 提现接口
-export function withdrawalInfoApi(){
+export function withdrawalInfoApi() {
 	return request({
 		url: '/app/withdrawal',
 		method: 'get',
 	})
 }
 
+// 提取薪资
+export function withdrawalSalaryApi(type) {
+	return request({
+		url: `/app/withdrawal/salary${type ? '?type='+type : ''}`,
+		method: 'get',
+	})
+}
+
+
 // 提现手续费
-export function withdrawalFeeApi(data){
+export function withdrawalFeeApi(data) {
 	return request({
 		url: '/app/withdrawal/fee',
 		method: 'post',
@@ -43,7 +52,7 @@ export function withdrawalFeeApi(data){
 	})
 }
 // 提现自定义金额
-export function withdrawalCustomizedAmountApi(grade){
+export function withdrawalCustomizedAmountApi(grade) {
 	return request({
 		url: '/app/withdrawal/customized-amount/' + grade,
 		method: 'get'
@@ -51,7 +60,7 @@ export function withdrawalCustomizedAmountApi(grade){
 }
 
 // 系统银行
-export function withdrawalbankSysListApi(){
+export function withdrawalbankSysListApi() {
 	return request({
 		url: '/app/withdrawal/bank',
 		method: 'get'
@@ -59,7 +68,7 @@ export function withdrawalbankSysListApi(){
 }
 
 // 删除用户绑定银行
-export function withdrawalbankDelApi(id){
+export function withdrawalbankDelApi(id) {
 	return request({
 		url: '/app/withdrawal/' + id,
 		method: 'delete'
