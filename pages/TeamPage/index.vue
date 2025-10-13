@@ -177,9 +177,9 @@
 				}
 				teamMemberApi(type, this.page, params).then((res) => {
 					this.loading = false
-					if (this.page.pageNum == 1) this.memberList = res.rows || []
-					else this.memberList.concat(res.rows)
-					this.memberList = res.rows || []
+					if (this.page.pageNum == 1) this.memberList = res.data || []
+					else this.memberList.concat(res.data)
+					this.memberList = res.data || []
 					this.nodata = res.total == 0
 					this.hasMore = this.memberList.length != res.total
 				}).catch((err) => {

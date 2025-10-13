@@ -354,7 +354,7 @@
 				userInfoApi().then((res) => {
 					this.userInfo = res.data
 					this.userType = res.data.userType
-					if (res.data.housekeeper && res.data.housekeeper != 0) {
+					if (res.data.housekeeper == 1) {
 						this.isRestrictAccess = true
 					}
 					if (this.userInfo.hasMessage) {
@@ -470,7 +470,6 @@
 					url: '/pages/MinePage/withdrawal'
 				})
 			}
-
 		},
 		onShow() {
 			this.getCompanyInfo()

@@ -93,7 +93,7 @@
 					})
 					return
 				}
-				if  (this.userInfo.housekeeper && this.userInfo.housekeeper!=0 ) {
+				if  (this.userInfo.housekeeper == 1) {
 					this.isRestrictAccess = true 
 					this.$refs.promptpopup.open()
 				}

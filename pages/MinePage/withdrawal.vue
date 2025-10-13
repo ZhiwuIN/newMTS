@@ -180,8 +180,8 @@
 				this.$customizeBack()
 				return
 			}
-			this.getWithdrawalInfo()
 			this.getUserInfo()
+			this.getWithdrawalInfo()
 			this.minAmount = uni.getStorageSync('settings').minWithdrawal
 			this.maxAmount = uni.getStorageSync('settings').maxWithdrawal
 			this.actualCurrency = uni.getStorageSync('settings').actualCurrency
@@ -191,9 +191,8 @@
 			getUserInfo() {
 				userInfoApi().then((res) => {
 					this.userInfo = res.data
-					uni.setStorageSync('userInfo', res.data)
 					this.getCustomizedAmount(this.userInfo.levelCode)
-					if(res.data.housekeeper != 0){
+					if(res.data.housekeeper == 1){
 						this.isRestrictedAccess = true
 						this.failTips = this.$t("withdrawal.restrictedAccess")
 						this.$refs.promptpopup.open()
@@ -215,12 +214,12 @@
 				this.promptConfirm = ''
 				withdrawalInfoApi().then((res) => {
 					this.withdrawalInfo = res.data
-					if (!this.withdrawalInfo.existWithdrawalPassword  && !this.isRestrictedAccess) {
+					if (!this.withdrawalInfo.existWithdrawalPassword && !this.isRestrictedAccess ) {
 						this.failTips = this.$t('withdrawal.failTips1')
 						this.promptConfirm = 'toSetPwd'
 						this.$refs.promptpopup.open()
 					}
-					if (this.withdrawalInfo.banks.length == 0) {
+					if (this.withdrawalInfo.banks.length == 0 && !this.isRestrictedAccess) {
 						this.failTips = this.$t('withdrawal.failTips2')
 						this.promptConfirm = 'toAddBank'
 						this.$refs.promptpopup.open()

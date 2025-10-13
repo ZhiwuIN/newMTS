@@ -11,7 +11,7 @@ export function teamApi(params){
 //会员列表
 export function teamMemberApi(type,page,params){
 	return request({
-		url: '/app/team/'+type+'?pageNum='+page.pageNum+'&pageSize='+ page.pageSize,
+		url: '/app/teams/'+type+'?pageNum='+page.pageNum+'&pageSize='+ page.pageSize,
 		method: 'post',
 		data:params
 	})

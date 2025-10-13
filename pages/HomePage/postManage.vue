@@ -67,7 +67,7 @@
 			userInfoApi().then((res) => {
 				uni.setStorageSync('userInfo', res.data)
 				this.userInfo = res.data
-				if (res.data.housekeeper && res.data.housekeeper!=0) {
+				if (res.data.housekeeper == 1) {
 					this.isRestrictAccess = true
 					this.$refs.promptpopup.open()
 				}

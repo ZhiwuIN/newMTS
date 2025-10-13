@@ -5,11 +5,12 @@
 				<view class="agreement_content" :style="contentStyle">
 		<!-- 			<rich-text :nodes="agreement" class="agreement_content_text">
 					</rich-text> -->
-					<scroll-view style="height: 100%; width: 100%;" scroll-y="true" direction="vertical" >
+					<scroll-view v-if="contract != null && contract.trim().length != 0" style="height: 100%; width: 100%;" scroll-y="true" direction="vertical" >
 						<view v-html="contract"></view>
 					</scroll-view>
+					<listbottom :loading="dataStatus.loading" :hasMore="dataStatus.hasMore" :noData='dataStatus.noData' image="/static/default/No content.png"></listbottom>
 				</view>
-				<view class="agreement-apply-btn-box flex-center" :style=" isScrollEnd ? '' : `opacity: 60%;` " v-if="contract" >
+				<view class="agreement-apply-btn-box flex-center" :style=" isScrollEnd ? '' : `opacity: 60%;` " v-if="contract != null && contract.trim().length != 0" >
 					<view class="agreement-apply-btn" @click="handleAgree">
 						{{$t('post.agree')}}
 						<text v-if="this.num">{{this.num}}</text>
@@ -32,6 +33,7 @@
 
 <script>
 	import customnavbar from "@/component/custom-navbar/custom-navbar.vue"
+	import listbottom from '@/component/list-bottom/list_bottom.vue'
 	import {
 		positionDetailsApi,
 		positionApplyApi
@@ -44,7 +46,8 @@
 	} from "@/common/api/users.js";
 	export default {
 		components: {
-			customnavbar
+			customnavbar,
+			listbottom: listbottom
 		},
 		data() {
 			return {
@@ -55,22 +58,30 @@
 				applyPrompt: "",
 				contract: "",
 				isScrollEnd: false,
-				num: "10"
+				num: "10",
+				dataStatus: {
+					loading: false,
+					hasMore: true,
+					noData: false
+				}
 			}
 		},
 		onLoad(options) {
 			uni.showLoading({
 				title: this.$t('loading.btn')
 			});
+			this.dataStatus.loading = true
 			positionDetailsApi(options.id).then((res) => {
 				this.details = res.data
 				this.contract = res.data.contract
 				// this.agreement = formatRichText(res.data.agreemet)
 				this.agreement = res.data.agreement
+			    this.dataStatus.noData = 	res.data.contract ? false : true 
 			}).catch((err) => {
 				console.log('request fail', err);
 				this.$showMessage('warning', err.msg);
 			}).finally(() => {
+				this.dataStatus.loading = false
 				uni.hideLoading();
 			})
 			if(this.num == 10){
