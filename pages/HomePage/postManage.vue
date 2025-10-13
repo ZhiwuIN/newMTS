@@ -18,9 +18,17 @@
 					</view>
 				</view>
 			</view>
-
 		</view>
 	</customnavbar>
+	<uni-popup ref="promptpopup" type="center" :mask-click="false" >
+		<view class="prompt_pop_page">
+			<view class="prompt_pop_top">{{$t('home.Prompt')}}</view>
+			<view class="prompt_pop_taps" >{{this.$t("withdrawal.restrictedAccess")}}</view>
+			<view class="prompt_pop_bottom">
+				<button class="prompt_confirm_btn" @click="prompt_confirm">{{$t('pay.yes')}}</button>
+			</view>
+		</view>
+	</uni-popup>
 </template>
 
 <script>
@@ -41,7 +49,8 @@
 
 				// url: 'http://192.168.2.35:8080',
 				postList: [],
-				userInfo: {}
+				userInfo: {},
+				isRestrictAccess: false,
 			}
 		},
 		onLoad() {
@@ -58,6 +67,10 @@
 			userInfoApi().then((res) => {
 				uni.setStorageSync('userInfo', res.data)
 				this.userInfo = res.data
+				if (res.data.housekeeper && res.data.housekeeper!=0) {
+					this.isRestrictAccess = true
+					this.$refs.promptpopup.open()
+				}
 			}).catch((err) => {
 				console.log('request fail', err);
 				this.$showMessage('warning', err.msg);
@@ -73,7 +86,11 @@
 				uni.navigateTo({
 					url: '/pages/HomePage/postAgreement?id=' + item.pid
 				})
-			}
+			},
+			prompt_confirm(){
+				this.$refs.promptpopup.close()
+				uni.navigateBack()
+			},
 		},
 
 	}
@@ -148,5 +165,50 @@
 		font-style: normal;
 		margin-top: 20rpx;
 		margin-bottom: 30rpx;
+	}
+	.prompt_pop_page {
+		width: 570rpx;
+		background: #FFFFFF;
+		border-radius: 28rpx;
+		padding: 40rpx 54rpx 28rpx 54rpx;
+		.prompt_pop_top {
+			font-family: "DINPro-Medium", sans-serif;
+			font-weight: 500;
+			font-size: 32rpx;
+			color: #000000;
+			line-height: 42rpx;
+			text-align: center;
+			font-style: normal;
+		}
+		.prompt_pop_taps {
+			font-family: "DINPro-Regular", sans-serif;
+			font-weight: 400;
+			font-size: 28rpx;
+			color: #1C2D57;
+			line-height: 36rpx;
+			text-align: center;
+			font-style: normal;
+			margin-top: 40rpx;
+		}
+		.prompt_pop_bottom {
+			display: flex;
+			margin-top: 54rpx;
+		}
+		
+		.prompt_confirm_btn {
+			width: 212rpx;
+			height: 72rpx;
+			background: $themeColor;
+			box-shadow: 0rpx 4rpx 16rpx 0rpx #B2C8FB;
+			border-radius: 16rpx;
+			font-family: "DINPro-Black", sans-serif;
+			font-family: DINPro, DINPro;
+			font-weight: 500;
+			font-size: 32rpx;
+			color: #FFFFFF;
+			line-height: 72rpx;
+			text-align: center;
+			font-style: normal;
+		}
 	}
 </style>

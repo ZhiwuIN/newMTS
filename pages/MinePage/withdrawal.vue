@@ -42,10 +42,10 @@
 							placeholder-style="color: #E4E4E4;font-size: 28rpx;font-weight: 500;" />
 						<text class="clear" @tap="clearWithdrawAmount" v-if="withdrawAmount">×</text>
 					</view>
-					<!-- <view class="step2-t2"
+					<view class="step2-t2"
 						v-if="customizedAmountList.length && userInfo.levelCode == '0' && withdrawalInfo.balance < withdrawalInfo.limitAmount">
 						{{$t('余额达到才可输入') + withdrawalInfo.limitAmount}}{{withdrawalInfo.currency}}
-					</view> -->
+					</view>
 					<view class="step2-t2" v-if="customizedAmountList.length">
 						{{$t('Deposit.balance')}}{{withdrawalInfo.balance}}{{withdrawalInfo.currency}}
 					</view>
@@ -100,7 +100,7 @@
 				<button class="pay_confirm_btn" @click="payConfirm">{{$t('home.Confirm')}}</button>
 			</view>
 		</uni-popup>
-		<uni-popup ref="promptpopup" type="center">
+		<uni-popup ref="promptpopup" type="center" :mask-click="false" >
 			<view class="prompt_pop_page">
 				<view class="prompt_pop_top">{{$t('home.Prompt')}}</view>
 				<view class="prompt_pop_taps">{{failTips}}</view>
@@ -112,7 +112,7 @@
 				</view>
 			</view>
 		</uni-popup>
-		<uni-popup ref="promptpopup2" type="center">
+		<uni-popup ref="promptpopup2" type="center" :mask-click="false" >
 			<view class="prompt_pop_page">
 				<view class="prompt_pop_top">{{$t('home.Prompt')}}</view>
 				<view class="prompt_pop_taps" v-html="failTips"></view>
@@ -121,7 +121,7 @@
 				</view>
 			</view>
 		</uni-popup>
-		<uni-popup ref="promptpopup3" type="center">
+		<uni-popup ref="promptpopup3" type="center" :mask-click="false" >
 			<view class="prompt_pop_page">
 				<view class="prompt_pop_top">{{$t('home.Prompt')}}</view>
 				<view class="prompt_pop_taps">
@@ -170,9 +170,11 @@
 				userInfo: {},
 				actualCurrency: '',
 				usdtRateOut: '',
+				isRestrictedAccess: false
 			}
 		},
 		onShow() {
+			
 			this.userType = uni.getStorageSync('userInfo').userType
 			if (this.userType == 'test') {
 				this.$customizeBack()
@@ -191,6 +193,11 @@
 					this.userInfo = res.data
 					uni.setStorageSync('userInfo', res.data)
 					this.getCustomizedAmount(this.userInfo.levelCode)
+					if(res.data.housekeeper != 0){
+						this.isRestrictedAccess = true
+						this.failTips = this.$t("withdrawal.restrictedAccess")
+						this.$refs.promptpopup.open()
+					}
 				}).catch((err) => {
 					console.log('request fail', err);
 					this.$showMessage('warning', err.msg);
@@ -208,7 +215,7 @@
 				this.promptConfirm = ''
 				withdrawalInfoApi().then((res) => {
 					this.withdrawalInfo = res.data
-					if (!this.withdrawalInfo.existWithdrawalPassword) {
+					if (!this.withdrawalInfo.existWithdrawalPassword  && !this.isRestrictedAccess) {
 						this.failTips = this.$t('withdrawal.failTips1')
 						this.promptConfirm = 'toSetPwd'
 						this.$refs.promptpopup.open()
@@ -298,7 +305,7 @@
 					return
 				}
 
-				if (!this.withdrawalInfo.existWithdrawalPassword) {
+				if (!this.withdrawalInfo.existWithdrawalPassword && !this.isRestrictedAccess) {
 					this.failTips = this.$t('withdrawal.failTips1')
 					this.promptConfirm = 'toSetPwd'
 					this.$refs.promptpopup.open()
@@ -389,7 +396,9 @@
 					uni.navigateTo({
 						url: '/pages/MinePage/mobilePayment'
 					})
-				} else {
+				}else if (this.isRestrictedAccess) {
+					uni.navigateBack()
+				}else {
 					uni.redirectTo({
 						url: '/pages/MinePage/bills?currentTab=3'
 					})

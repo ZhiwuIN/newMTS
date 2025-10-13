@@ -6,20 +6,21 @@
 
 			<view class="qr-section">
 				<view class="qr-section-box">
-					<canvas canvas-id="qrcode" style="width: 149px; height:149px;"></canvas>
+					<canvas v-show="!this.isRestrictAccess" canvas-id="qrcode"
+						style="width: 149px; height:149px;"></canvas>
 				</view>
 			</view>
 
 			<view class="qr_t1">
-				<text>{{$t('qrpage.code')+'：'+code}}</text>
+				<text v-show="!this.isRestrictAccess">{{$t('qrpage.code')+'：'+code}}</text>
 			</view>
 			<!-- 链接文字区域 -->
 			<view class="qr_t2">
-				<text>{{qrcodeUrl + '?InvitationCode=' + code}}</text>
+				<text v-show="!this.isRestrictAccess">{{qrcodeUrl + '?InvitationCode=' + code}}</text>
 			</view>
 
 			<!-- 按钮区域 -->
-			<view class="btn-group">
+			<view class="btn-group" v-show="!this.isRestrictAccess">
 				<button class="qr_btn" @click="generatePoster">{{$t('qrpage.GeneratePoster')}}</button>
 				<button class="qr_btn" @click="copyLink">{{$t('qrpage.CopyLink')}}</button>
 			</view>
@@ -45,12 +46,18 @@
 					{{ $t('home.Download') }}
 				</view>
 			</view>
-
-
 		</view>
 	</customnavbar>
-
 	<canvas canvas-id="finalPosterCanvas" style="width: 375px; height: 600px; position: fixed; top: -9999px;"></canvas>
+	<uni-popup ref="promptpopup" type="center" :mask-click="false" >
+		<view class="prompt_pop_page">
+			<view class="prompt_pop_top">{{$t('home.Prompt')}}</view>
+			<view class="prompt_pop_taps" >{{this.$t("withdrawal.restrictedAccess")}}</view>
+			<view class="prompt_pop_bottom">
+				<button class="prompt_confirm_btn" @click="prompt_confirm">{{$t('pay.yes')}}</button>
+			</view>
+		</view>
+	</uni-popup>
 </template>
 
 <script>
@@ -72,7 +79,8 @@
 				// qrcodeUrl: 'http://localhost:5173/#/',
 				qrcodeUrl: '',
 				userInfo: {},
-				posterImage: ''
+				posterImage: '',
+				isRestrictAccess: false,
 			}
 		},
 		onShow() {
@@ -84,6 +92,10 @@
 						url: '/pages/HomePage/index'
 					})
 					return
+				}
+				if  (this.userInfo.housekeeper && this.userInfo.housekeeper!=0 ) {
+					this.isRestrictAccess = true 
+					this.$refs.promptpopup.open()
 				}
 				this.qrcodeUrl = uni.getStorageSync('settings').regUrl + '/#/'
 				this.code = res.data.invitationCode;
@@ -98,6 +110,10 @@
 			this.posterImage = uni.getLocale() == 'fr' ? '/static/posterFR.jpg' : '/static/posterEN.jpg';
 		},
 		methods: {
+			prompt_confirm(){
+				this.$refs.promptpopup.close()
+				uni.navigateBack()
+			},
 			generateQrCode() {
 				// 获取uQRCode实例
 				var qr = new UQRCode();
@@ -447,5 +463,50 @@
 		font-style: normal;
 		margin-top: 26rpx;
 		margin-bottom: 74rpx;
+	}
+	.prompt_pop_page {
+		width: 570rpx;
+		background: #FFFFFF;
+		border-radius: 28rpx;
+		padding: 40rpx 54rpx 28rpx 54rpx;
+		.prompt_pop_top {
+			font-family: "DINPro-Medium", sans-serif;
+			font-weight: 500;
+			font-size: 32rpx;
+			color: #000000;
+			line-height: 42rpx;
+			text-align: center;
+			font-style: normal;
+		}
+		.prompt_pop_taps {
+			font-family: "DINPro-Regular", sans-serif;
+			font-weight: 400;
+			font-size: 28rpx;
+			color: #1C2D57;
+			line-height: 36rpx;
+			text-align: center;
+			font-style: normal;
+			margin-top: 40rpx;
+		}
+		.prompt_pop_bottom {
+			display: flex;
+			margin-top: 54rpx;
+		}
+		
+		.prompt_confirm_btn {
+			width: 212rpx;
+			height: 72rpx;
+			background: $themeColor;
+			box-shadow: 0rpx 4rpx 16rpx 0rpx #B2C8FB;
+			border-radius: 16rpx;
+			font-family: "DINPro-Black", sans-serif;
+			font-family: DINPro, DINPro;
+			font-weight: 500;
+			font-size: 32rpx;
+			color: #FFFFFF;
+			line-height: 72rpx;
+			text-align: center;
+			font-style: normal;
+		}
 	}
 </style>

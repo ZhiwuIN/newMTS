@@ -37,17 +37,17 @@
 					</view>
 				</view>
 				<!-- 每日工资提取 -->
-				<view class="home_salary_box">
+				<view class="home_salary_box" >
 					<image src="/static/home/darller.png" mode="" class="home_salary_box_img"></image>
 					<view class="home_salary_box_v_c">
 						<text class="home_salary_box_v_c_t" v-if="userInfo.position" >{{$t('home.TodaySalary')}} : {{todaySalary}} {{ currency }}</text>
 						<text class="home_salary_box_v_c_t" v-else >{{$t('home.getPositions')}}</text>
 					</view>
-					<view @tap="onGetDailyWage" class="home_salary_box_r_btn">
-						<image
+					<view @tap="onGetDailyWage" :class="'home_salary_box_r_btn ' + (todaySalary ? '' : (userInfo.position ? 'disable' : ''))">
+						<!-- <image
 							:src="(userInfo.position && !salaryIsGet) ? icon.get : (userInfo.position ? icon.already : icon.arrow)"
-							mode="" class="home_salary_box_img"></image>
-						<text> {{ salaryIsGet ? $t("home.received") : "" }}</text>
+							mode="" class="home_salary_box_img"></image> -->
+							{{(userInfo.position && !salaryIsGet) ? "GET" : (userInfo.position ? "received" : "Go")}}
 					</view>
 				</view>
 				<view class="home_center_box">
@@ -207,6 +207,15 @@
 				</view>
 			</view>
 		</uni-popup>
+		<uni-popup ref="promptpopup2" type="center" :mask-click="false" >
+			<view class="prompt_pop_page">
+				<view class="prompt_pop_top">{{$t('home.Prompt')}}</view>
+				<view class="prompt_pop_taps" >{{this.$t("withdrawal.restrictedAccess")}}</view>
+				<view class="prompt_pop_bottom">
+					<button class="prompt_confirm_btn" @click="prompt_confirm2">{{$t('pay.yes')}}</button>
+				</view>
+			</view>
+		</uni-popup>
 	</view>
 </template>
 
@@ -254,10 +263,15 @@
 					arrow: arrowIcon,
 				},
 				todaySalary: "",
-				salaryIsGet: false
+				salaryIsGet: false,
+				isRestrictAccess: false,
 			}
 		},
 		methods: {
+			prompt_confirm2(){
+				this.$refs.promptpopup.close()
+				uni.navigateBack()
+			},
 			onGetDailyWage() {
 				if(!this.userInfo.position){
 					uni.navigateTo({
@@ -266,8 +280,10 @@
 					return
 				}
 				if(!this.todaySalary){
-					this.$showMessage('warning', this.$t("home.unableClaim"))
 					return
+				}
+				if(this.isRestrictAccess){
+					this.promptpopup2.open();
 				}
 				withdrawalSalaryApi(1).then(res => {
 					this.salaryIsGet = res.data.whetherToReceive ? true : false;
@@ -338,6 +354,9 @@
 				userInfoApi().then((res) => {
 					this.userInfo = res.data
 					this.userType = res.data.userType
+					if (res.data.housekeeper && res.data.housekeeper != 0) {
+						this.isRestrictAccess = true
+					}
 					if (this.userInfo.hasMessage) {
 						uni.showTabBarRedDot({
 							index: 2
@@ -500,14 +519,18 @@
 		}
 
 		.home_salary_box_r_btn {
-			display: flex;
-			align-items: center;
-			flex-direction: column;
-			justify-content: center;
+			background-color: #ffb139;
+			width: 120rpx;
+			height: 40rpx;
+			padding: 16rpx 20rpx;
+			border-radius: 30rpx;
 			font-family: "DINPro-Medium", sans-serif;
-			font-size: 20rpx;
+			font-size: 30rpx;
 			font-weight: 200;
-			line-height: 42rpx;
+			text-align: center;
+		}
+		.disable{
+			opacity: 60%;
 		}
 	}
 
