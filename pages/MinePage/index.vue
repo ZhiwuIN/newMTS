@@ -71,7 +71,7 @@
 						<view class="btn deposit" @click="toPage2('/pages/HomePage/RechargeChannel')">
 							{{$t('mine.Deposit')}}
 						</view>
-						<view class="btn withdraw" @click="toPage2('/pages/MinePage/withdrawal')">
+						<view class="btn withdraw" @click="isRestrictAccess ? this.$refs.promptpopup_access.open() : toPage2('/pages/MinePage/withdrawal')">
 							{{$t('mine.Withdrawal')}}
 						</view>
 					</view>
@@ -138,6 +138,15 @@
 				</view>
 			</view>
 		</uni-popup>
+		<uni-popup ref="promptpopup_access" type="center">
+			<view class="prompt_pop_page">
+				<view class="prompt_pop_top">{{$t('home.Prompt')}}</view>
+				<view class="prompt_pop_taps">{{this.$t("withdrawal.restrictedAccess")}}</view>
+				<view class="prompt_pop_bottom">
+					<button class="prompt_confirm_btn" @click="this.$refs.promptpopup_access.close()">{{$t('pay.yes')}}</button>
+				</view>
+			</view>
+		</uni-popup>
 	</view>
 </template>
 
@@ -154,7 +163,8 @@
 		data() {
 			return {
 				topStyle: 0,
-				userInfo: {}
+				userInfo: {},
+				isRestrictAccess: false
 			}
 		},
 		onShow() {
@@ -163,6 +173,8 @@
 				if (this.userInfo.firstPurchaseLevelDate) {
 					this.userInfo.firstPurchaseLevelDate = this.userInfo.firstPurchaseLevelDate.split(' ')[0]
 				}
+				this.isRestrictAccess = res.data.housekeeper == 1 ? true : false
+				console.log(this.isRestrictAccess)
 				if (this.userInfo.hasMessage) {
 					uni.showTabBarRedDot({
 						index: 2
@@ -174,7 +186,6 @@
 				}
 				uni.setStorageSync('userInfo', res.data)
 			}).catch((err) => {
-				console.log('request fail', err);
 				this.$showMessage('warning', err.msg);
 			})
 		},

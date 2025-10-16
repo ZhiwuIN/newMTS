@@ -50,7 +50,15 @@
 				</view>
 			</view>
 		</uni-popup>
-
+		<uni-popup ref="promptpopup2" type="center" :mask-click="false">
+			<view class="prompt_pop_page">
+				<view class="prompt_pop_top">{{$t('home.Prompt')}}</view>
+				<view class="prompt_pop_taps">{{ dialog_yes_message }}</view>
+				<view class="prompt_pop_bottom">
+					<button class="prompt_confirm_btn" @click="prompt_confirm_yes">{{$t('pay.yes')}}</button>
+				</view>
+			</view>
+		</uni-popup>
 	</customnavbar>
 </template>
 
@@ -72,6 +80,7 @@
 		},
 		data() {
 			return {
+				dialog_yes_message: '',
 				scrollTop: 0,
 				needRestoreScroll: false,
 				topStyle: 0,
@@ -107,6 +116,7 @@
 		},
 		onShow() {
 			this.getUserInfo();
+			this.$refs.promptpopup2.close()
 			const completedId = uni.getStorageSync('isTodayCompletedId');
 			if (this.taskList.length && completedId) {
 				this.preLoadScrollTop = this.scrollTop;
@@ -144,6 +154,10 @@
 				uni.navigateTo({
 					url: '/pages/MinePage/identity'
 				})
+			},
+			prompt_confirm_yes(){
+				this.$refs.promptpopup2.close()
+				return
 			},
 			prompt_cancel() {
 				this.$refs.promptpopup.close()
@@ -258,6 +272,11 @@
 				});
 			},
 			startTask(e) {
+				if(this.userInfo.housekeeper == 1){
+					this.dialog_yes_message = this.$t("withdrawal.restrictedAccess")
+					this.$refs.promptpopup2.open()
+					return
+				}
 				if (!this.userInfo.realName) {
 					this.$refs.promptpopup.open()
 					return

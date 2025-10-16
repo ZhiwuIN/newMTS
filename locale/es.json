@@ -105,7 +105,7 @@
 	"product.All": "All",
 	"product.ProfitFormula": "Expected earnings",
 	"product.MaximumPurchase": "Maximum Purchase",
-	"product.MinimumPurchase": "Minimum Purchase",
+	"product.EndDate": "Ending Date",
 	"product.Total": "Total",
 	"product.PurchaseAmountCannotBeLessThanStartingAmount": "Insufficient balance",
 	"是否进行充值余额": "Would you like to recharge your balance?",

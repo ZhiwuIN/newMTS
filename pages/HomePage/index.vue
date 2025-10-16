@@ -37,17 +37,26 @@
 					</view>
 				</view>
 				<!-- 每日工资提取 -->
-				<view class="home_salary_box" >
+				<view class="home_salary_box">
 					<image src="/static/home/darller.png" mode="" class="home_salary_box_img"></image>
 					<view class="home_salary_box_v_c">
-						<text class="home_salary_box_v_c_t" v-if="userInfo.position" >{{$t('home.TodaySalary')}} : {{todaySalary}} {{ currency }}</text>
-						<text class="home_salary_box_v_c_t" v-else >{{$t('home.getPositions')}}</text>
+						<!-- 如果职位不存在 -->
+						<text class="home_salary_box_v_c_t" v-if="!userInfo.position">{{$t('home.getPositions')}}</text>
+						<!-- 未到发薪日 -->
+						<text class="home_salary_box_v_c_t" v-else-if="!salaryIsGet && todaySalary == 0">Not yet reached the payday</text>
+						<!-- 薪资未领取 -->
+						<text class="home_salary_box_v_c_t" v-else-if="!salaryIsGet">{{$t('home.TodaySalary')}} :
+							<text>{{ todaySalary }}</text> {{ currency }}</text>
+						<!-- 已领取 -->
+						<text class="home_salary_box_v_c_t" v-else-if="salaryIsGet">Received today</text>
+						<text class="home_salary_box_v_c_t" v-else>Unable to receive</text>
 					</view>
-					<view @tap="onGetDailyWage" :class="'home_salary_box_r_btn ' + (todaySalary ? '' : (userInfo.position ? 'disable' : ''))">
-						<!-- <image
-							:src="(userInfo.position && !salaryIsGet) ? icon.get : (userInfo.position ? icon.already : icon.arrow)"
-							mode="" class="home_salary_box_img"></image> -->
-							{{(userInfo.position && !salaryIsGet) ? "GET" : (userInfo.position ? "received" : "Go")}}
+					<view @tap="isRestrictAccess? this.$refs.promptpopup2.open() : onGetDailyWage()"
+						:class="'home_salary_box_r_btn' + (salaryIsGet ? ' disable' : '')">
+						<text v-if="!userInfo.position">Go</text>
+						<text v-else-if="!salaryIsGet && todaySalary == 0">Details
+						</text>
+						<text v-else>Get</text>
 					</view>
 				</view>
 				<view class="home_center_box">
@@ -79,7 +88,8 @@
 								<text>{{splitText($t("home.Memberbenefits"))}}</text>
 							</view>
 						</view>
-						<view class="center_item" @click="toPage('/pages/HomePage/postManage')">
+						<view class="center_item"
+							@click="isRestrictAccess? this.$refs.promptpopup2.open() : toPage('/pages/HomePage/postManage')">
 							<view class="flex_center">
 								<image src="/static/home/Management Positions.png" class="icon-wrapper" />
 							</view>
@@ -89,7 +99,8 @@
 						</view>
 					</view>
 					<view class="center_item_box" style="margin-top: 40rpx;">
-						<view class="center_item" @click="toPageTeamExpansion('/pages/HomePage/teamExpansion')">
+						<view class="center_item"
+							@click=" isRestrictAccess? this.$refs.promptpopup2.open() : toPageTeamExpansion('/pages/HomePage/teamExpansion')">
 							<view class="flex_center">
 								<image src="/static/home/Team Expansion.png" class="icon-wrapper" />
 							</view>
@@ -207,10 +218,10 @@
 				</view>
 			</view>
 		</uni-popup>
-		<uni-popup ref="promptpopup2" type="center" :mask-click="false" >
+		<uni-popup ref="promptpopup2" type="center" :mask-click="false">
 			<view class="prompt_pop_page">
 				<view class="prompt_pop_top">{{$t('home.Prompt')}}</view>
-				<view class="prompt_pop_taps" >{{this.$t("withdrawal.restrictedAccess")}}</view>
+				<view class="prompt_pop_taps">{{pop_message_yes}}</view>
 				<view class="prompt_pop_bottom">
 					<button class="prompt_confirm_btn" @click="prompt_confirm2">{{$t('pay.yes')}}</button>
 				</view>
@@ -246,6 +257,7 @@
 		},
 		data() {
 			return {
+				pop_message_yes: "",
 				url: 'http://13.245.95.135:8888',
 				// url: 'http://192.168.2.35:8080',
 				content1: ['xxx成功提现2000余额', '恭喜xxx抽中4000奖励'],
@@ -262,46 +274,82 @@
 					already: alreadyIcon,
 					arrow: arrowIcon,
 				},
+				salary: {
+					// 薪资类型 日 周 月
+					payType: "daily",
+					// 领取日期 类型为day时不生效
+					payDay: "",
+					// 是否可领取
+					whetherItIsAvailable: false
+				},
+				// 今日薪资
 				todaySalary: "",
+				// 是否领取
 				salaryIsGet: false,
+				// 管家模式 访问限制
 				isRestrictAccess: false,
 			}
 		},
 		methods: {
-			prompt_confirm2(){
-				this.$refs.promptpopup.close()
-				uni.navigateBack()
+			prompt_confirm2() {
+				this.$refs.promptpopup2.close()
 			},
 			onGetDailyWage() {
-				if(!this.userInfo.position){
+				const weekDays = [
+					'Monday',
+					'Tuesday',
+					'Wednesday',
+					'Thursday',
+					'Friday',
+					'Saturday',
+					'Sunday'
+				];
+				if (!this.userInfo.position) {
 					uni.navigateTo({
 						url: '/pages/HomePage/postManage'
 					})
 					return
 				}
-				if(!this.todaySalary){
+				if (this.salaryIsGet) {
 					return
 				}
-				if(this.isRestrictAccess){
-					this.promptpopup2.open();
+				if (this.isRestrictAccess) {
+					this.pop_message_yes = this.$t("withdrawal.restrictedAccess")
+					this.$refs.promptpopup2.open();
+					return
+				}
+				if (!this.salaryIsGet && !this.todaySalary) {
+					switch (this.salary.payType) {
+						case 'weekly':
+							this.pop_message_yes = `The next payday is ${weekDays[Number(this.salary.payDay) - 1]}`;
+							break;
+						default:
+							this.pop_message_yes = `未到领取日期`;
+							break;
+					}
+					this.$refs.promptpopup2.open()
+					return
 				}
 				withdrawalSalaryApi(1).then(res => {
 					this.salaryIsGet = res.data.whetherToReceive ? true : false;
-					if (res.data.whetherToReceive) {
-						this.$showMessage('warning', this.$t("home.alreadyReceived"))
-						return
-					}
-					this.$showMessage('warning',this.$t("receivedSuccessfully"))
-				}).catch(e => {
+					this.todaySalary = 0
+					this.$showMessage('warning', this.$t("home.receivedSuccessfully"))
+				}).catch(err => {
 					this.$showMessage('warning', err.msg);
-				})
+				}).finally(() => this.getUserInfo())
 			},
 			getTadaySalary() {
-				withdrawalSalaryApi().then(res => {
-					this.todaySalary = res.data.todayAmount
-					this.salaryIsGet = res.data.whetherToReceive ? true : false;
-				}).catch(e => {
-					this.$showMessage('warning', err.msg);
+				withdrawalSalaryApi("0").then(res => {
+					this.todaySalary = res.data.todayAmount ?? 0
+					this.salary.payType = res.data.payType
+					this.salary.payDay = res.data.payDay
+					if(res.data.whetherToReceive == 1){
+						this.salaryIsGet = true
+					} 
+					this.salaryIsGet = false;
+					// this.salaryIsGet = false
+				}).catch(err => {
+					// this.$showMessage('warning', err.msg);
 				})
 			},
 			handleMessage(event) {
@@ -352,10 +400,12 @@
 			},
 			getUserInfo() {
 				userInfoApi().then((res) => {
+					this.isRestrictAccess = false
 					this.userInfo = res.data
 					this.userType = res.data.userType
 					if (res.data.housekeeper == 1) {
 						this.isRestrictAccess = true
+						this.pop_message_yes = this.$t("withdrawal.restrictedAccess")
 					}
 					if (this.userInfo.hasMessage) {
 						uni.showTabBarRedDot({
@@ -466,6 +516,11 @@
 				})
 			},
 			toWithdrawal() {
+				if (this.isRestrictAccess) {
+					this.pop_message_yes = this.$t("withdrawal.restrictedAccess")
+					this.$refs.promptpopup2.open();
+					return
+				}
 				uni.navigateTo({
 					url: '/pages/MinePage/withdrawal'
 				})
@@ -513,6 +568,10 @@
 				line-height: 100rpx;
 				font-family: "DINPro-Medium", sans-serif;
 				font-weight: 300;
+				font-size: 26rpx;
+			}
+
+			.money {
 				font-size: 32rpx;
 			}
 		}
@@ -528,7 +587,8 @@
 			font-weight: 200;
 			text-align: center;
 		}
-		.disable{
+
+		.disable {
 			opacity: 60%;
 		}
 	}

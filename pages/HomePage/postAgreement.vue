@@ -5,15 +5,15 @@
 				<view class="agreement_content" :style="contentStyle">
 		<!-- 			<rich-text :nodes="agreement" class="agreement_content_text">
 					</rich-text> -->
-					<scroll-view v-if="contract != null && contract.trim().length != 0" style="height: 100%; width: 100%;" scroll-y="true" direction="vertical" >
-						<view v-html="contract"></view>
+					<scroll-view v-if="contract != null && contract.trim().length != 0" style="width: 100%;" scroll-y="true" direction="vertical" >
+						<view style="min-height: 101vh;" class="contract" v-html="contract"></view>
 					</scroll-view>
 					<listbottom :loading="dataStatus.loading" :hasMore="dataStatus.hasMore" :noData='dataStatus.noData' image="/static/default/No content.png"></listbottom>
 				</view>
 				<view class="agreement-apply-btn-box flex-center" :style=" isScrollEnd ? '' : `opacity: 60%;` " v-if="contract != null && contract.trim().length != 0" >
 					<view class="agreement-apply-btn" @click="handleAgree">
 						{{$t('post.agree')}}
-						<text v-if="this.num">{{this.num}}</text>
+						<text v-if="!isScrollEnd">{{this.num}}</text>
 					</view>
 				</view>
 			</view>
@@ -21,7 +21,7 @@
 		<uni-popup ref="popup" type="center" border-radius="10px 10px 0 0">
 			<view class="pop_page">
 				<view class="pop_top">{{$t('home.Prompt')}}</view>
-				<!-- <view class="pop_content">{{this.applyPrompt}}</view> -->
+				<view class="pop_content">{{this.applyPrompt}}</view>
 				<view class="pop_bottom">
 					<view class="pop_bottom_btn" @click="confirm2">{{$t('home.Postmanage')}}</view>
 					<view class="pop_bottom_btn" @click="confirm">{{$t('home.Sure')}}</view>
@@ -40,10 +40,11 @@
 	} from "@/common/api/position.js";
 	import {
 		formatRichText
-	} from "@/utils/utils.js"
+	} from "@/utils/utils.js";
 	import {
 		userInfoApi
 	} from "@/common/api/users.js";
+	
 	export default {
 		components: {
 			customnavbar,
@@ -58,10 +59,10 @@
 				applyPrompt: "",
 				contract: "",
 				isScrollEnd: false,
-				num: "10",
+				num: 5,
 				dataStatus: {
 					loading: false,
-					hasMore: true,
+					hasMore: false,
 					noData: false
 				}
 			}
@@ -84,14 +85,14 @@
 				this.dataStatus.loading = false
 				uni.hideLoading();
 			})
-			if(this.num == 10){
+			if(this.num == 5){
 				let inter = setInterval(()=>{
 					this.num--
 				},1000)
 				setTimeout(()=>{
 					clearInterval(inter)
 					this.isScrollEnd = true
-				},10000)
+				},5000)
 			}
 		},
 		methods: {
@@ -150,6 +151,11 @@
 </script>
 
 <style scoped lang="scss">
+	// #ifdef APP-PLUS
+	.contract{
+		padding-top: 2.75rem;
+	}
+	// #endif
 	.agreement_page {
 		position: relative;
 	}
