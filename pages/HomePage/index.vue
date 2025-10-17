@@ -324,7 +324,7 @@
 							this.pop_message_yes = `The next payday is ${weekDays[Number(this.salary.payDay) - 1]}`;
 							break;
 						default:
-							this.pop_message_yes = `未到领取日期`;
+							this.pop_message_yes = this.$t('home.notYetCollectionDate');
 							break;
 					}
 					this.$refs.promptpopup2.open()

@@ -1,6 +1,6 @@
 <template>
 	<customnavbar :title="$t('team.title')" backgroundStr="url('/static/team/team_bg.png') top left/100%  no-repeat"
-		@mtop="mtop" :whiteTitle="true">
+		@mtop="mtop" :whiteTitle="true" @scrolltolower="onLower">
 		<view>
 			<view class="team_top_bg" :style="topStyle">
 				<!-- 数据展示区域 -->
@@ -52,33 +52,33 @@
 				</view>
 
 				<!-- 内容区域 -->
-				<view class="content-section">
-					<view class="user-list">
-						<view class="user-item" v-for="(user, index) in memberList" :key="index"
-							@click="toDetails(user.uid)">
-							<view style="display: flex;align-items: center;">
-								<image :src=" user.image" alt="" class="user-ava" />
-								<view>
-									<view class="user-item-t1">{{user.username}}</view>
-									<view class="user-item-t2">{{$t('team.joinTime')}}:{{(user.joinTime).split(' ')[0]}}
+				<scroll-view scroll-y="true" direction="vertical" style="height: 80vh;" @scrolltolower="onReachBottom" >
+					<view class="content-section">
+						<view class="user-list">
+							<view class="user-item" v-for="(user, index) in memberList" :key="index"
+								@click="toDetails(user.uid)">
+								<view style="display: flex;align-items: center;">
+									<image :src=" user.image" alt="" class="user-ava" />
+									<view>
+										<view class="user-item-t1">{{user.username}}</view>
+										<view class="user-item-t2">{{$t('team.joinTime')}}:{{(user.joinTime).split(' ')[0]}}
+										</view>
 									</view>
 								</view>
+								<view>
+									<view class="user-item-t3">{{user.type}}</view>
+									<view class="user-item-t4">{{user.income}} {{currency}}</view>
+								</view>
+					
 							</view>
-							<view>
-								<view class="user-item-t3">{{user.type}}</view>
-								<view class="user-item-t4">{{user.income}} {{currency}}</view>
-							</view>
-
+						</view>
+						<view class="list_status_box" :style="{'auto' :'800rpx'}">
+							<listbottom :hasMore="hasMore" :loading="loading" :noData='nodata'
+								image="/static/default/No content.png" :title="$t('default.NoContent')"
+								:text="$t('default.NoContentText')"></listbottom>
 						</view>
 					</view>
-					<view class="list_status_box" :style="{'auto' :'800rpx'}">
-						<listbottom :hasMore="hasMore" :loading="loading" :noData='nodata'
-							image="/static/default/No content.png" :title="$t('default.NoContent')"
-							:text="$t('default.NoContentText')"></listbottom>
-					</view>
-				</view>
-
-
+				</scroll-view>
 			</view>
 		</view>
 	</customnavbar>
@@ -125,7 +125,6 @@
 				return [this.$t('team.All'), this.$t('team.VIP'), this.$t('team.Ordinary')]
 			}
 		},
-
 		onShow() {
 
 			this.currency = uni.getStorageSync('settings').currency
@@ -219,7 +218,7 @@
 			},
 			onReachBottom() {
 				if (!this.loading && this.hasMore) {
-					this.page.pageNum += 1
+					// this.page.pageNum += 1
 					this.getMember()
 				}
 			}

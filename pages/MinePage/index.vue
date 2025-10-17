@@ -174,7 +174,6 @@
 					this.userInfo.firstPurchaseLevelDate = this.userInfo.firstPurchaseLevelDate.split(' ')[0]
 				}
 				this.isRestrictAccess = res.data.housekeeper == 1 ? true : false
-				console.log(this.isRestrictAccess)
 				if (this.userInfo.hasMessage) {
 					uni.showTabBarRedDot({
 						index: 2

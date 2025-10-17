@@ -31,6 +31,7 @@
 	"home.receivedSuccessfully": "Received successfully!",
 	"home.alreadyReceived": "Today, it has been collected.",
 	"home.unableClaim": "Unable to claim",
+	"home.notYetCollectionDate": "Not yet the collection date.",
 	"pages.home": "Home",
 	"pages.task": "Task",
 	"pages.team": "Team",
