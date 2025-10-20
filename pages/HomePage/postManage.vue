@@ -60,7 +60,7 @@
 		data() {
 			return {
 				pageStatus: {
-					hasMore: false,
+					hasMore: true,
 					loading: false,
 					nodata: false
 				},

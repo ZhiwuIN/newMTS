@@ -62,7 +62,7 @@
 				num: 5,
 				dataStatus: {
 					loading: false,
-					hasMore: false,
+					hasMore: true,
 					noData: false
 				}
 			}
