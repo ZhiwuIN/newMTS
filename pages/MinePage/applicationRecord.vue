@@ -5,47 +5,86 @@
 				<view class="item-box">
 					<view class="record-item" v-for="(item,index) in data" @click="toInfo(item.id)">
 						<view class="left-box">
-							<image src="/static/mine/applicationRecord/Under review.png" class="record-img"
+							<!-- <image src="/static/mine/applicationRecord/Under review.png" class="record-img"
 								v-if="item.status == 2"></image>
 							<image src="/static/mine/applicationRecord/In progress.png" class="record-img"
 								v-if="item.status == 4"></image>
 							<image src="/static/mine/applicationRecord/Success.png" class="record-img"
 								v-if="item.status == 6"></image>
 							<image src="/static/mine/applicationRecord/Failure.png" class="record-img"
-								v-if="item.status == 3 || item.status == 5"></image>
+								v-if="item.status == 3 || item.status == 5"></image> -->
 							<view class="record-text-box">
-								<view class="record-name">
-									{{item.positionName}}
+								<view style="display: flex;align-items: center;gap: 20rpx;">
+									<view class="record-status" style="background-color: #FF9B00;" v-if="item.status == 2">
+										<!-- 待审核 -->
+										{{$t('positionManage.underReview')}}
+									</view>
+									<view class="record-status" style="background-color: #48BBFF;" v-if="item.status == 4">
+										<!-- 进行中 -->
+										{{$t('positionManage.InProgress')}}
+									</view>
+									<view class="record-status" style="background-color: #FF0000;" v-if="item.status == 5">
+										<!-- 未达成 -->
+										{{$t('positionManage.notReach')}}
+									</view>
+									<view class="record-status" style="background-color: #FF0000;" v-if="item.status == 3">
+										<!-- 审核未通过 -->
+										{{$t('positionManage.Failed')}}
+									</view>
+									<view class="record-status" style="background-color: #4AD92F;" v-if="item.status == 6">
+										<!-- 已达成 -->
+										{{$t('positionManage.Agreed')}}
+									</view>
+									<view class="record-name">
+										{{item.positionName}}
+									</view>
 								</view>
-								<view class="record-time">
-									{{item.applyTime}}
-								</view>
-								<view class="record-status" v-if="item.status == 2">
+								
+								<view class="record-status record-status1" style="background-color: #ffed87;color: #FF9B00;" v-if="item.status == 2">
 									<!-- 待审核 -->
-									{{$t('positionManage.underReview')}}
+									{{$t('您的申请等待审核')}}
 								</view>
-								<view class="record-status" style="color: #48BBFF;" v-if="item.status == 4">
+								<view class="record-status record-status1" style="background-color: #c1f4ff;color: #48bbff;" v-if="item.status == 4">
 									<!-- 进行中 -->
-									{{$t('positionManage.InProgress')}}
+									{{$t('您的职位正在进行中')}}
 								</view>
-								<view class="record-status" style="color: #FF0000;" v-if="item.status == 5">
+								<view class="record-status record-status1" style="background-color: #FFE8E8;color: #FF0000;" v-if="item.status == 5">
 									<!-- 未达成 -->
-									{{$t('positionManage.notReach')}}
+									{{$t('您的职位任务未达成')}}
 								</view>
-								<view class="record-status" style="color: #FF0000;" v-if="item.status == 3">
+								<view class="record-status record-status1" style="background-color: #FFE8E8;color: #FF0000;" v-if="item.status == 3">
 									<!-- 审核未通过 -->
-									{{$t('positionManage.Failed')}}
+									{{$t('您的申请未通过')}}
 								</view>
-								<view class="record-status" style="color: #4AD92F;" v-if="item.status == 6">
+								<view class="record-status record-status1" style="background-color: #EAFCEE;color: #27CF4C;" v-if="item.status == 6">
 									<!-- 已达成 -->
-									{{$t('positionManage.Agreed')}}
+									{{$t('您的职位已达成')}}
+								</view>
+								
+								
+								<view style="display: flex;align-items: center;justify-content: space-between;">
+									<view class="record-time">
+										{{$t("申请时间")}}
+									</view>
+									<view class="record-time">
+										{{item.applyTime}}
+									</view>
+								</view>
+								<view style="display: flex;align-items: center;justify-content: space-between;">
+									<view class="record-time">
+										{{$t("审核时间")}}
+									</view>
+									<view class="record-time">
+										{{item.applyTime}}
+									</view>
 								</view>
 							</view>
 						</view>
-						<image class="rigth-ionc" src="/static/back_icon.png" mode=""></image>
+						<!-- <image class="rigth-ionc" src="/static/back_icon.png" mode=""></image> -->
 					</view>
 				</view>
-				<listbottom :hasMore="hasMore" :loading="loading" :noData='nodata' image="/static/default/No content.png"></listbottom>
+				<listbottom :hasMore="hasMore" :loading="loading" :noData='nodata'
+					image="/static/default/No content.png"></listbottom>
 			</view>
 		</customnavbar>
 	</view>
@@ -115,9 +154,9 @@
 		padding: 40rpx;
 
 		.record-item {
-			display: flex;
-			align-items: center;
-			justify-content: space-between;
+			// display: flex;
+			// align-items: center;
+			// justify-content: space-between;
 			background: #FFFFFF;
 			box-shadow: 0rpx 22rpx 28rpx -6rpx #E9F3FF;
 			border-radius: 24rpx;
@@ -132,7 +171,8 @@
 				.record-text-box {
 					display: flex;
 					flex-direction: column;
-					align-items: start;
+					width: 100%;
+					// align-items: start;
 					gap: 10rpx;
 
 					.record-name {
@@ -156,10 +196,16 @@
 					.record-status {
 						font-family: PingFangSC, PingFang SC;
 						font-weight: 400;
-						font-size: 24rpx;
-						color: #FF9B00;
+						font-size: 18rpx;
+						color: #FFFFFF;
 						text-align: center;
 						font-style: normal;
+						padding: 6rpx 14rpx;
+						border-radius: 8rpx;
+						&.record-status1 {
+							font-size: 24rpx;
+							text-align: left;
+						}
 					}
 				}
 

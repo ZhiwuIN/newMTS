@@ -21,8 +21,8 @@ const {
 // const base_url = '/api';8080'; //开发环境
 // const base_url = 'http://13.244.243.127:1001'; //测试环境
 // const base_url = 'http://16.28.69.140:8888';
-// const base_url = 'http://192.168.0.5:8080'
-const base_url = 'https://api.cwpc.vip' // 域名 
+const base_url = 'http://192.168.0.5:8080'
+// const base_url = 'https://api.cwpc.vip' // 域名 
 // 请求超时设置
 const timeout = 30000;
 

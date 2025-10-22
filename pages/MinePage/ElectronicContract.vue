@@ -15,6 +15,9 @@
 	import {
 		formatRichText
 	} from "@/utils/utils.js"
+	import {
+		positionMyPositionInfoApi
+	} from '@/common/api/position.js'
 	export default {
 		components: {
 			customnavbar
@@ -24,16 +27,21 @@
 				privacyPolicyInfo: "",
 			}
 		},
-		onLoad() {
-			contractAllApi().then((res) => {
-				// console.log(res)
-				if (res.data?.content) {
-					this.privacyPolicyInfo = formatRichText(res.data?.content)
-				}
-			}).catch((err) => {
-				console.log('request fail', err);
-				this.$showMessage('warning', err.msg);
-			})
+		onLoad(options) {
+			if (options?.positionName) {
+				this.privacyPolicyInfo = formatRichText(uni.getStorageSync('privacyPolicyInfo'))
+			} else {
+				contractAllApi().then((res) => {
+					// console.log(res)
+					if (res.data?.content) {
+						this.privacyPolicyInfo = formatRichText(res.data?.content)
+					}
+				}).catch((err) => {
+					console.log('request fail', err);
+					this.$showMessage('warning', err.msg);
+				})
+			}
+
 		}
 	}
 </script>

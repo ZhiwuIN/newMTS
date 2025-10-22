@@ -2,8 +2,8 @@
     "name" : "CWPC",
     "appid" : "__UNI__C393130",
     "description" : "",
-    "versionName" : "1.4.6",
-    "versionCode" : 146,
+    "versionName" : "1.4.7",
+    "versionCode" : 147,
     "transformPx" : false,
     /* 5+App特有相关 */
     "app-plus" : {
@@ -110,9 +110,9 @@
             "splashscreen" : {
                 "androidStyle" : "default",
                 "android" : {
-                    "hdpi" : "C:/Users/Administrator/Desktop/work/static/安卓启动页/res/drawable-hdpi/outline.9.png",
-                    "xhdpi" : "C:/Users/Administrator/Desktop/work/static/安卓启动页/res/drawable-xhdpi/outline.9.png",
-                    "xxhdpi" : "C:/Users/Administrator/Desktop/work/static/安卓启动页/res/drawable-xxxhdpi/outline.9.png"
+                    "hdpi" : "C:/Users/11/Desktop/IOS打包/安卓启动页/res/drawable-hdpi/outline.9.png",
+                    "xhdpi" : "C:/Users/11/Desktop/IOS打包/安卓启动页/res/drawable-xhdpi/outline.9.png",
+                    "xxhdpi" : "C:/Users/11/Desktop/IOS打包/安卓启动页/res/drawable-xxhdpi/outline.9.png"
                 }
             }
         }

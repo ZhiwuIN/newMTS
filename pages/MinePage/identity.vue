@@ -9,7 +9,7 @@
 				</view>
 				<view class="identity_set_t1" style="margin-top: 50rpx;">{{$t('identity.idCard')}}</view>
 				<view class="identity_set_input">
-					<input v-model="formData.idCard" type="number" maxlength="13" :placeholder="$t('identity.placeholderIdCard')"
+					<input v-model="formData.idCard" :placeholder="$t('identity.placeholderIdCard')"
 						placeholder-style="color: #E4E4E4;font-size: 28rpx;font-weight: 500;" />
 				</view>
 				<view style="display: flex;align-items: center; margin-top: 76rpx;">

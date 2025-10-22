@@ -5,15 +5,21 @@
 			:whiteTitle="true" :isPositionManage="true">
 			<view class="positionManage_heradBox" :style="topStyle">
 				<view class="positionManage-container">
-					<view v-if="info.uid">
+					<view v-if="info?.uid">
 						<view class="positionManage_info">
-							<image :src=" info.image" mode="" class="positionManage-image"></image>
-							<view class="positionManage-name">{{info.positionName}}</view>
+							<image :src=" info?.image" mode="" class="positionManage-image"></image>
+							<view class="positionManage-name">{{info?.positionName}}</view>
 							<view class="info-row">
 								<view class="row-item">
-									<view class="positionManage-info-title">{{$t('positionManage.Payday')}}</view>
+									<view class="positionManage-info-title">{{$t('mine.ElectronicContract')}}</view>
+									<view class="positionManage-info-value" style="color: #1167D1 ;" @click="toPush()">
+										{{$t('点击查看')}}
+									</view>
+								</view>
+								<view class="row-item">
+									<view class="positionManage-info-title">{{$t('发薪方式')}}</view>
 									<view class="positionManage-info-value">
-										{{info.payday ? $t('positionManage.EveryMonthOnThe') + ' ' + info.payday + $t('positionManage.Th') : '-'}}
+										{{info?.payType}}
 									</view>
 								</view>
 								<view class="row-item">
@@ -27,58 +33,45 @@
 									<view class="positionManage-info-value">{{(+info.totalSalary || 0).toFixed(4)}}
 									</view>
 								</view>
-							</view>
-						</view>
-
-						<view class="positionManage_info positionManage_info2" v-if="infoData?.status">
-							<view class="info-row">
-								<view class="row-item">
-									<view class="positionManage-info-title">{{$t('positionManage.Status')}}</view>
-									<view class="positionManage-info-value" v-if="infoData.status == 6">
-										{{$t('positionManage.Agreed')}}
+								<view class="row-item" v-if="info?.latestId">
+									<view class="positionManage-info-title">{{$t('考核日')}}
 									</view>
-									<view class="positionManage-info-value" v-if="infoData.status == 3">
-										{{$t('positionManage.Failed')}}
-									</view>
-									<view class="positionManage-info-value" v-if="infoData.status == 2">
-										{{$t('positionManage.underReview')}}
-									</view>
-									<view class="positionManage-info-value" v-if="infoData.status == 5">
-										{{$t('positionManage.notReach')}}
-									</view>
-									<view class="positionManage-info-value" v-if="infoData.status == 4">
-										{{$t('positionManage.InProgress')}}
+									<view class="positionManage-info-value">{{weekList[info?.assessmentDay]}}
 									</view>
 								</view>
-								<view class="row-item">
-									<view class="positionManage-info-title">{{$t('positionManage.JobRequirements')}}
+								<view class="row-item row-item1" v-if="info?.latestId">
+									<view class="title">{{$t('考核要求')}}</view>
+									<view class="condition_box" v-if="info?.complianceType == 'aLevel'">
+										<view class="tag_box">
+											<image class="icon" src="/static/positions/subordinate.png" mode=""></image>
+											<view>{{$t('A级下属人数')}}: {{infoData?.target || 0}}</view>
+										</view>
+										<view class="progress_box">
+											<t-progress :color="'#8ada9b'" style="width: 506rpx;" :label="false"
+												:percentage="infoData.completed / infoData.target * 100" />
+											<view>
+												<text
+													class="themeColor">{{infoData?.completed || 0}}</text>/{{infoData?.target || 0}}
+											</view>
+										</view>
 									</view>
-									<view class="positionManage-info-value">
-										{{$t('JobRequirementsA') + infoData.target + $t('JobRequirementsB') + infoData.cycle + $t('JobRequirementsC')}}
-									</view>
-								</view>
-								<view class="row-item">
-									<view class="positionManage-info-title">{{$t('positionManage.WorkProgress')}}</view>
-									<view class="progressBox">
-										<t-progress style="width: 360rpx;" :label="false"
-											:percentage="infoData.completed / infoData.target * 100" />
-										<view>
-											<text class="themeColor">{{infoData.completed}}</text>/{{infoData.target}}
+									<view class="condition_box" v-else="infoData?.complianceType == 'team'">
+										<view class="tag_box">
+											<image class="icon" src="/static/positions/team.png" mode=""></image>
+											<view>{{$t('团队人数')}}: {{infoData?.target}}</view>
+										</view>
+										<view class="progress_box">
+											<t-progress :color="'#ffb139'" style="width: 506rpx;" :label="false"
+												:percentage="infoData?.completed / infoData?.target * 100" />
+											<view>
+												<text
+													class="themeColor">{{infoData?.completed}}</text>/{{infoData?.target || 0}}
+											</view>
 										</view>
 									</view>
 								</view>
-								<view class="row-item">
-									<view class="positionManage-info-title">{{$t('positionManage.ApprovalTime')}}</view>
-									<view class="positionManage-info-value">{{infoData.approveTime || '-'}}</view>
-								</view>
-								<view class="row-item">
-									<view class="positionManage-info-title">{{$t('positionManage.RemainingTime')}}
-									</view>
-									<view class="positionManage-info-value" style="color: #FF3333;">{{time}}</view>
-								</view>
 							</view>
 						</view>
-
 						<view class="table">
 							<t-config-provider :global-config="globalConfig">
 								<t-table row-key="index" :data="data" :columns="columns" :custom-class="'custom-table'">
@@ -117,11 +110,17 @@
 		},
 		data() {
 			return {
-				url: 'http://13.245.95.135:8888',
-
-				// url: 'http://192.168.2.35:8080',
+				weekList: {
+					1: 'Monday',
+					2: 'Tuesday',
+					3: 'Wednesday',
+					4: 'Thursday',
+					5: 'Friday',
+					6: 'Saturday',
+					7: 'Sunday'
+				},
 				info: {},
-				topStyle: 0,
+				topStyle: '',
 				globalConfig: {
 					table: {
 						empty: this.$t('noData'),
@@ -139,7 +138,7 @@
 						width: 75
 					},
 					{
-						colKey: 'date',
+						colKey: 'payday',
 						title: '',
 						align: 'center',
 						width: 110
@@ -152,6 +151,12 @@
 			}
 		},
 		methods: {
+			toPush() {
+				uni.setStorageSync('privacyPolicyInfo', this.info.contract)
+				uni.navigateTo({
+					url: '/pages/MinePage/ElectronicContract?positionName=' + this.info.positionName
+				})
+			},
 			mtop(e) {
 				this.topStyle = "margin-top:-" + e + "rpx;height:" + (e + 396) +
 					"rpx;background: url('/static/login/login_bg.png') top left/100% no-repeat;"
@@ -163,6 +168,7 @@
 				positionMyPositionApi().then(res => {
 					if (res.code == 200) {
 						this.info = res.data
+						this.data = res.data.payrollRecords || []
 						if (this.info.latestId) {
 							positionMyPositionInfoApi(this.info.latestId).then(res => {
 								if (res.code == 200) {
@@ -229,7 +235,7 @@
 			this.columns[1].title = this.$t('positionManage.Salary')
 			this.columns[2].title = this.$t('positionManage.Date')
 			this.getMyPosition()
-			this.getPositionEffectivePositionApi()
+			// this.getPositionEffectivePositionApi()
 		},
 		onUnload() {
 			// 页面隐藏时清除定时器
@@ -248,9 +254,68 @@
 </script>
 
 <style scoped lang="scss">
-	::v-deep .t-progress__inner {
-		background: $themeColor;
+	.row-item1 {
+		display: flex;
+		flex-direction: column;
+		background: #F5F8FF;
+		border-radius: 10rpx;
+		// padding: 20rpx 30rpx;
+
+		.title {
+			font-family: PingFangSC, PingFang SC;
+			font-weight: 400;
+			font-size: 24rpx;
+			color: #333333;
+			line-height: 34rpx;
+			text-align: left;
+			font-style: normal;
+		}
+
+		.condition_box {
+			margin-top: 22rpx;
+
+			.tag_box {
+				display: flex;
+				align-items: center;
+				gap: 10rpx;
+				font-family: PingFangSC, PingFang SC;
+				font-weight: 400;
+				font-size: 24rpx;
+				color: #666666;
+				line-height: 34rpx;
+				text-align: left;
+				font-style: normal;
+				margin-bottom: 20rpx;
+
+				.icon {
+					width: 32rpx;
+					height: 32rpx;
+					border-radius: 4rpx;
+				}
+			}
+
+			.progress_box {
+				display: flex;
+				align-items: center;
+				font-family: PingFangSC, PingFang SC;
+				font-weight: 400;
+				font-size: 24rpx;
+				color: #666666;
+				text-align: left;
+				font-style: normal;
+
+				.themeColor {
+					margin-left: 30rpx;
+					color: #5385FA;
+				}
+			}
+		}
+
 	}
+
+	// ::v-deep .t-progress__inner {
+	// 	background: $themeColor;
+	// }
 
 	.themeColor {
 		color: $themeColor !important;
@@ -283,8 +348,9 @@
 		background: #FFFFFF;
 		box-shadow: 0rpx 14rpx 22rpx 0rpx rgba(198, 198, 198, 0.5);
 		border-radius: 32rpx;
-		padding: 30rpx 40rpx 40rpx;
+		// padding: 30rpx 40rpx 40rpx;
 		margin-bottom: 40rpx;
+		overflow: hidden;
 
 		.positionManage-image {
 			width: 180rpx;
@@ -317,11 +383,16 @@
 			display: flex;
 			flex-direction: column;
 			width: 100%;
-			gap: 40rpx;
+			// gap: 40rpx;
 
 			.row-item {
 				display: flex;
 				justify-content: space-between;
+				padding: 30rpx;
+
+				&:nth-child(2n) {
+					background: #F5F8FF;
+				}
 
 				.positionManage-info-title {
 					font-family: PingFangSC, PingFang SC;
@@ -344,28 +415,6 @@
 			}
 		}
 
-		&.positionManage_info2 {
-			padding: 40rpx;
-
-			.info-row .row-item {
-				.positionManage-info-title {
-					font-family: PingFangSC, PingFang SC;
-					font-weight: 400;
-					font-size: 24rpx;
-					color: #1C2D57;
-					text-align: left;
-					font-style: normal;
-				}
-
-				.positionManage-info-value {
-					font-family: PingFangSC, PingFang SC;
-					font-weight: 400;
-					font-size: 24rpx;
-					color: #1C2D57;
-					font-style: normal;
-				}
-			}
-		}
 	}
 
 	::v-deep .t-table th::after,
