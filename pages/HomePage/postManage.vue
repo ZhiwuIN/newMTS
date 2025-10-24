@@ -7,7 +7,7 @@
 				<view class="data_box">
 					<image class="my_postmanage"
 						:src="postList?.find(item => item.pid == userInfo?.position)?.image ?? ''" mode=""></image>
-					<view class="top_tag">{{$t('当前职位')}}: {{userInfo?.positionName || '--'}}</view>
+					<view class="top_tag">{{$t('当前职位')}}: {{postList?.find(item => item.pid == userInfo?.position)?.positionName || '--'}}</view>
 					<view class="top_box_info">
 						<view>{{$t('A级下属人数')}}: {{userInfo?.lv1Count || 0}}</view>
 						<view>{{$t('团队人数')}}: {{userInfo?.totalCount || 0}}</view>
@@ -135,11 +135,9 @@
 	import customnavbar from '@/component/custom-navbar/custom-navbar.vue'
 	import {
 		positionApi,
-		positionApplyApi
+		positionApplyApi,
+		positionSubordinateInformationApi
 	} from "@/common/api/position.js";
-	import {
-		userInfoApi
-	} from "@/common/api/users.js";
 	export default {
 		components: {
 			customnavbar
@@ -167,14 +165,13 @@
 		onShow() {
 			positionApi().then((res) => {
 				this.postList = res.data
-				userInfoApi().then((res) => {
-					uni.setStorageSync('userInfo', res.data)
+				positionSubordinateInformationApi(uni.getStorageSync('userInfo').userId).then((res) => {
 					this.userInfo = res.data
-					this.idx = this.postList?.findIndex(item => item?.pid == this.userInfo.position) ?? -1
-					if (res.data.housekeeper == 1) {
-						this.pop_message = this.$t("withdrawal.restrictedAccess")
-						this.$refs.promptpopup.open()
-					}
+					this.idx = this.postList?.findIndex(item => item?.pid == this.userInfo?.position) ?? -1
+					// if (res.data.housekeeper == 1) {
+					// 	this.pop_message = this.$t("withdrawal.restrictedAccess")
+					// 	this.$refs.promptpopup.open()
+					// }
 				}).catch((err) => {
 					console.log('request fail', err);
 					this.$showMessage('warning', err.msg);

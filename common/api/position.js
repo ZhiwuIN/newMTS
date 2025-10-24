@@ -58,3 +58,11 @@ export function positionMyPositionInfoApi(id){
 		method: 'get',
 	})
 }
+
+// 职位列表页_我的职位
+export function positionSubordinateInformationApi(userId){
+	return request({
+		url: `/app/position/subordinateInformation/${userId}`,
+		method: 'get',
+	})
+}
