@@ -511,5 +511,9 @@
 	"您的申请未通过": "Your application was not approved",
 	"您的职位已达成": "Your position has been achieved",
 	"您的职位任务未达成": "Your position task has not been achieved",
-	"您的申请等待审核": "Your application is pending review"
+	"您的申请等待审核": "Your application is pending review",
+	"mine.EmployeeBenefits": "Employee Benefits",
+	"mine.UserManual": "User Manual",
+	"mine.PromotionalBrochure": "Promotional Brochure",
+	"通知详情": "Notification Details"
 }

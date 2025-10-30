@@ -1,5 +1,5 @@
 <template>
-	<view class="message-popup_box" :class="{'conceal': !isShow}" @click="info(data?.id)">
+	<view class="message-popup_box" :class="{'conceal': !isShow}" @click="info()">
 		<view style="display: flex;">
 			<!-- 图标 -->
 			<view>
@@ -7,12 +7,12 @@
 			</view>
 			<!-- 主要内容 -->
 			<view class="main">
-				<view>{{data?.title}}</view>
-				<view class="main_content">{{data?.content}}</view>
+				<!-- <view>{{data?.title}}</view> -->
+				<view class="main_content" v-html="content"></view>
 			</view>
 		</view>
 		<!-- 关闭按钮 -->
-		<view @click.stop="close(data?.id)">
+		<view @click.stop="close()">
 			<image class="close" src="/static/message-popup/close.png" mode=""></image>
 		</view>
 	</view>
@@ -29,9 +29,9 @@
 			}
 		},
 		props: {
-			data: {
-				type: Object,
-				default: {}
+			content: {
+				type: String,
+				default: ''
 			},
 			isShow: {
 				type: Boolean,
@@ -39,23 +39,14 @@
 			}
 		},
 		methods: {
-			close(id) {
-				if (id) {
-					messageReadApi(id).then(res => {
-						this.$emit('update:isShow', false)
-						setTimeout(() => {
-							this.$emit('getMessageNoticeApi')
-						}, 300)
-					})
-				}
+			close() {
+				this.$emit('update:isShow', false)
 			},
-			info(id) {
-				if (id) {
-					this.$emit('update:isShow', false)
-					uni.navigateTo({
-						url: '/pages/HomePage/messageDetailsPage?id=' + id
-					})
-				}
+			info() {
+				this.$emit('update:isShow', false)
+				uni.navigateTo({
+					url: '/pages/notificationDetails?type=rollContent'
+				})
 			}
 		}
 	}
@@ -95,6 +86,7 @@
 			overflow-wrap: break-word;
 
 			.main_content {
+				transform: translateY(8rpx);
 				overflow: hidden;
 				text-overflow: ellipsis;
 				display: -webkit-box;
@@ -107,11 +99,13 @@
 			width: 42rpx;
 			height: 42rpx;
 			margin-right: 24rpx;
+			transform: translateY(8rpx);
 		}
 
 		.close {
 			width: 24rpx;
 			height: 24rpx;
+			transform: translateY(4rpx);
 		}
 	}
 </style>

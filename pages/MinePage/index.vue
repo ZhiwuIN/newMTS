@@ -71,7 +71,8 @@
 						<view class="btn deposit" @click="toPage2('/pages/HomePage/RechargeChannel')">
 							{{$t('mine.Deposit')}}
 						</view>
-						<view class="btn withdraw" @click="isRestrictAccess ? this.$refs.promptpopup_access.open() : toPage2('/pages/MinePage/withdrawal')">
+						<view class="btn withdraw"
+							@click="isRestrictAccess ? this.$refs.promptpopup_access.open() : toPage2('/pages/MinePage/withdrawal')">
 							{{$t('mine.Withdrawal')}}
 						</view>
 					</view>
@@ -110,7 +111,8 @@
 							<image src="/static/mine/Account Security.png"></image>
 							<text>{{splitText($t('mine.AccountSecurity'))}}</text>
 						</view>
-						<view class="function-item" @click="toPage('/pages/MinePage/privacyPolicy')">
+						<view class="function-item"
+							@click="toPage('/pages/MinePage/privacyPolicy?title=' + $t('pages.privacyPolicy') + '&gropid=' + 5)">
 							<image src="/static/mine/Privacy Policy.png"></image>
 							<text>{{splitText($t('mine.PrivacyPolicy'))}}</text>
 						</view>
@@ -124,6 +126,21 @@
 							<text>{{splitText($t('mine.APPDownload'))}}</text>
 						</view>
 						<!-- #endif -->
+						<view class="function-item"
+							@click="toPage('/pages/MinePage/privacyPolicy?title=' + $t('mine.EmployeeBenefits') + '&gropid=' + 6)">
+							<image src="/static/mine/rightsInterests.png"></image>
+							<text>{{splitText($t('mine.EmployeeBenefits'))}}</text>
+						</view>
+						<view class="function-item"
+							@click="toPage('/pages/MinePage/privacyPolicy?title=' + $t('mine.UserManual') + '&gropid=' + 7)">
+							<image src="/static/mine/serviceManual.png"></image>
+							<text>{{splitText($t('mine.UserManual'))}}</text>
+						</view>
+						<view class="function-item"
+							@click="toPage('/pages/MinePage/privacyPolicy?title=' + $t('mine.PromotionalBrochure') + '&gropid=' + 8)">
+							<image src="/static/mine/brochure.png"></image>
+							<text>{{splitText($t('mine.PromotionalBrochure'))}}</text>
+						</view>
 					</view>
 				</view>
 			</view>
@@ -143,7 +160,8 @@
 				<view class="prompt_pop_top">{{$t('home.Prompt')}}</view>
 				<view class="prompt_pop_taps">{{this.$t("withdrawal.restrictedAccess")}}</view>
 				<view class="prompt_pop_bottom">
-					<button class="prompt_confirm_btn" @click="this.$refs.promptpopup_access.close()">{{$t('pay.yes')}}</button>
+					<button class="prompt_confirm_btn"
+						@click="this.$refs.promptpopup_access.close()">{{$t('pay.yes')}}</button>
 				</view>
 			</view>
 		</uni-popup>

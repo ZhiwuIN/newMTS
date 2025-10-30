@@ -35,13 +35,19 @@
 		},
 		methods: {
 			getNoticeDetails() {
+				uni.showLoading({
+					title: this.$t('loading.btn')
+				});
 				noticeDetailsApi(this.noticeId).then((res) => {
 					this.noticeDetails = res.data
-					this.noticeDetails.content = this.noticeDetails.content
+					// this.noticeDetails.content = this.noticeDetails.content
+					this.noticeDetails.content = formatRichText(this.noticeDetails.content)
 				}).catch((err) => {
 					console.log('request fail', err);
 					this.$showMessage('warning', err.msg);
-				})
+				}).finally(() => {
+					uni.hideLoading();
+				});
 			}
 		},
 		onLoad(options) {

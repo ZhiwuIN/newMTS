@@ -43,7 +43,8 @@
 						<!-- 如果职位不存在 -->
 						<text class="home_salary_box_v_c_t" v-if="!userInfo.position">{{$t('home.getPositions')}}</text>
 						<!-- 未到发薪日 -->
-						<text class="home_salary_box_v_c_t" v-else-if="!salaryIsGet && todaySalary == 0">Not yet reached the payday</text>
+						<text class="home_salary_box_v_c_t" v-else-if="!salaryIsGet && todaySalary == 0">Not yet reached
+							the payday</text>
 						<!-- 薪资未领取 -->
 						<text class="home_salary_box_v_c_t" v-else-if="!salaryIsGet">{{$t('home.TodaySalary')}} :
 							<text>{{ todaySalary }}</text> {{ currency }}</text>
@@ -79,8 +80,7 @@
 								<text>{{splitText($t("home.ConferenceNews"))}}</text>
 							</view>
 						</view>
-						<view class="center_item"
-							@click="toPage('/pages/commonListPage?title='+$t('home.Memberbenefits')+'&groupId=3')">
+						<view class="center_item" @click="toPageMemberBenefits()">
 							<view class="flex_center">
 								<image src="/static/home/Member Benefits.png" class="icon-wrapper" />
 							</view>
@@ -227,6 +227,22 @@
 				</view>
 			</view>
 		</uni-popup>
+
+		<uni-popup ref="promptpopup3" type="center" :mask-click="false">
+			<view class="prompt_pop_page">
+				<view class="prompt_pop_top">{{$t('home.Prompt')}}</view>
+				<view class="prompt_pop_taps" v-html="popWindowContent"></view>
+				<view class="prompt_pop_bottom">
+					<button class="prompt_confirm_btn" @click="prompt_confirm3">{{$t('pay.yes')}}</button>
+				</view>
+			</view>
+		</uni-popup>
+
+		<messagePopup v-model:isShow="isShowMessage" :data="msgData" @getMessageNoticeApi="getMessageNoticeApi">
+		</messagePopup>
+
+		<messagePopup2 v-model:isShow="isShowMessage2" :content="rollContent">
+		</messagePopup2>
 	</view>
 </template>
 
@@ -235,9 +251,13 @@
 	import alreadyIcon from '/static/home/already.png';
 	import arrowIcon from '/static/home/arrowright.png';
 	import customnavbar from '@/component/custom-navbar/custom-navbar.vue';
+	import messagePopup from '@/component/message-popup/message-popup.vue';
+	import messagePopup2 from '@/component/message-popup-2/message-popup-2.vue';
 	import {
 		companyInfoApi,
-		slideListApi
+		slideListApi,
+		messageNoticeApi,
+		noticeListApi
 	} from "@/common/api/home.js";
 	import {
 		userInfoApi,
@@ -253,10 +273,17 @@
 	} from "@/utils/utils.js"
 	export default {
 		components: {
-			customnavbar
+			customnavbar,
+			messagePopup,
+			messagePopup2
 		},
 		data() {
 			return {
+				popWindowContent: '',
+				rollContent: '',
+				isShowMessage2: false,
+				msgData: {},
+				isShowMessage: false,
 				pop_message_yes: "",
 				url: 'http://13.245.95.135:8888',
 				// url: 'http://192.168.2.35:8080',
@@ -291,6 +318,20 @@
 			}
 		},
 		methods: {
+			prompt_confirm3() {
+				this.$refs.promptpopup3.close()
+				uni.navigateTo({
+					url: '/pages/notificationDetails?type=popWindowContent'
+				})
+			},
+			getMessageNoticeApi() {
+				messageNoticeApi().then(res => {
+					if (res.data?.id) {
+						this.msgData = res.data
+						this.isShowMessage = true
+					}
+				})
+			},
 			prompt_confirm2() {
 				this.$refs.promptpopup2.close()
 			},
@@ -343,9 +384,9 @@
 					this.todaySalary = res.data.todayAmount ?? 0
 					this.salary.payType = res.data.payType
 					this.salary.payDay = res.data.payDay
-					if(res.data.whetherToReceive == 1){
+					if (res.data.whetherToReceive == 1) {
 						this.salaryIsGet = true
-					} 
+					}
 					this.salaryIsGet = false;
 					// this.salaryIsGet = false
 				}).catch(err => {
@@ -474,6 +515,28 @@
 					url: path
 				})
 			},
+			// 会员福利
+			toPageMemberBenefits() {
+				noticeListApi(3,{
+					pageNum: 1
+				}).then((res) => {
+					if (res.data.count) {
+						uni.navigateTo({
+							url: '/pages/commonDetailsPage?title=' + this.$t('home.Memberbenefits') +
+								'&id=' + res.data.list[0].noticeId
+						})
+					} else {
+						uni.navigateTo({
+							url: '/pages/commonListPage?title=' + this.$t('home.Memberbenefits') +
+								'&groupId=3'
+						})
+					}
+
+				}).catch((err) => {
+					console.log('request fail', err);
+					this.$showMessage('warning', err.msg);
+				})
+			},
 			handleChange(e) {
 				this.currentSwiperi = e.detail.current
 			},
@@ -529,10 +592,21 @@
 			this.noticeList = uni.getStorageSync('settings').noticeList
 			// uni.setTabBarBadge({index: 2})
 			this.getTadaySalary()
+			this.getMessageNoticeApi()
 		},
 		mounted() {
 			this.getSettings()
 			this.checkLoginStatus()
+			if (uni.getStorageSync('settings').popWindowSwitch == 1) {
+				this.popWindowContent = getFirstTextTagWithEllipsis(uni.getStorageSync('settings').popWindowContent)
+				this.$refs.promptpopup3.open()
+			}
+		},
+		onLoad() {
+			if (uni.getStorageSync('settings').rollSwitch == 1) {
+				this.rollContent = getFirstTextTagWithEllipsis(uni.getStorageSync('settings').rollContent)
+				this.isShowMessage2 = true
+			}
 		}
 	}
 </script>

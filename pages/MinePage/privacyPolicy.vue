@@ -1,6 +1,10 @@
 <template>
-	<customnavbar :title="$t('pages.privacyPolicy')">
+	<customnavbar :title="title">
 		<view class="privacyPolicy-page">
+			<view class="common-info">{{data.title}}</view>
+			<image v-if="data.coverImg" class="image-container"
+				:style="{ width: '652rpx', height: data.gropid == '11' ? '772rpx' : '372rpx' }" fit="fill"
+				:src=" data.coverImg"></image>
 			<view class="privacyPolicy-info" v-html="privacyPolicyInfo"></view>
 		</view>
 
@@ -12,6 +16,9 @@
 	import {
 		noticeListApi
 	} from '@/common/api/home.js'
+	import {
+		formatRichText
+	} from "@/utils/utils.js"
 	export default {
 		components: {
 			customnavbar
@@ -19,14 +26,18 @@
 		data() {
 			return {
 				privacyPolicyInfo: "",
+				title: '',
+				data: {}
 			}
 		},
-		onLoad() {
-			noticeListApi(5, {
+		onLoad(options) {
+			this.title = options.title
+			noticeListApi(options.gropid, {
 				pageNum: 1
 			}).then((res) => {
 				if (res.data.list.length) {
-					this.privacyPolicyInfo = res.data.list[0]?.content
+					this.data = res.data.list[0]
+					this.privacyPolicyInfo = formatRichText(res.data.list[0]?.content)
 				}
 			}).catch((err) => {
 				console.log('request fail', err);

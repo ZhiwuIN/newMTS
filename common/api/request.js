@@ -19,11 +19,9 @@ const {
 } = initVueI18n(messages)
 // 全局请求封装——也可像上述一样根据环境不同的判断
 // const base_url = '/api';8080'; //开发环境
-// const base_url = 'http://13.244.243.127:1001'; //测试环境
-// const base_url = 'http://16.28.69.140:8888';
-// const base_url = 'http://192.168.0.5:8080'
-// const base_url = 'http://192.168.0.9:8080'
-const base_url = 'https://api.cwpc.vip' // 域名 
+const base_url = 'http://192.168.0.9:8081'//开发环境
+// const base_url = 'http://18.175.218.68:8888'//测试环境
+// const base_url = 'https://api.cwpc.vip' // 域名 
 // 请求超时设置
 const timeout = 30000;
 
