@@ -3,11 +3,11 @@
 	"home.Gloria": "Gloria",
 	"home.Account": "Account",
 	"home.Confirm": "Confirm",
-	"home.Memberbenefits": "Member benefits",
+	"home.Memberbenefits": "Member Benefits",
 	"home.Postmanage": "Management Positions",
-	"home.Teamexpansion": "Team expansion",
+	"home.Teamexpansion": "Team Expansion",
 	"home.Luckyturntable": "Lucky Cards",
-	"home.Financialproducts": "Fund products",
+	"home.Financialproducts": "Fund Products",
 	"home.Recharge": "Recharge",
 	"home.CompanyProfile": "Company Profile",
 	"home.CompanyActivity": "Company Activity",
@@ -515,5 +515,7 @@
 	"mine.EmployeeBenefits": "Employee Benefits",
 	"mine.UserManual": "User Manual",
 	"mine.PromotionalBrochure": "Promotional Brochure",
-	"通知详情": "Notification Details"
+	"通知详情": "Notification Details",
+	"暂停发放": "Provisional salary",
+	"职位任务未完成": "Position task not completed"
 }

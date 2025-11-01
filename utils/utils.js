@@ -78,18 +78,39 @@ export function formatRichText(html) {
 }
 
 export function getFirstTextTagWithEllipsis(html) {
-	// 匹配第一个文本标签（如<p>、<span>、<div>等）
-	const tagMatch = html.match(/<(p|span|div)[^>]*>[\s\S]*?<\/\1>/i);
-	if (!tagMatch) return '';
-	// 提取标签名
-	const tagName = tagMatch[1];
-	// 提取标签内容
-	const contentMatch = tagMatch[0].match(new RegExp(`<${tagName}[^>]*>([\\s\\S]*?)<\\/${tagName}>`, 'i'));
-	let content = contentMatch ? contentMatch[1] : '';
-	// 去掉所有HTML标签，只保留纯文本
-	content = content.replace(/<[^>]+>/g, '');
-	// 构造带样式的新标签
-	return `<${tagName} style="display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis;">${content}</${tagName}>`;
+	// 匹配所有 <p>、<span>、<div> 标签（全局匹配，保留标签名和内容）
+	const tagReg = /<(p|span|div)[^>]*>[\s\S]*?<\/\1>/gi;
+	let match;
+	let validTag = null;
+
+	// 遍历所有匹配的标签，寻找第一个非空内容的标签
+	while ((match = tagReg.exec(html)) !== null) {
+		const fullTag = match[0]; // 完整标签（如 <p><br></p>）
+		const tagName = match[1]; // 标签名（p/span/div）
+
+		// 提取标签内的内容
+		const contentMatch = fullTag.match(new RegExp(`<${tagName}[^>]*>([\\s\\S]*?)<\\/${tagName}>`, 'i'));
+		let content = contentMatch ? contentMatch[1] : '';
+
+		// 去除内容中的 HTML 标签（包括 <br> 等）
+		content = content.replace(/<[^>]+>/g, '').trim(); // 同时去除首尾空格
+
+		// 如果内容非空，说明找到有效标签，退出循环
+		if (content) {
+			validTag = {
+				fullTag,
+				tagName,
+				content
+			};
+			break;
+		}
+	}
+
+	// 若没有找到有效标签，返回空
+	if (!validTag) return '';
+
+	// 构造带省略号样式的新标签
+	return `<${validTag.tagName} style="display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis;">${validTag.content}</${validTag.tagName}>`;
 }
 
 

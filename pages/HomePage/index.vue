@@ -4,16 +4,23 @@
 			@mtop='mtop' :isHome="true" :hasMessage="userInfo.hasMessage">
 			<view class="home_container">
 				<view class="home_top_bg" :style="topStyle">
-					<view class="home_top_title1">{{$t('home.hello')}}{{userInfo?.levelName || ' --'}}</view>
-					<view class="home_top_title1" style="font-size: 48rpx;" v-if="userInfo?.positionName">
-						{{userInfo?.positionName}}
+					<!-- :bgColor="'rgba(240, 248, 255, 0.2)'" -->
+					<view class="noticebar noticebar_top" v-if="isShowMessage2" :style="topStyle2">
+						<l-notice-bar :marquee="true" leftIcon="/static/home/horn2.svg" :interval="0" :loop="0"
+							:delay="500" :iconSize="40" :text="[rollContent]" :bgColor="'rgba(240, 248, 255, 0.2)'"
+							:color="'#fff'" @click="onclicktopgg()" style="padding-left: 8rpx;padding-right: 8rpx;" />
 					</view>
-					<view class="home_top_title2">{{$t('home.Welcome')}}</view>
+
+					<view class="home_top_title1">{{ $t('home.hello') }}{{ userInfo?.levelName || ' --' }}</view>
+					<view class="home_top_title1" style="font-size: 48rpx;" v-if="userInfo?.positionName">
+						{{ userInfo?.positionName }}
+					</view>
+					<view class="home_top_title2">{{ $t('home.Welcome') }}</view>
 					<view class="flex_center">
 						<view class="home_top_center">
 							<view class="avatar_container">
 								<view class="avatar_box">
-									<image :src="userInfo.avatar ?  userInfo.avatar : '/static/default-avatar.png'"
+									<image :src="userInfo.avatar ? userInfo.avatar : '/static/default-avatar.png'"
 										alt="" class="avatar_img" />
 								</view>
 								<view class="level_box">
@@ -24,13 +31,13 @@
 								<view class="account_balance_box">
 									<image src="/static/home/accountbalance.svg" mode="" class="account_balance_img">
 									</image>
-									<view class="">{{$t('home.Accountbalance')}}</view>
+									<view class="">{{ $t('home.Accountbalance') }}</view>
 								</view>
 								<view class="account_balance_t">
-									{{userInfo?.accountBalance || '--'}} {{ currency }}
+									{{ userInfo?.accountBalance || '--' }} {{ currency }}
 								</view>
 								<view class="withdrawal_btn" @click="toWithdrawal" v-if="userType != 'test'">
-									{{$t('home.Withdrawal')}}
+									{{ $t('home.Withdrawal') }}
 								</view>
 							</view>
 						</view>
@@ -41,18 +48,21 @@
 					<image src="/static/home/darller.png" mode="" class="home_salary_box_img"></image>
 					<view class="home_salary_box_v_c">
 						<!-- 如果职位不存在 -->
-						<text class="home_salary_box_v_c_t" v-if="!userInfo.position">{{$t('home.getPositions')}}</text>
+						<text class="home_salary_box_v_c_t"
+							v-if="!userInfo.position">{{ $t('home.getPositions')}}</text>
+						<!-- 已领取 -->
+						<text class="home_salary_box_v_c_t" v-else-if="salaryIsGet">Received today</text>
+						<!-- 职位任务未达标 -->
+						<text class="home_salary_box_v_c_t" v-else-if="userInfo.compliance == 0">{{ $t("暂停发放")}}</text>
 						<!-- 未到发薪日 -->
 						<text class="home_salary_box_v_c_t" v-else-if="!salaryIsGet && todaySalary == 0">Not yet reached
 							the payday</text>
 						<!-- 薪资未领取 -->
-						<text class="home_salary_box_v_c_t" v-else-if="!salaryIsGet">{{$t('home.TodaySalary')}} :
+						<text class="home_salary_box_v_c_t" v-else-if="!salaryIsGet">{{ $t('home.TodaySalary') }} :
 							<text>{{ todaySalary }}</text> {{ currency }}</text>
-						<!-- 已领取 -->
-						<text class="home_salary_box_v_c_t" v-else-if="salaryIsGet">Received today</text>
 						<text class="home_salary_box_v_c_t" v-else>Unable to receive</text>
 					</view>
-					<view @tap="isRestrictAccess? this.$refs.promptpopup2.open() : onGetDailyWage()"
+					<view @tap="isRestrictAccess ? this.$refs.promptpopup2.open() : onGetDailyWage()"
 						:class="'home_salary_box_r_btn' + (salaryIsGet ? ' disable' : '')">
 						<text v-if="!userInfo.position">Go</text>
 						<text v-else-if="!salaryIsGet && todaySalary == 0">Details
@@ -63,21 +73,21 @@
 				<view class="home_center_box">
 					<view class="center_item_box">
 						<view class="center_item"
-							@click="toPage('/pages/commonListPage?title='+$t('home.CompanyActivity')+'&groupId=1')">
+							@click="toPage('/pages/commonListPage?title=' + $t('home.CompanyActivity') + '&groupId=1')">
 							<view class="flex_center">
 								<image src="/static/home/Company Activities.png" class="icon-wrapper" />
 							</view>
 							<view class="center_item_t">
-								<text>{{splitText($t("home.CompanyActivity"))}}</text>
+								<text>{{ splitText($t("home.CompanyActivity")) }}</text>
 							</view>
 						</view>
 						<view class="center_item"
-							@click="toPage('/pages/commonListPage?title='+$t('home.ConferenceNews')+'&groupId=2')">
+							@click="toPage('/pages/commonListPage?title=' + $t('home.ConferenceNews') + '&groupId=2')">
 							<view class="flex_center">
 								<image src="/static/home/Conference News.png" class="icon-wrapper" />
 							</view>
 							<view class="center_item_t">
-								<text>{{splitText($t("home.ConferenceNews"))}}</text>
+								<text>{{ splitText($t("home.ConferenceNews")) }}</text>
 							</view>
 						</view>
 						<view class="center_item" @click="toPageMemberBenefits()">
@@ -85,27 +95,27 @@
 								<image src="/static/home/Member Benefits.png" class="icon-wrapper" />
 							</view>
 							<view class="center_item_t">
-								<text>{{splitText($t("home.Memberbenefits"))}}</text>
+								<text>{{ splitText($t("home.Memberbenefits")) }}</text>
 							</view>
 						</view>
 						<view class="center_item"
-							@click="isRestrictAccess? this.$refs.promptpopup2.open() : toPage('/pages/HomePage/postManage')">
+							@click="isRestrictAccess ? this.$refs.promptpopup2.open() : toPage('/pages/HomePage/postManage')">
 							<view class="flex_center">
 								<image src="/static/home/Management Positions.png" class="icon-wrapper" />
 							</view>
 							<view class="center_item_t">
-								<text>{{splitText($t("home.Postmanage"))}}</text>
+								<text>{{ splitText($t("home.Postmanage")) }}</text>
 							</view>
 						</view>
 					</view>
 					<view class="center_item_box" style="margin-top: 40rpx;">
 						<view class="center_item"
-							@click=" isRestrictAccess? this.$refs.promptpopup2.open() : toPageTeamExpansion('/pages/HomePage/teamExpansion')">
+							@click=" isRestrictAccess ? this.$refs.promptpopup2.open() : toPageTeamExpansion('/pages/HomePage/teamExpansion')">
 							<view class="flex_center">
 								<image src="/static/home/Team Expansion.png" class="icon-wrapper" />
 							</view>
 							<view class="center_item_t">
-								<text>{{splitText($t("home.Teamexpansion"))}}</text>
+								<text>{{ splitText($t("home.Teamexpansion")) }}</text>
 							</view>
 						</view>
 						<view class="center_item" @click="toPage2('/pages/HomePage/lotteryPage')">
@@ -113,7 +123,7 @@
 								<image src="/static/home/Lucky_Wheel.png" class="icon-wrapper" />
 							</view>
 							<view class="center_item_t">
-								<text>{{splitText($t("home.Luckyturntable"))}}</text>
+								<text>{{ splitText($t("home.Luckyturntable")) }}</text>
 							</view>
 						</view>
 						<view class="center_item" @click="toPage('/pages/HomePage/financePage')">
@@ -121,7 +131,7 @@
 								<image src="/static/home/Financial Products.png" class="icon-wrapper" />
 							</view>
 							<view class="center_item_t">
-								<text>{{splitText($t("home.Financialproducts"))}}</text>
+								<text>{{ splitText($t("home.Financialproducts")) }}</text>
 							</view>
 						</view>
 						<view class="center_item" @click="toPage('/pages/HomePage/RechargeChannel')"
@@ -130,7 +140,7 @@
 								<image src="/static/home/Deposit.png" class="icon-wrapper" />
 							</view>
 							<view class="center_item_t">
-								<text>{{splitText($t("mine.Deposit"))}}</text>
+								<text>{{ splitText($t("mine.Deposit")) }}</text>
 							</view>
 						</view>
 						<view class="center_item" style="opacity: 0;" v-if="userType == 'test'">
@@ -138,7 +148,7 @@
 								<image src="/static/home/Deposit.png" class="icon-wrapper" />
 							</view>
 							<view class="center_item_t">
-								<text>{{splitText($t("mine.Deposit"))}}</text>
+								<text>{{ splitText($t("mine.Deposit")) }}</text>
 							</view>
 						</view>
 						<!-- 	<view class="center_item">
@@ -167,22 +177,22 @@
 						:text="noticeList" />
 				</view>
 
-				<view style="padding: 62rpx 0 0 50rpx;">
-					<swiper :autoplay="true" @change="handleChange" style="height: 346rpx" next-margin="46rpx">
+				<view style="padding: 62rpx 50rpx 0 50rpx;">
+					<swiper :autoplay="true" @change="handleChange" style="height: 346rpx">
 						<swiper-item v-for="(item, index) in swiperList" :key="index" style="height: 346rpx">
-							<image @click="pushUrl(item.pushUrl)" :src=" item.imgPath" class="swiper_img"></image>
+							<image @click="pushUrl(item.pushUrl)" :src="item.imgPath" class="swiper_img"></image>
 						</swiper-item>
 					</swiper>
 					<view class="dots_box">
 						<view v-for="i in swiperList.length" :key="i">
-							<view :class="currentSwiperi == (i-1)?'dots_a':'dots'">
+							<view :class="currentSwiperi == (i - 1) ? 'dots_a' : 'dots'">
 							</view>
 						</view>
 					</view>
 				</view>
 				<view style="padding:  4rpx 50rpx 50rpx 50rpx" @click="toCompanyInfo">
 					<view style="display: flex;justify-content: space-between;">
-						<view class="company_profile_t">{{$t("home.CompanyProfile")}}</view>
+						<view class="company_profile_t">{{ $t("home.CompanyProfile") }}</view>
 						<image src="/static/home/more.svg" class="more_icon"></image>
 					</view>
 					<rich-text :nodes="companyInfo" class="company_profile_t2">
@@ -195,54 +205,61 @@
 				<view class="flex_center mt_58">
 					<image src="/static/home/login_icon.png" alt="" class="login_icon" />
 				</view>
-				<view class="pop_title">{{$t("home.Prompt")}}</view>
+				<view class="pop_title">{{ $t("home.Prompt") }}</view>
 				<view class="flex_center">
-					<view class="pop_desc">{{$t("home.PromptTips")}}</view>
+					<view class="pop_desc">{{ $t("home.PromptTips") }}</view>
 				</view>
 				<view class="flex_center">
-					<view class="pop_logon_btn" @click="toLogon">{{$t("home.logon")}}</view>
+					<view class="pop_logon_btn" @click="toLogon">{{ $t("home.logon") }}</view>
 				</view>
 				<view class="flex_center">
-					<view class="pop_cancel_btn" @click="popCancel">{{$t("home.cancel")}}</view>
+					<view class="pop_cancel_btn" @click="popCancel">{{ $t("home.cancel") }}</view>
 				</view>
 			</view>
 		</uni-popup>
 
 		<uni-popup ref="promptpopup" type="center">
 			<view class="prompt_pop_page">
-				<view class="prompt_pop_top">{{$t('home.Prompt')}}</view>
-				<view class="prompt_pop_taps">{{$t('请先实名')}}</view>
+				<view class="prompt_pop_top">{{ $t('home.Prompt') }}</view>
+				<view class="prompt_pop_taps">{{ $t('请先实名') }}</view>
 				<view class="prompt_pop_bottom">
-					<button class="prompt_cancel_btn" @click="prompt_cancel">{{$t('pay.no')}}</button>
-					<button class="prompt_confirm_btn" @click="prompt_confirm">{{$t('pay.yes')}}</button>
+					<button class="prompt_cancel_btn" @click="prompt_cancel">{{ $t('pay.no') }}</button>
+					<button class="prompt_confirm_btn" @click="prompt_confirm">{{ $t('pay.yes') }}</button>
 				</view>
 			</view>
 		</uni-popup>
 		<uni-popup ref="promptpopup2" type="center" :mask-click="false">
 			<view class="prompt_pop_page">
-				<view class="prompt_pop_top">{{$t('home.Prompt')}}</view>
-				<view class="prompt_pop_taps">{{pop_message_yes}}</view>
+				<view class="prompt_pop_top">{{ $t('home.Prompt') }}</view>
+				<view class="prompt_pop_taps">{{ pop_message_yes }}</view>
 				<view class="prompt_pop_bottom">
-					<button class="prompt_confirm_btn" @click="prompt_confirm2">{{$t('pay.yes')}}</button>
+					<button class="prompt_confirm_btn" @click="prompt_confirm2">{{ $t('pay.yes') }}</button>
 				</view>
 			</view>
 		</uni-popup>
 
-		<uni-popup ref="promptpopup3" type="center" :mask-click="false">
+		<!-- <uni-popup ref="promptpopup3" type="center" :mask-click="false">
 			<view class="prompt_pop_page">
-				<view class="prompt_pop_top">{{$t('home.Prompt')}}</view>
+				<view class="prompt_pop_top">{{ $t('home.Prompt') }}</view>
 				<view class="prompt_pop_taps" v-html="popWindowContent"></view>
 				<view class="prompt_pop_bottom">
-					<button class="prompt_confirm_btn" @click="prompt_confirm3">{{$t('pay.yes')}}</button>
+					<button class="prompt_confirm_btn" @click="prompt_confirm3">{{ $t('pay.yes') }}</button>
 				</view>
 			</view>
-		</uni-popup>
+		</uni-popup> -->
 
 		<messagePopup v-model:isShow="isShowMessage" :data="msgData" @getMessageNoticeApi="getMessageNoticeApi">
 		</messagePopup>
 
-		<messagePopup2 v-model:isShow="isShowMessage2" :content="rollContent">
-		</messagePopup2>
+		<!-- <messagePopup2 v-model:isShow="isShowMessage2" :content="rollContent">
+		</messagePopup2> -->
+		<t-overlay :visible="bigGG" @click="bigGG = false" />
+		<view class="bigGG" v-if="bigGG">
+			<view class="bigGG_main">
+				<view @click="prompt_confirm3" class="bigGG_text" v-html="popWindowContent"></view>
+			</view>
+			<image class="xImage" src="/static/lottery/x.png" mode="" @click="bigGG = false"></image>
+		</view>
 	</view>
 </template>
 
@@ -287,9 +304,9 @@
 				pop_message_yes: "",
 				url: 'http://13.245.95.135:8888',
 				// url: 'http://192.168.2.35:8080',
-				content1: ['xxx成功提现2000余额', '恭喜xxx抽中4000奖励'],
 				currency: '',
 				topStyle: '',
+				topStyle2: '',
 				swiperList: [],
 				companyInfo: '',
 				currentSwiperi: 0,
@@ -315,11 +332,18 @@
 				salaryIsGet: false,
 				// 管家模式 访问限制
 				isRestrictAccess: false,
+				// 全屏公告
+				bigGG: false
 			}
 		},
 		methods: {
+			onclicktopgg() {
+				uni.navigateTo({
+					url: '/pages/notificationDetails?type=rollContent'
+				})
+			},
 			prompt_confirm3() {
-				this.$refs.promptpopup3.close()
+				this.bigGG = false
 				uni.navigateTo({
 					url: '/pages/notificationDetails?type=popWindowContent'
 				})
@@ -359,6 +383,11 @@
 					this.$refs.promptpopup2.open();
 					return
 				}
+				if (this.userInfo.compliance == 0) {
+					this.pop_message_yes = this.$t("职位任务未完成")
+					this.$refs.promptpopup2.open()
+					return
+				}
 				if (!this.salaryIsGet && !this.todaySalary) {
 					switch (this.salary.payType) {
 						case 'weekly':
@@ -386,8 +415,9 @@
 					this.salary.payDay = res.data.payDay
 					if (res.data.whetherToReceive == 1) {
 						this.salaryIsGet = true
+					} else {
+						this.salaryIsGet = false;
 					}
-					this.salaryIsGet = false;
 					// this.salaryIsGet = false
 				}).catch(err => {
 					// this.$showMessage('warning', err.msg);
@@ -412,6 +442,7 @@
 			},
 			mtop(e) {
 				this.topStyle = "margin-top:-" + e + "rpx;padding-top:" + (e + 88) + "rpx"
+				this.topStyle2 = "top:" + (e) + "rpx"
 				// #ifdef H5
 				// #endif
 				// #ifdef APP-PLUS
@@ -517,7 +548,7 @@
 			},
 			// 会员福利
 			toPageMemberBenefits() {
-				noticeListApi(3,{
+				noticeListApi(3, {
 					pageNum: 1
 				}).then((res) => {
 					if (res.data.count) {
@@ -597,21 +628,61 @@
 		mounted() {
 			this.getSettings()
 			this.checkLoginStatus()
-			if (uni.getStorageSync('settings').popWindowSwitch == 1) {
-				this.popWindowContent = getFirstTextTagWithEllipsis(uni.getStorageSync('settings').popWindowContent)
-				this.$refs.promptpopup3.open()
-			}
 		},
 		onLoad() {
 			if (uni.getStorageSync('settings').rollSwitch == 1) {
 				this.rollContent = getFirstTextTagWithEllipsis(uni.getStorageSync('settings').rollContent)
 				this.isShowMessage2 = true
 			}
+			if (uni.getStorageSync('settings').popWindowSwitch == 1) {
+				// console.log(uni.getStorageSync('settings').popWindowContent)
+				this.popWindowContent = formatRichText(uni.getStorageSync('settings').popWindowContent)
+				this.bigGG = true
+			}
 		}
 	}
 </script>
 
 <style lang="scss" scoped>
+	.bigGG {
+		position: fixed;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		z-index: 10001;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 24rpx;
+
+		.bigGG_main {
+			box-sizing: border-box;
+			width: 85vw;
+			padding: 24rpx;
+			border-radius: 12rpx;
+			background-color: #fff;
+			max-height: 84vh;
+			overflow-y: auto;
+
+			.bigGG_text {
+				overflow: hidden;
+				text-overflow: ellipsis;
+				display: -webkit-box;
+				-webkit-line-clamp: 20;
+				-webkit-box-orient: vertical;
+			}
+		}
+
+		.xImage {
+			width: 58rpx;
+			height: 58rpx;
+		}
+	}
+
+	::v-deep .t-overlay {
+		z-index: 10000 !important;
+	}
+
 	.home_salary_box {
 		width: 650rpx;
 		margin: 40rpx auto;
@@ -733,8 +804,14 @@
 	}
 
 	.home_top_bg {
+		position: relative;
 		width: 100%;
 		background: url('/static/home/home_bg.png') top left/100% no-repeat;
+
+		.noticebar.noticebar_top {
+			position: absolute;
+			padding: 0;
+		}
 	}
 
 	.home_top_center {
@@ -791,7 +868,7 @@
 	}
 
 	.swiper_img {
-		width: 606rpx;
+		width: 100%;
 		height: 346rpx;
 		border-radius: 32rpx;
 	}

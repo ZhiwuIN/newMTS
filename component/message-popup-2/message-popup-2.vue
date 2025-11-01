@@ -12,9 +12,9 @@
 			</view>
 		</view>
 		<!-- 关闭按钮 -->
-		<view @click.stop="close()">
+		<!-- <view @click.stop="close()">
 			<image class="close" src="/static/message-popup/close.png" mode=""></image>
-		</view>
+		</view> -->
 	</view>
 </template>
 
@@ -43,7 +43,7 @@
 				this.$emit('update:isShow', false)
 			},
 			info() {
-				this.$emit('update:isShow', false)
+				// this.$emit('update:isShow', false)
 				uni.navigateTo({
 					url: '/pages/notificationDetails?type=rollContent'
 				})

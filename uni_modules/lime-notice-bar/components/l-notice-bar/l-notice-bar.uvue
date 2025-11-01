@@ -2,7 +2,7 @@
 	<view class="l-notice-bar" :class="classes" :style="[styles, lStyle]">
 		<view class="l-notice-bar__left" v-if="$slots['leftIcon'] != null || prefixIcon != null">
 			<slot name="leftIcon">
-				<image src="/static/home/horn.svg" mode="" class="level_img"></image>
+				<image :src="leftIcon" mode="" class="level_img"></image>
 				<!-- <l-icon class="l-notice-bar__icon" :color="leftIconColor ?? color" :size="leftIconSize ?? fontSize" :name="prefixIcon" /> -->
 			</slot>
 		</view>
