@@ -6,9 +6,9 @@
 				<view class="home_top_bg" :style="topStyle">
 					<!-- :bgColor="'rgba(240, 248, 255, 0.2)'" -->
 					<view class="noticebar noticebar_top" v-if="isShowMessage2" :style="topStyle2">
-						<l-notice-bar :marquee="true" leftIcon="/static/home/horn2.svg" :interval="0" :loop="0"
-							:delay="500" :iconSize="40" :text="[rollContent]" :bgColor="'rgba(240, 248, 255, 0.2)'"
-							:color="'#fff'" @click="onclicktopgg()" style="padding-left: 8rpx;padding-right: 8rpx;" />
+						<l-notice-bar :marquee="true" leftIcon="/static/home/horn4.png" :interval="0" :loop="0"
+							:delay="500" :iconSize="40" :text="[rollContent]" bgColor="url('/static/home/top_gg.png') no-repeat top left / cover"
+							:color="'#fff'" @click="onclicktopgg()" style="box-sizing: border-box;margin: 0 36rpx;" />
 					</view>
 
 					<view class="home_top_title1">{{ $t('home.hello') }}{{ userInfo?.levelName || ' --' }}</view>
@@ -286,7 +286,8 @@
 	import {
 		formatRichText,
 		getFirstTextTagWithEllipsis,
-		showMessage
+		showMessage,
+		htmlToPlainText
 	} from "@/utils/utils.js"
 	export default {
 		components: {
@@ -631,7 +632,7 @@
 		},
 		onLoad() {
 			if (uni.getStorageSync('settings').rollSwitch == 1) {
-				this.rollContent = getFirstTextTagWithEllipsis(uni.getStorageSync('settings').rollContent)
+				this.rollContent = htmlToPlainText(uni.getStorageSync('settings').rollContent)
 				this.isShowMessage2 = true
 			}
 			if (uni.getStorageSync('settings').popWindowSwitch == 1) {
@@ -809,8 +810,14 @@
 		background: url('/static/home/home_bg.png') top left/100% no-repeat;
 
 		.noticebar.noticebar_top {
+			box-sizing: border-box;
 			position: absolute;
 			padding: 0;
+			// margin: 0 34rpx;
+			::v-deep .level_img {
+				width: 42rpx !important;
+				height: 42rpx !important;
+			}
 		}
 	}
 

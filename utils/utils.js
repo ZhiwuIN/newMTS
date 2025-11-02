@@ -150,3 +150,38 @@ export function getImToken(userId) {
 		uni.setStorageSync('imToken', res.data.token)
 	})
 }
+
+/**
+ * 富文本转纯字符串（移除所有HTML标签）
+ * @param {string} html - 输入的富文本字符串
+ * @returns {string} 处理后的纯文本
+ */
+export function htmlToPlainText(html) {
+	// 1. 空值处理：避免传入null/undefined导致报错
+	if (!html || typeof html !== 'string') return '';
+
+	// 2. 处理特殊HTML实体（如&nbsp;→空格，&lt;→<等）
+	const entityMap = {
+		'&amp;': '&',
+		'&lt;': '<',
+		'&gt;': '>',
+		'&quot;': '"',
+		'&apos;': "'",
+		'&nbsp;': ' ',
+		'&copy;': '©',
+		'&reg;': '®'
+	};
+	let plainText = html.replace(/&[a-zA-Z0-9#]+;/g, (match) => {
+		return entityMap[match] || match; // 未匹配到的实体保留原字符
+	});
+
+	// 3. 移除所有HTML标签（包括自闭合标签，如<br/>、<img/>）
+	plainText = plainText.replace(/<\/?[a-zA-Z0-9]+(\s+[a-zA-Z0-9-]+="[^"]*")*\/?>/g, '');
+
+	// 4. 清理多余空格和换行（保留合理的文本结构）
+	plainText = plainText
+		.replace(/\s+/g, ' ') // 多个空格/换行/制表符→单个空格
+		.replace(/^\s+|\s+$/g, ''); // 移除首尾空格
+
+	return plainText;
+}

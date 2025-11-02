@@ -274,10 +274,4 @@ export default defineComponent({
 	height: 48rpx;
 }
 
-// .l-notice-bar__content {
-// 	display: inline-block;
-// 	white-space: nowrap;
-// 	font-size: inherit;
-// 	color: inherit;
-// 	line-height: 1.5;
-// }</style>
+</style>
