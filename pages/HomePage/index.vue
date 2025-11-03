@@ -265,865 +265,914 @@
 </template>
 
 <script>
-import getIcon from '/static/home/get.png';
-import alreadyIcon from '/static/home/already.png';
-import arrowIcon from '/static/home/arrowright.png';
-import customnavbar from '@/component/custom-navbar/custom-navbar.vue';
-import messagePopup from '@/component/message-popup/message-popup.vue';
-import messagePopup2 from '@/component/message-popup-2/message-popup-2.vue';
-import {
-	companyInfoApi,
-	slideListApi,
-	messageNoticeApi,
-	noticeListApi
-} from "@/common/api/home.js";
-import {
-	userInfoApi,
-	settingsApi
-} from "@/common/api/users.js";
-import {
-	withdrawalSalaryApi
-} from '@/common/api/withdrawal.js'
-import {
-	formatRichText,
-	getFirstTextTagWithEllipsis,
-	showMessage,
-	htmlToPlainText
-} from "@/utils/utils.js"
-export default {
-	components: {
-		customnavbar,
-		messagePopup,
-		messagePopup2
-	},
-	data() {
-		return {
-			popWindowContent: '',
-			rollContent: '',
-			isShowMessage2: false,
-			msgData: {},
-			isShowMessage: false,
-			pop_message_yes: "",
-			url: 'http://13.245.95.135:8888',
-			// url: 'http://192.168.2.35:8080',
-			currency: '',
-			topStyle: '',
-			topStyle2: '',
-			swiperList: [],
-			companyInfo: '',
-			currentSwiperi: 0,
-			userInfo: {},
-			noticeList: [],
-			userType: 'test',
-			icon: {
-				get: getIcon,
-				already: alreadyIcon,
-				arrow: arrowIcon,
-			},
-			salary: {
-				// 薪资类型 日 周 月
-				payType: "daily",
-				// 领取日期 类型为day时不生效
-				payDay: "",
-				// 是否可领取
-				whetherItIsAvailable: false
-			},
-			// 今日薪资
-			todaySalary: "",
-			// 是否领取
-			salaryIsGet: false,
-			// 管家模式 访问限制
-			isRestrictAccess: false,
-			// 全屏公告
-			bigGG: false
-		}
-	},
-	methods: {
-		closeBigGG() {
-			this.bigGG = false;
-			// 隐藏遮罩层时显示 tabbar
-			uni.showTabBar();
+	import getIcon from '/static/home/get.png';
+	import alreadyIcon from '/static/home/already.png';
+	import arrowIcon from '/static/home/arrowright.png';
+	import customnavbar from '@/component/custom-navbar/custom-navbar.vue';
+	import messagePopup from '@/component/message-popup/message-popup.vue';
+	import messagePopup2 from '@/component/message-popup-2/message-popup-2.vue';
+	import {
+		companyInfoApi,
+		slideListApi,
+		messageNoticeApi,
+		noticeListApi
+	} from "@/common/api/home.js";
+	import {
+		userInfoApi,
+		settingsApi
+	} from "@/common/api/users.js";
+	import {
+		withdrawalSalaryApi
+	} from '@/common/api/withdrawal.js'
+	import {
+		formatRichText,
+		getFirstTextTagWithEllipsis,
+		showMessage,
+		htmlToPlainText
+	} from "@/utils/utils.js"
+	export default {
+		components: {
+			customnavbar,
+			messagePopup,
+			messagePopup2
 		},
-		onclicktopgg() {
-			uni.navigateTo({
-				url: '/pages/notificationDetails?type=rollContent'
-			})
+		data() {
+			return {
+				popWindowContent: '',
+				rollContent: '',
+				isShowMessage2: false,
+				msgData: {},
+				isShowMessage: false,
+				pop_message_yes: "",
+				url: 'http://13.245.95.135:8888',
+				// url: 'http://192.168.2.35:8080',
+				currency: '',
+				topStyle: '',
+				topStyle2: '',
+				swiperList: [],
+				companyInfo: '',
+				currentSwiperi: 0,
+				userInfo: {},
+				noticeList: [],
+				userType: 'test',
+				icon: {
+					get: getIcon,
+					already: alreadyIcon,
+					arrow: arrowIcon,
+				},
+				salary: {
+					// 薪资类型 日 周 月
+					payType: "daily",
+					// 领取日期 类型为day时不生效
+					payDay: "",
+					// 是否可领取
+					whetherItIsAvailable: false
+				},
+				// 今日薪资
+				todaySalary: "",
+				// 是否领取
+				salaryIsGet: false,
+				// 管家模式 访问限制
+				isRestrictAccess: false,
+				// 全屏公告
+				bigGG: false,
+				bigGGIndex: 0
+			}
 		},
-		prompt_confirm3() {
-			this.bigGG = false
-			uni.navigateTo({
-				url: '/pages/notificationDetails?type=popWindowContent'
-			})
-		},
-		getMessageNoticeApi() {
-			messageNoticeApi().then(res => {
-				if (res.data?.id) {
-					this.msgData = res.data
-					this.isShowMessage = true
+		methods: {
+			closeBigGG() {
+				this.bigGGIndex++
+				if (this.bigGGIndex > uni.getStorageSync('settings').popWindowContentList.length - 1) {
+					this.bigGG = false;
+					// 隐藏遮罩层时显示 tabbar
+					uni.showTabBar();
+				} else {
+					this.popWindowContent = formatRichText(uni.getStorageSync('settings').popWindowContentList[this
+						.bigGGIndex])
 				}
-			})
-		},
-		prompt_confirm2() {
-			this.$refs.promptpopup2.close()
-		},
-		onGetDailyWage() {
-			const weekDays = [
-				'Monday',
-				'Tuesday',
-				'Wednesday',
-				'Thursday',
-				'Friday',
-				'Saturday',
-				'Sunday'
-			];
-			if (!this.userInfo.position) {
+
+			},
+			onclicktopgg() {
 				uni.navigateTo({
-					url: '/pages/HomePage/postManage'
+					url: '/pages/notificationDetails?type=rollContent'
 				})
+			},
+			prompt_confirm3() {
 				return
-			}
-			if (this.salaryIsGet) {
-				return
-			}
-			if (this.isRestrictAccess) {
-				this.pop_message_yes = this.$t("withdrawal.restrictedAccess")
-				this.$refs.promptpopup2.open();
-				return
-			}
-			if (this.userInfo.compliance == 0) {
-				this.pop_message_yes = this.$t("职位任务未完成")
-				this.$refs.promptpopup2.open()
-				return
-			}
-			if (!this.salaryIsGet && !this.todaySalary) {
-				switch (this.salary.payType) {
-					case 'weekly':
-						this.pop_message_yes = `The next payday is ${weekDays[Number(this.salary.payDay) - 1]}`;
-						break;
-					default:
-						this.pop_message_yes = this.$t('home.notYetCollectionDate');
-						break;
+				this.bigGG = false
+				uni.navigateTo({
+					url: '/pages/notificationDetails?type=popWindowContent'
+				})
+			},
+			getMessageNoticeApi() {
+				messageNoticeApi().then(res => {
+					if (res.data?.id) {
+						this.msgData = res.data
+						this.isShowMessage = true
+					}
+				})
+			},
+			prompt_confirm2() {
+				this.$refs.promptpopup2.close()
+			},
+			onGetDailyWage() {
+				const weekDays = [
+					'Monday',
+					'Tuesday',
+					'Wednesday',
+					'Thursday',
+					'Friday',
+					'Saturday',
+					'Sunday'
+				];
+				if (!this.userInfo.position) {
+					uni.navigateTo({
+						url: '/pages/HomePage/postManage'
+					})
+					return
 				}
-				this.$refs.promptpopup2.open()
-				return
-			}
-			withdrawalSalaryApi(1).then(res => {
-				this.salaryIsGet = res.data.whetherToReceive ? true : false;
-				this.todaySalary = 0
-				this.$showMessage('warning', this.$t("home.receivedSuccessfully"))
-			}).catch(err => {
-				this.$showMessage('warning', err.msg);
-			}).finally(() => this.getUserInfo())
-		},
-		getTadaySalary() {
-			withdrawalSalaryApi("0").then(res => {
-				this.todaySalary = res.data.todayAmount ?? 0
-				this.salary.payType = res.data.payType
-				this.salary.payDay = res.data.payDay
-				if (res.data.whetherToReceive == 1) {
-					this.salaryIsGet = true
-				} else {
-					this.salaryIsGet = false;
+				if (this.salaryIsGet) {
+					return
 				}
-				// this.salaryIsGet = false
-			}).catch(err => {
-				// this.$showMessage('warning', err.msg);
-			})
-		},
-		handleMessage(event) {
-			console.log('Message from web:', event.detail.data);
-		},
-		// 跳转链接
-		pushUrl(url) {
-			if (url) {
-				// #ifdef APP-PLUS
-				plus.runtime.openURL(url);
-				// #endif
-
-				// #ifdef H5
-				window.location.href = url;
-				// #endif
-			} else {
-				return
-			}
-		},
-		mtop(e) {
-			this.topStyle2 = "top:" + (e) + "rpx"
-			// #ifdef H5
-			this.topStyle = "margin-top:-" + e + "rpx;padding-top:" + (e + 88) + "rpx"
-			this.topStyle2 = "top:" + (e) + "rpx"
-			// #endif
-			// #ifdef APP-PLUS
-			this.topStyle = "margin-top:-" + e + "rpx;padding-top:" + (e + 99) + "rpx"
-			this.topStyle2 = "top:" + (e + 24) + "rpx"
-			// #endif
-		},
-		getSettings() {
-			settingsApi().then((res) => {
-				uni.setStorageSync('settings', res.data)
-				this.currency = uni.getStorageSync('settings').currency
-			}).catch((err) => {
-				console.log('request fail', err);
-				this.$showMessage('warning', err.msg);
-				// uni.showToast({
-				// 	title: err.msg,
-				// 	icon: 'none'
-				// })
-			})
-		},
-		checkLoginStatus() {
-			const token = uni.getStorageSync('token');
-			if (!token) {
-				this.$refs.popup.open()
-				return false;
-			}
-			return true;
-		},
-		getUserInfo() {
-			userInfoApi().then((res) => {
-				this.isRestrictAccess = false
-				this.userInfo = res.data
-				this.userType = res.data.userType
-				if (res.data.housekeeper == 1) {
-					this.isRestrictAccess = true
+				if (this.isRestrictAccess) {
 					this.pop_message_yes = this.$t("withdrawal.restrictedAccess")
+					this.$refs.promptpopup2.open();
+					return
 				}
-				if (this.userInfo.hasMessage) {
-					uni.showTabBarRedDot({
-						index: 2
-					})
-				} else {
-					uni.hideTabBarRedDot({
-						index: 2
-					})
+				if (this.userInfo.compliance == 0) {
+					this.pop_message_yes = this.$t("职位任务未完成")
+					this.$refs.promptpopup2.open()
+					return
 				}
-				uni.setStorageSync('userInfo', res.data)
-			}).catch((err) => {
-				console.log('request fail', err);
-				this.$showMessage('warning', err.msg);
-				// uni.showToast({
-				// 	title: err.msg,
-				// 	icon: 'none'
-				// })
-			})
-		},
-		getSlideListApi() {
-			slideListApi().then((res) => {
-				this.swiperList = res.rows || []
-			}).catch((err) => {
-				console.log('request fail', err);
-				this.$showMessage('warning', err.msg);
-				// uni.showToast({
-				// 	title: err.msg,
-				// 	icon: 'none'
-				// })
-			})
-		},
-		toPage(path) {
-			uni.navigateTo({
-				url: path
-			})
-		},
-		prompt_confirm() {
-			this.$refs.promptpopup.close()
-			uni.navigateTo({
-				url: '/pages/MinePage/identity'
-			})
-		},
-		prompt_cancel() {
-			this.$refs.promptpopup.close()
-		},
-		toPage2(path) {
-			let {
-				pointWheel,
-				luckyWheel
-			} = uni.getStorageSync('settings')
-			if (pointWheel == 0 && luckyWheel == 0) {
-				this.$showMessage('warning', this.$t('暂未开放'));
-				return
-			}
-			uni.navigateTo({
-				url: path
-			})
-		},
-		toPageTeamExpansion(path) {
-			if (this.userInfo.levelCode == '0') {
-				this.$showMessage('warning', this.$t('实习生没有邀请权限'))
-				return
-			}
-			uni.navigateTo({
-				url: path
-			})
-		},
-		// 会员福利
-		toPageMemberBenefits() {
-			noticeListApi(3, {
-				pageNum: 1
-			}).then((res) => {
-				if (res.data.count) {
-					uni.navigateTo({
-						url: '/pages/commonDetailsPage?title=' + this.$t('home.Memberbenefits') +
-							'&id=' + res.data.list[0].noticeId
-					})
-				} else {
-					uni.navigateTo({
-						url: '/pages/commonListPage?title=' + this.$t('home.Memberbenefits') +
-							'&groupId=3'
-					})
+				if (!this.salaryIsGet && !this.todaySalary) {
+					switch (this.salary.payType) {
+						case 'weekly':
+							this.pop_message_yes = `The next payday is ${weekDays[Number(this.salary.payDay) - 1]}`;
+							break;
+						default:
+							this.pop_message_yes = this.$t('home.notYetCollectionDate');
+							break;
+					}
+					this.$refs.promptpopup2.open()
+					return
 				}
+				withdrawalSalaryApi(1).then(res => {
+					this.salaryIsGet = res.data.whetherToReceive ? true : false;
+					this.todaySalary = 0
+					this.$showMessage('warning', this.$t("home.receivedSuccessfully"))
+				}).catch(err => {
+					this.$showMessage('warning', err.msg);
+				}).finally(() => this.getUserInfo())
+			},
+			getTadaySalary() {
+				withdrawalSalaryApi("0").then(res => {
+					this.todaySalary = res.data.todayAmount ?? 0
+					this.salary.payType = res.data.payType
+					this.salary.payDay = res.data.payDay
+					if (res.data.whetherToReceive == 1) {
+						this.salaryIsGet = true
+					} else {
+						this.salaryIsGet = false;
+					}
+					// this.salaryIsGet = false
+				}).catch(err => {
+					// this.$showMessage('warning', err.msg);
+				})
+			},
+			handleMessage(event) {
+				console.log('Message from web:', event.detail.data);
+			},
+			// 跳转链接
+			pushUrl(url) {
+				if (url) {
+					// #ifdef APP-PLUS
+					plus.runtime.openURL(url);
+					// #endif
 
-			}).catch((err) => {
-				console.log('request fail', err);
-				this.$showMessage('warning', err.msg);
-			})
-		},
-		handleChange(e) {
-			this.currentSwiperi = e.detail.current
-		},
-		toCompanyInfo() {
-			uni.navigateTo({
-				url: "/pages/HomePage/companyInfo"
-			})
-		},
-		toLogon() {
-			uni.navigateTo({
-				url: "/pages/LoginPage/login"
-			})
-		},
-		popCancel() {
-			this.$refs.popup.close()
-		},
-		splitText(t) {
-			if (uni.getStorageSync('settings').defaultLanguage == 'fr') {
-				const parts = t.split(' ');
-				return parts.length > 1 ? parts[0] + ' ' + parts[1] + '\n' + parts.slice(2).join(' ') : t;
-			} else {
-				const newline = '\n';
-				return t.split(' ').join(newline);
+					// #ifdef H5
+					window.location.href = url;
+					// #endif
+				} else {
+					return
+				}
+			},
+			mtop(e) {
+				this.topStyle2 = "top:" + (e) + "rpx"
+				// #ifdef H5
+				this.topStyle = "margin-top:-" + e + "rpx;padding-top:" + (e + 88) + "rpx"
+				this.topStyle2 = "top:" + (e) + "rpx"
+				// #endif
+				// #ifdef APP-PLUS
+				this.topStyle = "margin-top:-" + e + "rpx;padding-top:" + (e + 99) + "rpx"
+				this.topStyle2 = "top:" + (e + 24) + "rpx"
+				// #endif
+			},
+			getSettings() {
+				settingsApi().then((res) => {
+					uni.setStorageSync('settings', res.data)
+					this.currency = uni.getStorageSync('settings').currency
+				}).catch((err) => {
+					console.log('request fail', err);
+					this.$showMessage('warning', err.msg);
+					// uni.showToast({
+					// 	title: err.msg,
+					// 	icon: 'none'
+					// })
+				})
+			},
+			checkLoginStatus() {
+				const token = uni.getStorageSync('token');
+				if (!token) {
+					this.$refs.popup.open()
+					return false;
+				}
+				return true;
+			},
+			getUserInfo() {
+				userInfoApi().then((res) => {
+					this.isRestrictAccess = false
+					this.userInfo = res.data
+					this.userType = res.data.userType
+					if (res.data.housekeeper == 1) {
+						this.isRestrictAccess = true
+						this.pop_message_yes = this.$t("withdrawal.restrictedAccess")
+					}
+					if (this.userInfo.hasMessage) {
+						uni.showTabBarRedDot({
+							index: 2
+						})
+					} else {
+						uni.hideTabBarRedDot({
+							index: 2
+						})
+					}
+					uni.setStorageSync('userInfo', res.data)
+				}).catch((err) => {
+					console.log('request fail', err);
+					this.$showMessage('warning', err.msg);
+					// uni.showToast({
+					// 	title: err.msg,
+					// 	icon: 'none'
+					// })
+				})
+			},
+			getSlideListApi() {
+				slideListApi().then((res) => {
+					this.swiperList = res.rows || []
+				}).catch((err) => {
+					console.log('request fail', err);
+					this.$showMessage('warning', err.msg);
+					// uni.showToast({
+					// 	title: err.msg,
+					// 	icon: 'none'
+					// })
+				})
+			},
+			toPage(path) {
+				uni.navigateTo({
+					url: path
+				})
+			},
+			prompt_confirm() {
+				this.$refs.promptpopup.close()
+				uni.navigateTo({
+					url: '/pages/MinePage/identity'
+				})
+			},
+			prompt_cancel() {
+				this.$refs.promptpopup.close()
+			},
+			toPage2(path) {
+				let {
+					pointWheel,
+					luckyWheel
+				} = uni.getStorageSync('settings')
+				if (pointWheel == 0 && luckyWheel == 0) {
+					this.$showMessage('warning', this.$t('暂未开放'));
+					return
+				}
+				uni.navigateTo({
+					url: path
+				})
+			},
+			toPageTeamExpansion(path) {
+				if (this.userInfo.levelCode == '0') {
+					this.$showMessage('warning', this.$t('实习生没有邀请权限'))
+					return
+				}
+				uni.navigateTo({
+					url: path
+				})
+			},
+			// 会员福利
+			toPageMemberBenefits() {
+				noticeListApi(3, {
+					pageNum: 1
+				}).then((res) => {
+					if (res.data.count) {
+						uni.navigateTo({
+							url: '/pages/commonDetailsPage?title=' + this.$t('home.Memberbenefits') +
+								'&id=' + res.data.list[0].noticeId
+						})
+					} else {
+						uni.navigateTo({
+							url: '/pages/commonListPage?title=' + this.$t('home.Memberbenefits') +
+								'&groupId=3'
+						})
+					}
+
+				}).catch((err) => {
+					console.log('request fail', err);
+					this.$showMessage('warning', err.msg);
+				})
+			},
+			handleChange(e) {
+				this.currentSwiperi = e.detail.current
+			},
+			toCompanyInfo() {
+				uni.navigateTo({
+					url: "/pages/HomePage/companyInfo"
+				})
+			},
+			toLogon() {
+				uni.navigateTo({
+					url: "/pages/LoginPage/login"
+				})
+			},
+			popCancel() {
+				this.$refs.popup.close()
+			},
+			splitText(t) {
+				if (uni.getStorageSync('settings').defaultLanguage == 'fr') {
+					const parts = t.split(' ');
+					return parts.length > 1 ? parts[0] + ' ' + parts[1] + '\n' + parts.slice(2).join(' ') : t;
+				} else {
+					const newline = '\n';
+					return t.split(' ').join(newline);
+				}
+			},
+			getCompanyInfo() {
+				companyInfoApi().then((res) => {
+					this.companyInfo = getFirstTextTagWithEllipsis(res.data.companyIntroduction)
+				}).catch((err) => {
+					console.log('request fail', err);
+					this.$showMessage('warning', err.msg);
+					// uni.showToast({
+					// 	title: err.msg,
+					// 	icon: 'none'
+					// })
+				})
+			},
+			toWithdrawal() {
+				if (this.isRestrictAccess) {
+					this.pop_message_yes = this.$t("withdrawal.restrictedAccess")
+					this.$refs.promptpopup2.open();
+					return
+				}
+				uni.navigateTo({
+					url: '/pages/MinePage/withdrawal'
+				})
 			}
 		},
-		getCompanyInfo() {
-			companyInfoApi().then((res) => {
-				this.companyInfo = getFirstTextTagWithEllipsis(res.data.companyIntroduction)
-			}).catch((err) => {
-				console.log('request fail', err);
-				this.$showMessage('warning', err.msg);
-				// uni.showToast({
-				// 	title: err.msg,
-				// 	icon: 'none'
-				// })
-			})
+		onShow() {
+			this.getCompanyInfo()
+			this.getUserInfo()
+			this.getSlideListApi()
+			this.noticeList = uni.getStorageSync('settings').noticeList
+			// uni.setTabBarBadge({index: 2})
+			this.getTadaySalary()
+			this.getMessageNoticeApi()
 		},
-		toWithdrawal() {
-			if (this.isRestrictAccess) {
-				this.pop_message_yes = this.$t("withdrawal.restrictedAccess")
-				this.$refs.promptpopup2.open();
-				return
+		mounted() {
+			this.getSettings()
+			this.checkLoginStatus()
+		},
+		onLoad() {
+			if (uni.getStorageSync('settings').rollSwitch == 1) {
+				this.rollContent = htmlToPlainText(uni.getStorageSync('settings').rollContent)
+				this.isShowMessage2 = true
 			}
-			uni.navigateTo({
-				url: '/pages/MinePage/withdrawal'
-			})
-		}
-	},
-	onShow() {
-		this.getCompanyInfo()
-		this.getUserInfo()
-		this.getSlideListApi()
-		this.noticeList = uni.getStorageSync('settings').noticeList
-		// uni.setTabBarBadge({index: 2})
-		this.getTadaySalary()
-		this.getMessageNoticeApi()
-	},
-	mounted() {
-		this.getSettings()
-		this.checkLoginStatus()
-	},
-	onLoad() {
-		if (uni.getStorageSync('settings').rollSwitch == 1) {
-			this.rollContent = htmlToPlainText(uni.getStorageSync('settings').rollContent)
-			this.isShowMessage2 = true
-		}
-		if (uni.getStorageSync('settings').popWindowSwitch == 1) {
-			// console.log(uni.getStorageSync('settings').popWindowContent)
-			this.popWindowContent = formatRichText(uni.getStorageSync('settings').popWindowContent)
-			this.bigGG = true
-			uni.hideTabBar();
+			if (uni.getStorageSync('settings').popWindowSwitch == 1 && uni.getStorageSync('settings').popWindowContentList
+				.length) {
+				// console.log(uni.getStorageSync('settings').popWindowContent)
+				this.bigGGIndex = 0
+				this.popWindowContent = formatRichText(uni.getStorageSync('settings').popWindowContentList[this
+					.bigGGIndex])
+				this.bigGG = true
+				uni.hideTabBar();
+			}
 		}
 	}
-}
 </script>
 
 <style lang="scss" scoped>
-.bigGG {
-	position: fixed;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
-	z-index: 10001;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: 24rpx;
-
-	.bigGG_main {
-		box-sizing: border-box;
-		width: 85vw;
-		padding: 24rpx;
-		border-radius: 12rpx;
-		background-color: #fff;
-		max-height: 84vh;
-		overflow-y: auto;
-
-		.bigGG_text {
-			overflow: hidden;
-			text-overflow: ellipsis;
-			display: -webkit-box;
-			-webkit-line-clamp: 20;
-			-webkit-box-orient: vertical;
-		}
-	}
-
-	.xImage {
-		width: 58rpx;
-		height: 58rpx;
-	}
-}
-
-::v-deep .t-overlay {
-	z-index: 10000 !important;
-}
-
-.home_salary_box {
-	width: 650rpx;
-	margin: 40rpx auto;
-	padding: 20rpx 0rpx;
-	background: rgb(23, 94, 183);
-	background: linear-gradient(90deg, rgba(23, 94, 183, 1) 0%, rgba(40, 112, 204, 1) 56%, rgba(54, 133, 227, 1) 100%);
-	border-radius: 20rpx;
-	display: flex;
-	justify-content: space-around;
-	align-items: center;
-	color: white;
-
-	.home_salary_box_img {
-		width: 80rpx;
-		height: 80rpx;
-	}
-
-	.home_salary_box_v_c {
+	.bigGG {
+		position: fixed;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		z-index: 10001;
 		display: flex;
-		justify-content: space-between;
+		flex-direction: column;
 		align-items: center;
+		gap: 24rpx;
 
-		.home_salary_box_v_c_t {
-			line-height: 100rpx;
+		.bigGG_main {
+			box-sizing: border-box;
+			width: 85vw;
+			padding: 24rpx;
+			border-radius: 12rpx;
+			background-color: #fff;
+			max-height: 84vh;
+			overflow-y: auto;
+
+			.bigGG_text {
+				overflow: hidden;
+				text-overflow: ellipsis;
+				display: -webkit-box;
+				-webkit-line-clamp: 20;
+				-webkit-box-orient: vertical;
+			}
+		}
+
+		.xImage {
+			width: 58rpx;
+			height: 58rpx;
+		}
+	}
+
+	@media (max-height: 700px) {
+		.bigGG {
+			position: fixed;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -51%);
+			z-index: 10001;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			gap: 24rpx;
+
+			.bigGG_main {
+				box-sizing: border-box;
+				width: 75vw;
+				padding: 24rpx;
+				border-radius: 12rpx;
+				background-color: #fff;
+				max-height: 87vh;
+				overflow-y: auto;
+
+				.bigGG_text {
+					overflow: hidden;
+					text-overflow: ellipsis;
+					display: -webkit-box;
+					-webkit-line-clamp: 20;
+					-webkit-box-orient: vertical;
+				}
+			}
+
+			.xImage {
+				width: 58rpx;
+				height: 58rpx;
+			}
+		}
+	}
+
+	::v-deep .t-overlay {
+		z-index: 10000 !important;
+	}
+
+	.home_salary_box {
+		width: 650rpx;
+		margin: 40rpx auto;
+		padding: 20rpx 0rpx;
+		background: rgb(23, 94, 183);
+		background: linear-gradient(90deg, rgba(23, 94, 183, 1) 0%, rgba(40, 112, 204, 1) 56%, rgba(54, 133, 227, 1) 100%);
+		border-radius: 20rpx;
+		display: flex;
+		justify-content: space-around;
+		align-items: center;
+		color: white;
+
+		.home_salary_box_img {
+			width: 80rpx;
+			height: 80rpx;
+		}
+
+		.home_salary_box_v_c {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+
+			.home_salary_box_v_c_t {
+				line-height: 100rpx;
+				font-family: "DINPro-Medium", sans-serif;
+				font-weight: 300;
+				font-size: 26rpx;
+			}
+
+			.money {
+				font-size: 32rpx;
+			}
+		}
+
+		.home_salary_box_r_btn {
+			background-color: #ffb139;
+			width: 120rpx;
+			height: 40rpx;
+			padding: 16rpx 20rpx;
+			border-radius: 30rpx;
 			font-family: "DINPro-Medium", sans-serif;
-			font-weight: 300;
-			font-size: 26rpx;
+			font-size: 30rpx;
+			font-weight: 200;
+			text-align: center;
 		}
 
-		.money {
-			font-size: 32rpx;
+		.disable {
+			opacity: 60%;
 		}
 	}
 
-	.home_salary_box_r_btn {
-		background-color: #ffb139;
-		width: 120rpx;
-		height: 40rpx;
-		padding: 16rpx 20rpx;
-		border-radius: 30rpx;
+	.prompt_pop_page {
+		width: 570rpx;
+		background: #FFFFFF;
+		border-radius: 28rpx;
+		padding: 40rpx 54rpx 28rpx 54rpx;
+	}
+
+	.prompt_pop_top {
 		font-family: "DINPro-Medium", sans-serif;
-		font-size: 30rpx;
-		font-weight: 200;
+		font-weight: 500;
+		font-size: 32rpx;
+		color: #000000;
+		line-height: 42rpx;
 		text-align: center;
+		font-style: normal;
 	}
 
-	.disable {
-		opacity: 60%;
+	.prompt_pop_taps {
+		font-family: "DINPro-Regular", sans-serif;
+		font-weight: 400;
+		font-size: 28rpx;
+		color: #1C2D57;
+		line-height: 36rpx;
+		text-align: center;
+		font-style: normal;
+		margin-top: 40rpx;
 	}
-}
 
-.prompt_pop_page {
-	width: 570rpx;
-	background: #FFFFFF;
-	border-radius: 28rpx;
-	padding: 40rpx 54rpx 28rpx 54rpx;
-}
+	.prompt_pop_bottom {
+		display: flex;
+		margin-top: 54rpx;
+	}
 
-.prompt_pop_top {
-	font-family: "DINPro-Medium", sans-serif;
-	font-weight: 500;
-	font-size: 32rpx;
-	color: #000000;
-	line-height: 42rpx;
-	text-align: center;
-	font-style: normal;
-}
+	.prompt_cancel_btn {
+		width: 212rpx;
+		height: 72rpx;
+		background: #EBEBEB;
+		border-radius: 16rpx;
+		font-family: "DINPro-Medium", sans-serif;
+		font-weight: 500;
+		font-size: 32rpx;
+		color: #000000;
+		line-height: 72rpx;
+		text-align: center;
+		font-style: normal;
+	}
 
-.prompt_pop_taps {
-	font-family: "DINPro-Regular", sans-serif;
-	font-weight: 400;
-	font-size: 28rpx;
-	color: #1C2D57;
-	line-height: 36rpx;
-	text-align: center;
-	font-style: normal;
-	margin-top: 40rpx;
-}
-
-.prompt_pop_bottom {
-	display: flex;
-	margin-top: 54rpx;
-}
-
-.prompt_cancel_btn {
-	width: 212rpx;
-	height: 72rpx;
-	background: #EBEBEB;
-	border-radius: 16rpx;
-	font-family: "DINPro-Medium", sans-serif;
-	font-weight: 500;
-	font-size: 32rpx;
-	color: #000000;
-	line-height: 72rpx;
-	text-align: center;
-	font-style: normal;
-}
-
-.prompt_confirm_btn {
-	width: 212rpx;
-	height: 72rpx;
-	background: $themeColor;
-	box-shadow: 0rpx 4rpx 16rpx 0rpx #B2C8FB;
-	border-radius: 16rpx;
-	font-family: "DINPro-Black", sans-serif;
-	font-family: DINPro, DINPro;
-	font-weight: 500;
-	font-size: 32rpx;
-	color: #FFFFFF;
-	line-height: 72rpx;
-	text-align: center;
-	font-style: normal;
-}
+	.prompt_confirm_btn {
+		width: 212rpx;
+		height: 72rpx;
+		background: $themeColor;
+		box-shadow: 0rpx 4rpx 16rpx 0rpx #B2C8FB;
+		border-radius: 16rpx;
+		font-family: "DINPro-Black", sans-serif;
+		font-family: DINPro, DINPro;
+		font-weight: 500;
+		font-size: 32rpx;
+		color: #FFFFFF;
+		line-height: 72rpx;
+		text-align: center;
+		font-style: normal;
+	}
 </style>
 
 <style lang="scss" scoped>
-.home_container {
-	background-color: #FFFFFF;
-}
+	.home_container {
+		background-color: #FFFFFF;
+	}
 
-.home_top_bg {
-	position: relative;
-	width: 100%;
-	background: url('/static/home/home_bg.png') top left/100% no-repeat;
+	.home_top_bg {
+		position: relative;
+		width: 100%;
+		background: url('/static/home/home_bg.png') top left/100% no-repeat;
 
-	.noticebar.noticebar_top {
-		box-sizing: border-box;
-		position: absolute;
-		padding: 0;
+		.noticebar.noticebar_top {
+			box-sizing: border-box;
+			position: absolute;
+			padding: 0;
 
-		// margin: 0 34rpx;
-		::v-deep .level_img {
-			width: 42rpx !important;
-			height: 42rpx !important;
+			// margin: 0 34rpx;
+			::v-deep .level_img {
+				width: 42rpx !important;
+				height: 42rpx !important;
+			}
 		}
 	}
-}
 
-.home_top_center {
-	width: 650rpx;
-	height: 256rpx;
-	background: #FFFFFF;
-	box-shadow: 0rpx 22rpx 28rpx -6rpx #E9F3FF;
-	border-radius: 40rpx;
-	margin-top: 52rpx;
-	display: flex;
-}
+	.home_top_center {
+		width: 650rpx;
+		height: 256rpx;
+		background: #FFFFFF;
+		box-shadow: 0rpx 22rpx 28rpx -6rpx #E9F3FF;
+		border-radius: 40rpx;
+		margin-top: 52rpx;
+		display: flex;
+	}
 
-.home_center_box {
-	margin: 72rpx 24rpx 32rpx;
-}
+	.home_center_box {
+		margin: 72rpx 24rpx 32rpx;
+	}
 
-.noticebar {
-	box-sizing: border-box;
-	width: 100%;
-	height: 80rpx;
-	padding: 0 50rpx;
-}
+	.noticebar {
+		box-sizing: border-box;
+		width: 100%;
+		height: 80rpx;
+		padding: 0 50rpx;
+	}
 
-.center_item_box {
-	display: flex;
-}
+	.center_item_box {
+		display: flex;
+	}
 
-.center_item {
-	flex: 1;
-}
+	.center_item {
+		flex: 1;
+	}
 
-.icon-wrapper {
-	width: 140rpx;
-	height: 140rpx;
-	// background: #F5F8FF;
-	// box-shadow: 0rpx 12rpx 16rpx 0rpx #E9F3FF;
-	// border-radius: 24rpx;
-	// border: 2rpx solid;
-	// border-image: linear-gradient(180deg, rgba(255, 255, 255, 1), rgba(255, 254, 254, 1)) 2 2;
-}
+	.icon-wrapper {
+		width: 140rpx;
+		height: 140rpx;
+		// background: #F5F8FF;
+		// box-shadow: 0rpx 12rpx 16rpx 0rpx #E9F3FF;
+		// border-radius: 24rpx;
+		// border: 2rpx solid;
+		// border-image: linear-gradient(180deg, rgba(255, 255, 255, 1), rgba(255, 254, 254, 1)) 2 2;
+	}
 
-.center_item_t {
-	height: 48rpx;
-	font-family: "DINPro-Regular", sans-serif;
-	font-weight: 400;
-	font-size: 20rpx;
-	color: #1C2D57;
-	text-align: center;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	transform: translateY(-39%);
-	// margin-top: 12rpx;
-}
+	.center_item_t {
+		height: 48rpx;
+		font-family: "DINPro-Regular", sans-serif;
+		font-weight: 400;
+		font-size: 20rpx;
+		color: #1C2D57;
+		text-align: center;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		transform: translateY(-39%);
+		// margin-top: 12rpx;
+	}
 
-.swiper_img {
-	width: 100%;
-	height: 346rpx;
-	border-radius: 32rpx;
-}
+	.swiper_img {
+		width: 100%;
+		height: 346rpx;
+		border-radius: 32rpx;
+	}
 
-// uni-swiper-item:nth-child(2) {
-// 	transform: translate(calc(100% - 48rpx), 0px) translateZ(0px) !important;
-// }
+	// uni-swiper-item:nth-child(2) {
+	// 	transform: translate(calc(100% - 48rpx), 0px) translateZ(0px) !important;
+	// }
 
-.speaker_icon {
-	width: 40rpx;
-	height: 40rpx;
-}
+	.speaker_icon {
+		width: 40rpx;
+		height: 40rpx;
+	}
 
-.more_icon {
-	width: 40rpx;
-	height: 40rpx;
-}
+	.more_icon {
+		width: 40rpx;
+		height: 40rpx;
+	}
 
-.login_pop {
-	width: 616rpx;
-	border-radius: 40rpx;
-	background-color: rgba(255, 255, 255, 1);
-}
+	.login_pop {
+		width: 616rpx;
+		border-radius: 40rpx;
+		background-color: rgba(255, 255, 255, 1);
+	}
 
-.login_icon {
-	width: 248rpx;
-	height: 218rpx;
-	margin-top: 90rpx;
-}
+	.login_icon {
+		width: 248rpx;
+		height: 218rpx;
+		margin-top: 90rpx;
+	}
 
-.flex_center {
-	display: flex;
-	justify-content: center;
-}
+	.flex_center {
+		display: flex;
+		justify-content: center;
+	}
 
-.mt_58 {
-	margin-top: 58rpx;
-}
+	.mt_58 {
+		margin-top: 58rpx;
+	}
 
-.pop_title {
-	line-height: 50rpx;
-	color: rgba(0, 211, 224, 1);
-	font-size: 36rpx;
-	text-align: center;
-	font-family: "Roboto-regular", sans-serif;
-	margin-top: 27rpx;
-}
+	.pop_title {
+		line-height: 50rpx;
+		color: rgba(0, 211, 224, 1);
+		font-size: 36rpx;
+		text-align: center;
+		font-family: "Roboto-regular", sans-serif;
+		margin-top: 27rpx;
+	}
 
-.pop_desc {
-	width: 360rpx;
-	line-height: 36rpx;
-	color: rgba(51, 51, 51, 1);
-	font-size: 30rpx;
-	font-family: "Roboto-regular", sans-serif;
-	text-align: center;
-	margin-top: 25rpx;
-}
+	.pop_desc {
+		width: 360rpx;
+		line-height: 36rpx;
+		color: rgba(51, 51, 51, 1);
+		font-size: 30rpx;
+		font-family: "Roboto-regular", sans-serif;
+		text-align: center;
+		margin-top: 25rpx;
+	}
 
-.pop_logon_btn {
-	width: 500rpx;
-	height: 80rpx;
-	line-height: 80rpx;
-	background: linear-gradient(180deg, $gradualColor2 0%, $gradualColor1 100%);
-	border-radius: 24rpx;
-	font-family: 'DINPro-Bold', DINPro;
-	font-weight: bold;
-	font-size: 36rpx;
-	color: #FFFFFF;
-	text-align: center;
-	font-style: normal;
-	text-transform: none;
-	margin-top: 78rpx;
-}
+	.pop_logon_btn {
+		width: 500rpx;
+		height: 80rpx;
+		line-height: 80rpx;
+		background: linear-gradient(180deg, $gradualColor2 0%, $gradualColor1 100%);
+		border-radius: 24rpx;
+		font-family: 'DINPro-Bold', DINPro;
+		font-weight: bold;
+		font-size: 36rpx;
+		color: #FFFFFF;
+		text-align: center;
+		font-style: normal;
+		text-transform: none;
+		margin-top: 78rpx;
+	}
 
-.pop_cancel_btn {
-	width: 500rpx;
-	height: 80rpx;
-	line-height: 80rpx;
-	color: rgba(51, 51, 51, 1);
-	background-color: rgba(244, 244, 244, 1);
-	border-radius: 24rpx;
-	font-family: 'DINPro-Bold', DINPro;
-	font-weight: bold;
-	text-align: center;
-	font-style: normal;
-	text-transform: none;
-	font-size: 36rpx;
-	margin-top: 30rpx;
-	margin-bottom: 70rpx;
-}
+	.pop_cancel_btn {
+		width: 500rpx;
+		height: 80rpx;
+		line-height: 80rpx;
+		color: rgba(51, 51, 51, 1);
+		background-color: rgba(244, 244, 244, 1);
+		border-radius: 24rpx;
+		font-family: 'DINPro-Bold', DINPro;
+		font-weight: bold;
+		text-align: center;
+		font-style: normal;
+		text-transform: none;
+		font-size: 36rpx;
+		margin-top: 30rpx;
+		margin-bottom: 70rpx;
+	}
 
 
-.home_top_title1 {
-	font-family: "DINPro-Bold", sans-serif;
-	font-weight: bold;
-	font-size: 72rpx;
-	color: #FFFFFF;
-	margin-left: 48rpx;
-}
+	.home_top_title1 {
+		font-family: "DINPro-Bold", sans-serif;
+		font-weight: bold;
+		font-size: 72rpx;
+		color: #FFFFFF;
+		margin-left: 48rpx;
+	}
 
-.home_top_title2 {
-	font-family: "DINPro-Medium", sans-serif;
-	font-weight: 500;
-	font-size: 32rpx;
-	color: #EDEDED;
-	line-height: 42rpx;
-	text-align: left;
-	font-style: normal;
-	margin-left: 48rpx;
-	margin-top: 6rpx;
-}
+	.home_top_title2 {
+		font-family: "DINPro-Medium", sans-serif;
+		font-weight: 500;
+		font-size: 32rpx;
+		color: #EDEDED;
+		line-height: 42rpx;
+		text-align: left;
+		font-style: normal;
+		margin-left: 48rpx;
+		margin-top: 6rpx;
+	}
 
-.avatar_box {
-	position: relative;
-	width: 124rpx;
-	height: 140rpx;
-	background: #EBF5FF;
-	clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-}
+	.avatar_box {
+		position: relative;
+		width: 124rpx;
+		height: 140rpx;
+		background: #EBF5FF;
+		clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+	}
 
-.avatar_img {
-	width: 124rpx;
-	height: 140rpx;
-}
+	.avatar_img {
+		width: 124rpx;
+		height: 140rpx;
+	}
 
-.avatar_mask {
-	width: 124rpx;
-	height: 140rpx;
-	position: absolute;
-	top: 0;
-	left: 0;
-}
+	.avatar_mask {
+		width: 124rpx;
+		height: 140rpx;
+		position: absolute;
+		top: 0;
+		left: 0;
+	}
 
-.level_img {
-	width: 92rpx;
-	height: 86rpx;
-}
+	.level_img {
+		width: 92rpx;
+		height: 86rpx;
+	}
 
-.avatar_container {
-	margin: 38rpx 62rpx 0rpx 52rpx;
-	width: 124rpx;
-}
+	.avatar_container {
+		margin: 38rpx 62rpx 0rpx 52rpx;
+		width: 124rpx;
+	}
 
-.level_box {
-	display: flex;
-	justify-content: center;
-	margin-top: -50rpx;
-}
+	.level_box {
+		display: flex;
+		justify-content: center;
+		margin-top: -50rpx;
+	}
 
-.account_balance_box {
-	font-family: "DINPro-Regular", sans-serif;
-	font-weight: 400;
-	display: flex;
-	margin-top: 36rpx;
-	align-items: center;
-	margin-left: 8rpx;
-}
+	.account_balance_box {
+		font-family: "DINPro-Regular", sans-serif;
+		font-weight: 400;
+		display: flex;
+		margin-top: 36rpx;
+		align-items: center;
+		margin-left: 8rpx;
+	}
 
-.account_balance_img {
-	width: 34rpx;
-	height: 34rpx;
-	margin-right: 20rpx;
-}
+	.account_balance_img {
+		width: 34rpx;
+		height: 34rpx;
+		margin-right: 20rpx;
+	}
 
-.account_balance_t {
-	font-family: "DINPro-Bold", sans-serif;
-	font-weight: bold;
-	font-size: 48rpx;
-	color: #000000;
-	line-height: 62rpx;
-	text-align: left;
-	font-style: normal;
-	margin-top: 24rpx;
-	margin-bottom: 20rpx;
-	margin-left: 8rpx;
-}
+	.account_balance_t {
+		font-family: "DINPro-Bold", sans-serif;
+		font-weight: bold;
+		font-size: 48rpx;
+		color: #000000;
+		line-height: 62rpx;
+		text-align: left;
+		font-style: normal;
+		margin-top: 24rpx;
+		margin-bottom: 20rpx;
+		margin-left: 8rpx;
+	}
 
-.withdrawal_btn {
-	width: 172rpx;
-	height: 52rpx;
-	background-color: $themeColor;
-	border-radius: 26rpx;
-	font-family: "DINPro-Medium", sans-serif;
-	font-weight: 500;
-	font-size: 24rpx;
-	color: #FFFFFF;
-	line-height: 52rpx;
-	text-align: center;
-	font-style: normal;
-}
+	.withdrawal_btn {
+		width: 172rpx;
+		height: 52rpx;
+		background-color: $themeColor;
+		border-radius: 26rpx;
+		font-family: "DINPro-Medium", sans-serif;
+		font-weight: 500;
+		font-size: 24rpx;
+		color: #FFFFFF;
+		line-height: 52rpx;
+		text-align: center;
+		font-style: normal;
+	}
 
-.company_profile_t {
-	font-family: "DINPro-Bold", sans-serif;
-	font-weight: bold;
-	font-size: 32rpx;
-	color: #1C2D57;
-	line-height: 42rpx;
-	text-align: center;
-	font-style: normal;
-}
+	.company_profile_t {
+		font-family: "DINPro-Bold", sans-serif;
+		font-weight: bold;
+		font-size: 32rpx;
+		color: #1C2D57;
+		line-height: 42rpx;
+		text-align: center;
+		font-style: normal;
+	}
 
-.company_profile_t2 {
-	font-family: "DINPro-Regular", sans-serif;
-	font-weight: 400;
-	font-size: 26rpx;
-	color: #1C2D57;
-	line-height: 38rpx;
-	text-align: justify;
-	font-style: normal;
-	margin-top: 18rpx;
-	display: -webkit-box;
-	-webkit-box-orient: vertical;
-	-webkit-line-clamp: 5;
-	overflow: hidden;
-	text-overflow: ellipsis;
-}
+	.company_profile_t2 {
+		font-family: "DINPro-Regular", sans-serif;
+		font-weight: 400;
+		font-size: 26rpx;
+		color: #1C2D57;
+		line-height: 38rpx;
+		text-align: justify;
+		font-style: normal;
+		margin-top: 18rpx;
+		display: -webkit-box;
+		-webkit-box-orient: vertical;
+		-webkit-line-clamp: 5;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
 
-.dots_box {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	margin-top: 20rpx;
-	margin-bottom: 32rpx;
-}
+	.dots_box {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		margin-top: 20rpx;
+		margin-bottom: 32rpx;
+	}
 
-.dots {
-	width: 16rpx;
-	height: 16rpx;
-	background: #C6D7FF;
-	border-radius: 8rpx;
-	margin: 0 8rpx;
-}
+	.dots {
+		width: 16rpx;
+		height: 16rpx;
+		background: #C6D7FF;
+		border-radius: 8rpx;
+		margin: 0 8rpx;
+	}
 
-.dots_a {
-	width: 16rpx;
-	height: 16rpx;
-	background-color: $themeColor;
-	border-radius: 8rpx;
-	margin: 0 8rpx;
-}
+	.dots_a {
+		width: 16rpx;
+		height: 16rpx;
+		background-color: $themeColor;
+		border-radius: 8rpx;
+		margin: 0 8rpx;
+	}
 </style>
