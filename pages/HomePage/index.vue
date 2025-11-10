@@ -22,7 +22,7 @@
 							<view class="avatar_container">
 								<view class="avatar_box">
 									<image :src="userInfo.avatar ? userInfo.avatar : '/static/default-avatar.png'"
-										alt="" class="avatar_img" />
+										mode="aspectFill" alt="" class="avatar_img" />
 								</view>
 								<view class="level_box">
 									<image src="/static/home/level.svg" mode="" class="level_img"></image>
@@ -71,108 +71,25 @@
 						<text v-else>Get</text>
 					</view>
 				</view>
+
+				<!-- 功能菜单按钮 -->
 				<view class="home_center_box">
-					<view class="center_item_box">
-						<view class="center_item"
-							@click="toPage('/pages/commonListPage?title=' + $t('home.CompanyActivity') + '&groupId=1')">
-							<view class="flex_center">
-								<image src="/static/home/Company Activities.png" class="icon-wrapper" />
+					<view class="center_item_box" v-for="item in menuList">
+						<template v-for="i in item">
+							<view class="center_item" v-if="!(i.showTestAccount == false && userType == 'test')"
+								@click="toPage(i)">
+								<view class="flex_center">
+									<image :src="i.iconUrl" class="icon-wrapper" />
+								</view>
+								<view class="center_item_t">
+									<text>{{ splitText(i.menuName) }}</text>
+								</view>
 							</view>
-							<view class="center_item_t">
-								<text>{{ splitText($t("home.CompanyActivity")) }}</text>
-							</view>
-						</view>
-						<view class="center_item"
-							@click="toPage('/pages/commonListPage?title=' + $t('home.ConferenceNews') + '&groupId=2')">
-							<view class="flex_center">
-								<image src="/static/home/Conference News.png" class="icon-wrapper" />
-							</view>
-							<view class="center_item_t">
-								<text>{{ splitText($t("home.ConferenceNews")) }}</text>
-							</view>
-						</view>
-						<view class="center_item" @click="toPageMemberBenefits()">
-							<view class="flex_center">
-								<image src="/static/home/Member Benefits.png" class="icon-wrapper" />
-							</view>
-							<view class="center_item_t">
-								<text>{{ splitText($t("home.Memberbenefits")) }}</text>
-							</view>
-						</view>
-						<view class="center_item"
-							@click="isRestrictAccess ? this.$refs.promptpopup2.open() : toPage('/pages/HomePage/postManage')">
-							<view class="flex_center">
-								<image src="/static/home/Management Positions.png" class="icon-wrapper" />
-							</view>
-							<view class="center_item_t">
-								<text>{{ splitText($t("home.Postmanage")) }}</text>
-							</view>
-						</view>
+						</template>
 					</view>
-					<view class="center_item_box" style="margin-top: 40rpx;">
-						<view class="center_item"
-							@click=" isRestrictAccess ? this.$refs.promptpopup2.open() : toPageTeamExpansion('/pages/HomePage/teamExpansion')">
-							<view class="flex_center">
-								<image src="/static/home/Team Expansion.png" class="icon-wrapper" />
-							</view>
-							<view class="center_item_t">
-								<text>{{ splitText($t("home.Teamexpansion")) }}</text>
-							</view>
-						</view>
-						<view class="center_item" @click="toPage2('/pages/HomePage/lotteryPage')">
-							<view class="flex_center">
-								<image src="/static/home/Lucky_Wheel.png" class="icon-wrapper" />
-							</view>
-							<view class="center_item_t">
-								<text>{{ splitText($t("home.Luckyturntable")) }}</text>
-							</view>
-						</view>
-						<view class="center_item" @click="toPage('/pages/HomePage/financePage')">
-							<view class="flex_center">
-								<image src="/static/home/Financial Products.png" class="icon-wrapper" />
-							</view>
-							<view class="center_item_t">
-								<text>{{ splitText($t("home.Financialproducts")) }}</text>
-							</view>
-						</view>
-						<view class="center_item" @click="toPage('/pages/HomePage/RechargeChannel')"
-							v-if="userType != 'test'">
-							<view class="flex_center">
-								<image src="/static/home/Deposit.png" class="icon-wrapper" />
-							</view>
-							<view class="center_item_t">
-								<text>{{ splitText($t("mine.Deposit")) }}</text>
-							</view>
-						</view>
-						<view class="center_item" style="opacity: 0;" v-if="userType == 'test'">
-							<view class="flex_center">
-								<image src="/static/home/Deposit.png" class="icon-wrapper" />
-							</view>
-							<view class="center_item_t">
-								<text>{{ splitText($t("mine.Deposit")) }}</text>
-							</view>
-						</view>
-						<!-- 	<view class="center_item">
-							<view class="flex_center">
-								<image src="/static/home/appDownload.png" class="icon-wrapper" />
-							</view>
-							<view class="center_item_t">
-								<text>{{splitText($t("mine.APPDownload"))}}</text>
-							</view>
-						</view> -->
-					</view>
-					<!-- 	<view class="center_item_box" style="margin-top: 40rpx;" v-if="userType != 'test'">
-						<view class="center_item">
-							<view class="flex_center">
-								<image src="/static/home/appDownload.png" class="icon-wrapper" />
-							</view>
-							<view class="center_item_t">
-								<text>{{splitText($t("mine.APPDownload"))}}</text>
-							</view>
-						</view>
-					</view> -->
 				</view>
 
+				<!-- 提现滚动通知 -->
 				<view class="noticebar" v-if="noticeList?.length">
 					<l-notice-bar :marquee="true" :vertical="true" leftIcon="/static/home/horn.svg" :iconSize="40"
 						:text="noticeList" />
@@ -201,23 +118,6 @@
 				</view>
 			</view>
 		</customnavbar>
-		<uni-popup ref="popup" placement="center" destroy-on-close>
-			<view class="login_pop">
-				<view class="flex_center mt_58">
-					<image src="/static/home/login_icon.png" alt="" class="login_icon" />
-				</view>
-				<view class="pop_title">{{ $t("home.Prompt") }}</view>
-				<view class="flex_center">
-					<view class="pop_desc">{{ $t("home.PromptTips") }}</view>
-				</view>
-				<view class="flex_center">
-					<view class="pop_logon_btn" @click="toLogon">{{ $t("home.logon") }}</view>
-				</view>
-				<view class="flex_center">
-					<view class="pop_cancel_btn" @click="popCancel">{{ $t("home.cancel") }}</view>
-				</view>
-			</view>
-		</uni-popup>
 
 		<uni-popup ref="promptpopup" type="center">
 			<view class="prompt_pop_page">
@@ -275,11 +175,11 @@
 		companyInfoApi,
 		slideListApi,
 		messageNoticeApi,
-		noticeListApi
+		noticeListApi,
+		menuListApi
 	} from "@/common/api/home.js";
 	import {
-		userInfoApi,
-		settingsApi
+		userInfoApi
 	} from "@/common/api/users.js";
 	import {
 		withdrawalSalaryApi
@@ -304,8 +204,6 @@
 				msgData: {},
 				isShowMessage: false,
 				pop_message_yes: "",
-				url: 'http://13.245.95.135:8888',
-				// url: 'http://192.168.2.35:8080',
 				currency: '',
 				topStyle: '',
 				topStyle2: '',
@@ -340,6 +238,7 @@
 			}
 		},
 		methods: {
+			// 首页全屏公告
 			closeBigGG() {
 				this.bigGGIndex++
 				if (this.bigGGIndex > uni.getStorageSync('settings').popWindowContentList.length - 1) {
@@ -352,6 +251,7 @@
 				}
 
 			},
+			// 顶部消息跳转详情
 			onclicktopgg() {
 				uni.navigateTo({
 					url: '/pages/notificationDetails?type=rollContent'
@@ -364,6 +264,7 @@
 					url: '/pages/notificationDetails?type=popWindowContent'
 				})
 			},
+			// 顶部消息通知
 			getMessageNoticeApi() {
 				messageNoticeApi().then(res => {
 					if (res.data?.id) {
@@ -375,6 +276,7 @@
 			prompt_confirm2() {
 				this.$refs.promptpopup2.close()
 			},
+			// 领取薪资
 			onGetDailyWage() {
 				const weekDays = [
 					'Monday',
@@ -424,6 +326,7 @@
 					this.$showMessage('warning', err.msg);
 				}).finally(() => this.getUserInfo())
 			},
+			// 薪资
 			getTadaySalary() {
 				withdrawalSalaryApi("0").then(res => {
 					this.todaySalary = res.data.todayAmount ?? 0
@@ -438,9 +341,6 @@
 				}).catch(err => {
 					// this.$showMessage('warning', err.msg);
 				})
-			},
-			handleMessage(event) {
-				console.log('Message from web:', event.detail.data);
 			},
 			// 跳转链接
 			pushUrl(url) {
@@ -467,27 +367,6 @@
 				this.topStyle2 = "top:" + (e + 24) + "rpx"
 				// #endif
 			},
-			getSettings() {
-				settingsApi().then((res) => {
-					uni.setStorageSync('settings', res.data)
-					this.currency = uni.getStorageSync('settings').currency
-				}).catch((err) => {
-					console.log('request fail', err);
-					this.$showMessage('warning', err.msg);
-					// uni.showToast({
-					// 	title: err.msg,
-					// 	icon: 'none'
-					// })
-				})
-			},
-			checkLoginStatus() {
-				const token = uni.getStorageSync('token');
-				if (!token) {
-					this.$refs.popup.open()
-					return false;
-				}
-				return true;
-			},
 			getUserInfo() {
 				userInfoApi().then((res) => {
 					this.isRestrictAccess = false
@@ -510,27 +389,15 @@
 				}).catch((err) => {
 					console.log('request fail', err);
 					this.$showMessage('warning', err.msg);
-					// uni.showToast({
-					// 	title: err.msg,
-					// 	icon: 'none'
-					// })
 				})
 			},
+			// 首页轮播图
 			getSlideListApi() {
 				slideListApi().then((res) => {
 					this.swiperList = res.rows || []
 				}).catch((err) => {
 					console.log('request fail', err);
 					this.$showMessage('warning', err.msg);
-					// uni.showToast({
-					// 	title: err.msg,
-					// 	icon: 'none'
-					// })
-				})
-			},
-			toPage(path) {
-				uni.navigateTo({
-					url: path
 				})
 			},
 			prompt_confirm() {
@@ -542,6 +409,44 @@
 			prompt_cancel() {
 				this.$refs.promptpopup.close()
 			},
+			toPage(value) {
+				const {
+					canEnterButlerMode, // 管家模式
+					canEnterIntern, // 实习生
+					allowUnverifiedAccess, // 实名
+					targetValue
+				} = value
+				// 幸运转盘
+				if (targetValue == '/pages/HomePage/lotteryPage') {
+					this.toPage2(targetValue)
+					return
+				}
+				// 实习生不能进
+				if (canEnterIntern == false) {
+					this.toPageTeamExpansion(targetValue)
+					return
+				}
+				// 会员福利
+				if (targetValue == '/pages/commonListPage?title=Member+Benefits&groupId=3') {
+					this.toPageMemberBenefits()
+					return
+				}
+				// 管家模式不允许进入
+				if (canEnterButlerMode == false && this.isRestrictAccess) {
+					this.pop_message_yes = this.$t("withdrawal.restrictedAccess")
+					this.$refs.promptpopup2.open();
+					return
+				}
+				// 未实名不允许进入
+				if (allowUnverifiedAccess == false && !this.userInfo.realName) {
+					this.$refs.promptpopup.open()
+					return
+				}
+				uni.navigateTo({
+					url: targetValue
+				})
+			},
+			// 幸运转盘跳转
 			toPage2(path) {
 				let {
 					pointWheel,
@@ -555,9 +460,10 @@
 					url: path
 				})
 			},
+			// 实习生跳转限制
 			toPageTeamExpansion(path) {
 				if (this.userInfo.levelCode == '0') {
-					this.$showMessage('warning', this.$t('实习生没有邀请权限'))
+					this.$showMessage('warning', this.$t('实习生没有权限'))
 					return
 				}
 				uni.navigateTo({
@@ -594,14 +500,6 @@
 					url: "/pages/HomePage/companyInfo"
 				})
 			},
-			toLogon() {
-				uni.navigateTo({
-					url: "/pages/LoginPage/login"
-				})
-			},
-			popCancel() {
-				this.$refs.popup.close()
-			},
 			splitText(t) {
 				if (uni.getStorageSync('settings').defaultLanguage == 'fr') {
 					const parts = t.split(' ');
@@ -611,26 +509,46 @@
 					return t.split(' ').join(newline);
 				}
 			},
+			// 公司公告
 			getCompanyInfo() {
 				companyInfoApi().then((res) => {
 					this.companyInfo = getFirstTextTagWithEllipsis(res.data.companyIntroduction)
 				}).catch((err) => {
 					console.log('request fail', err);
 					this.$showMessage('warning', err.msg);
-					// uni.showToast({
-					// 	title: err.msg,
-					// 	icon: 'none'
-					// })
 				})
 			},
+			// 提现跳转
 			toWithdrawal() {
 				if (this.isRestrictAccess) {
 					this.pop_message_yes = this.$t("withdrawal.restrictedAccess")
 					this.$refs.promptpopup2.open();
 					return
 				}
+				if (!this.userInfo.realName) {
+					this.$refs.promptpopup.open();
+					return
+				}
 				uni.navigateTo({
 					url: '/pages/MinePage/withdrawal'
+				})
+			},
+			// 首页菜单
+			getMenuListApi() {
+				menuListApi().then(res => {
+					const originalData = res.data;
+					const menuList = [];
+					// 每4个元素分一组
+					for (let i = 0; i < originalData.length; i += 4) {
+						// 从当前索引开始，截取最多4个元素
+						const group = originalData.slice(i, i + 4);
+						menuList.push(group);
+					}
+					console.log(menuList)
+					this.menuList = menuList; // 赋值给数据属性
+				}).catch((err) => {
+					console.log('request fail', err);
+					this.$showMessage('warning', err.msg);
 				})
 			}
 		},
@@ -639,19 +557,20 @@
 			this.getUserInfo()
 			this.getSlideListApi()
 			this.noticeList = uni.getStorageSync('settings').noticeList
-			// uni.setTabBarBadge({index: 2})
 			this.getTadaySalary()
 			this.getMessageNoticeApi()
 		},
 		mounted() {
-			this.getSettings()
-			this.checkLoginStatus()
+			this.currency = uni.getStorageSync('settings').currency
+			this.getMenuListApi()
 		},
 		onLoad() {
+			// 是否有滚动消息
 			if (uni.getStorageSync('settings').rollSwitch == 1) {
 				this.rollContent = htmlToPlainText(uni.getStorageSync('settings').rollContent)
 				this.isShowMessage2 = true
 			}
+			// 是否有全屏公告
 			if (uni.getStorageSync('settings').popWindowSwitch == 1 && uni.getStorageSync('settings').popWindowContentList
 				.length) {
 				// console.log(uni.getStorageSync('settings').popWindowContent)
@@ -892,6 +811,10 @@
 
 	.home_center_box {
 		margin: 72rpx 24rpx 32rpx;
+
+		.center_item_box:nth-child(2) {
+			margin-top: 42rpx;
+		}
 	}
 
 	.noticebar {
@@ -903,10 +826,13 @@
 
 	.center_item_box {
 		display: flex;
+		justify-content: start;
+		gap: 42rpx;
+		padding: 0 12rpx;
 	}
 
 	.center_item {
-		flex: 1;
+		// flex: 1;
 	}
 
 	.icon-wrapper {

@@ -466,7 +466,7 @@
 	"余额达到才可输入": "You can only input freely when your balance reaches ",
 	"自由输入": "Input freely, ",
 	"自由输入2": "Input freely",
-	"实习生没有邀请权限": "Interns do not have invitation privileges. Please try again after becoming a regular employee",
+	"实习生没有权限": "Interns are not authorized to access. Please try again after becoming a regular employee",
 	"请先实名": "Please complete the real-name authentication first",
 	"邮箱": "E-mail",
 	"请输入邮箱": "Please enter your e-mail",

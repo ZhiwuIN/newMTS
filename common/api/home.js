@@ -225,3 +225,11 @@ export function contractAllApi() {
 		method: 'get',
 	})
 }
+
+// 首页菜单
+export function menuListApi() {
+	return request({
+		url: '/app/personal/menu/list',
+		method: 'get',
+	})
+}

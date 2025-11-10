@@ -154,7 +154,7 @@
 		position: fixed;
 		left: 0;
 		bottom: 0;
-		width: 750rpx;
+		width: 100%;
 		height: 686rpx;
 		/* background: linear-gradient(180deg, $gradualColor2 0%, $gradualColor1 100%); */
 		background: linear-gradient(180deg, #3B89E9 0%, #03459B 100%);

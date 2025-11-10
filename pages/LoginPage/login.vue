@@ -192,7 +192,7 @@
 	}
 
 	.login_top_bg {
-		width: 750rpx;
+		width: 100%;
 		background: url('/static/login/login_bg.png') top left/100% no-repeat;
 		padding-bottom: 68rpx;
 	}

@@ -87,7 +87,7 @@
 			userInfoApi().then((res) => {
 				this.userInfo = res.data
 				if (this.userInfo.levelCode == '0') {
-					this.$showMessage('warning', this.$t('实习生没有邀请权限'))
+					this.$showMessage('warning', this.$t('实习生没有权限'))
 					uni.switchTab({
 						url: '/pages/HomePage/index'
 					})
