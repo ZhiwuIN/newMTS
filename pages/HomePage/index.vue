@@ -154,12 +154,13 @@
 
 		<!-- <messagePopup2 v-model:isShow="isShowMessage2" :content="rollContent">
 		</messagePopup2> -->
-		<t-overlay :visible="bigGG" @click="closeBigGG" v-if="bigGG" />
+		<t-overlay :visible="bigGG"  v-if="bigGG" />
 		<view class="bigGG" v-if="bigGG">
 			<view class="bigGG_main">
 				<view @click="prompt_confirm3" class="bigGG_text" v-html="popWindowContent"></view>
 			</view>
-			<image class="xImage" src="/static/lottery/x.png" mode="" @click="closeBigGG"></image>
+			<view v-if="bigGGBtnNum > 0"  class="bigGGBtnClose">{{ bigGGBtnNum }}</view>
+			<image v-else  class="xImage" src="/static/lottery/x.png" mode="" @click="closeBigGG"></image>
 		</view>
 	</view>
 </template>
@@ -234,12 +235,33 @@
 				isRestrictAccess: false,
 				// 全屏公告
 				bigGG: false,
-				bigGGIndex: 0
+				bigGGIndex: 0,
+				bigGGBtnNum: 0, // 按钮倒计时
+				bigGGTimer: null // 定时器
 			}
 		},
 		methods: {
+			// 五秒倒计时
+			countdown(time) {
+				if(this.bigGGBtnNum >= 0){
+					return
+				}
+					// 清除已存在的定时器
+				if (this.bigGGTimer) {
+					clearInterval(this.bigGGTimer);
+				}
+				this.bigGGBtnNum = time
+				this.bigGGTimer = setInterval(() => {
+					time--
+					this.bigGGBtnNum = time
+					if (time <= 0) {
+						clearInterval(this.bigGGTimer)
+					}
+				}, 1000)
+			},
 			// 首页全屏公告
 			closeBigGG() {
+				uni.showTabBar();
 				this.bigGGIndex++
 				if (this.bigGGIndex > uni.getStorageSync('settings').popWindowContentList.length - 1) {
 					this.bigGG = false;
@@ -248,6 +270,8 @@
 				} else {
 					this.popWindowContent = formatRichText(uni.getStorageSync('settings').popWindowContentList[this
 						.bigGGIndex])
+				// 倒计时按钮
+				this.countdown(3)
 				}
 
 			},
@@ -579,6 +603,7 @@
 					.bigGGIndex])
 				this.bigGG = true
 				uni.hideTabBar();
+				this.countdown(5);
 			}
 		}
 	}
@@ -617,6 +642,16 @@
 		.xImage {
 			width: 58rpx;
 			height: 58rpx;
+		}
+		.bigGGBtnClose{
+			color: white;
+			border-radius: 50%;
+			border: 4rpx solid white;
+			width: 52rpx;
+			height: 52rpx;
+			display: flex;
+			justify-content: center;
+			align-items: center;
 		}
 	}
 
