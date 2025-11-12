@@ -82,64 +82,9 @@
 				<!-- 功能入口卡片 -->
 				<view class="function-card">
 					<view class="function-grid">
-						<view class="function-item" @click="toPage('/pages/MinePage/license?groupId=4')">
-							<image src="/static/mine/Business license.png"></image>
-							<text>{{splitText($t('mine.Businesslicense'))}}</text>
-						</view>
-						<!-- <view class="function-item" @click="toPage('/pages/MinePage/identity')">
-							<image src="/static/mine/dentity authentication.png"></image>
-							<text>{{splitText($t('mine.Identityauthentication'))}}</text>
-						</view> -->
-						<view class="function-item" @click="toPage('/pages/MinePage/bills')">
-							<image src="/static/mine/Financial Records.png"></image>
-							<text>{{splitText($t('mine.FinancialRecords'))}}</text>
-						</view>
-						<view class="function-item" @click="toPage('/pages/MinePage/positionManage')">
-							<image src="/static/mine/Position management.png"></image>
-							<text>{{splitText($t('mine.PositionManagement'))}}</text>
-						</view>
-						<view class="function-item" @click="toPage('/pages/MinePage/financePage')">
-							<image src="/static/mine/Financial management fund.png"></image>
-							<text>{{splitText($t('mine.Financialmanagementfund'))}}</text>
-						</view>
-						<!-- 我的团队 -->
-						<view class="function-item" @click="toPage('/pages/TeamPage/index')">
-							<image src="/static/mine/Team Management.png"></image>
-							<text>{{splitText($t('mine.myTeam'))}}</text>
-						</view>
-						<view class="function-item" @click="toPage('/pages/MinePage/account')">
-							<image src="/static/mine/Account Security.png"></image>
-							<text>{{splitText($t('mine.AccountSecurity'))}}</text>
-						</view>
-						<view class="function-item"
-							@click="toPage('/pages/MinePage/privacyPolicy?title=' + $t('pages.privacyPolicy') + '&gropid=' + 5)">
-							<image src="/static/mine/Privacy Policy.png"></image>
-							<text>{{splitText($t('mine.PrivacyPolicy'))}}</text>
-						</view>
-						<view class="function-item" @click="toPage2('/pages/MinePage/ElectronicContract')">
-							<image src="/static/mine/Electronic Contract.svg"></image>
-							<text>{{splitText($t('mine.ElectronicContract'))}}</text>
-						</view>
-						<!-- #ifdef H5 -->
-						<view class="function-item" @click="onDownload()">
-							<image src="/static/mine/APP Download.png"></image>
-							<text>{{splitText($t('mine.APPDownload'))}}</text>
-						</view>
-						<!-- #endif -->
-						<view class="function-item"
-							@click="toPage('/pages/MinePage/privacyPolicy?title=' + $t('mine.EmployeeBenefits') + '&gropid=' + 6)">
-							<image src="/static/mine/rightsInterests.png"></image>
-							<text>{{splitText($t('mine.EmployeeBenefits'))}}</text>
-						</view>
-						<view class="function-item"
-							@click="toPage('/pages/MinePage/privacyPolicy?title=' + $t('mine.UserManual') + '&gropid=' + 7)">
-							<image src="/static/mine/serviceManual.png"></image>
-							<text>{{splitText($t('mine.UserManual'))}}</text>
-						</view>
-						<view class="function-item"
-							@click="toPage('/pages/MinePage/privacyPolicy?title=' + $t('mine.PromotionalBrochure') + '&gropid=' + 8)">
-							<image src="/static/mine/brochure.png"></image>
-							<text>{{splitText($t('mine.PromotionalBrochure'))}}</text>
+						<view class="function-item" @click="toPage(item)" v-for="item in menuList">
+							<image :src="item?.iconUrl"></image>
+							<text>{{splitText(item?.menuName)}}</text>
 						</view>
 					</view>
 				</view>
@@ -174,16 +119,23 @@
 		userInfoApi,
 		logoutApi
 	} from "@/common/api/users.js";
+	import {
+		menuListApi
+	} from "@/common/api/home.js";
 	export default {
 		components: {
 			customnavbar: customnavbar
 		},
 		data() {
 			return {
+				menuList: [],
 				topStyle: 0,
 				userInfo: {},
 				isRestrictAccess: false
 			}
+		},
+		onLoad() {
+			this.getMenuListApi()
 		},
 		onShow() {
 			userInfoApi().then((res) => {
@@ -207,9 +159,31 @@
 			})
 		},
 		methods: {
+			// 个人中心菜单
+			getMenuListApi() {
+				menuListApi({
+					type: 'personal'
+				}).then(res => {
+					this.menuList = res.data
+				}).catch((err) => {
+					console.log('request fail', err);
+					this.$showMessage('warning', err.msg);
+				})
+			},
+			// 实名校验
 			toPage2(path) {
 				if (!this.userInfo.realName) {
 					this.$refs.promptpopup.open()
+					return
+				}
+				uni.navigateTo({
+					url: path
+				})
+			},
+			// 实习生跳转限制
+			toPageTeamExpansion(path) {
+				if (this.userInfo.levelCode == '0') {
+					this.$showMessage('warning', this.$t('实习生没有权限'))
 					return
 				}
 				uni.navigateTo({
@@ -235,9 +209,30 @@
 					url: '/pages/MinePage/headPortrait'
 				})
 			},
-			toPage(path) {
+			toPage(value) {
+				const {
+					canEnterButlerMode, // 管家模式
+					canEnterIntern, // 实习生
+					allowUnverifiedAccess, // 实名
+					targetValue // 地址
+				} = value
+				// 实名校验
+				if (allowUnverifiedAccess == false) {
+					this.toPage2(targetValue)
+					return
+				}
+				// 实习生不能进
+				if (canEnterIntern == false && this.userInfo.levelCode == '0') {
+					this.toPageTeamExpansion(targetValue)
+					return
+				}
+				// 管家模式不允许进入
+				if (canEnterButlerMode == false && this.isRestrictAccess) {
+					this.$refs.promptpopup_access.open()
+					return
+				}
 				uni.navigateTo({
-					url: path
+					url: targetValue
 				})
 			},
 			mtop(e) {

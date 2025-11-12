@@ -227,9 +227,10 @@ export function contractAllApi() {
 }
 
 // 首页菜单
-export function menuListApi() {
+export function menuListApi(params) {
 	return request({
 		url: '/app/personal/menu/list',
 		method: 'get',
+		data: params
 	})
 }

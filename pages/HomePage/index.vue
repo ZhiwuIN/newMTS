@@ -154,13 +154,13 @@
 
 		<!-- <messagePopup2 v-model:isShow="isShowMessage2" :content="rollContent">
 		</messagePopup2> -->
-		<t-overlay :visible="bigGG"  v-if="bigGG" />
+		<t-overlay :visible="bigGG" v-if="bigGG" />
 		<view class="bigGG" v-if="bigGG">
 			<view class="bigGG_main">
 				<view @click="prompt_confirm3" class="bigGG_text" v-html="popWindowContent"></view>
 			</view>
-			<view v-if="bigGGBtnNum > 0"  class="bigGGBtnClose">{{ bigGGBtnNum }}</view>
-			<image v-else  class="xImage" src="/static/lottery/x.png" mode="" @click="closeBigGG"></image>
+			<view v-if="bigGGBtnNum > 0" class="bigGGBtnClose">{{ bigGGBtnNum }}</view>
+			<image v-else class="xImage" src="/static/lottery/x.png" mode="" @click="closeBigGG"></image>
 		</view>
 	</view>
 </template>
@@ -243,10 +243,10 @@
 		methods: {
 			// 五秒倒计时
 			countdown(time) {
-				if(this.bigGGBtnNum >= 0){
+				if (this.bigGGBtnNum > 0) {
 					return
 				}
-					// 清除已存在的定时器
+				// 清除已存在的定时器
 				if (this.bigGGTimer) {
 					clearInterval(this.bigGGTimer);
 				}
@@ -270,8 +270,8 @@
 				} else {
 					this.popWindowContent = formatRichText(uni.getStorageSync('settings').popWindowContentList[this
 						.bigGGIndex])
-				// 倒计时按钮
-				this.countdown(3)
+					// 倒计时按钮
+					this.countdown(3)
 				}
 
 			},
@@ -446,7 +446,7 @@
 					return
 				}
 				// 实习生不能进
-				if (canEnterIntern == false) {
+				if (canEnterIntern == false && this.userInfo.levelCode == '0') {
 					this.toPageTeamExpansion(targetValue)
 					return
 				}
@@ -559,7 +559,9 @@
 			},
 			// 首页菜单
 			getMenuListApi() {
-				menuListApi().then(res => {
+				menuListApi({
+					type: 'home'
+				}).then(res => {
 					const originalData = res.data;
 					const menuList = [];
 					// 每4个元素分一组
@@ -643,7 +645,8 @@
 			width: 58rpx;
 			height: 58rpx;
 		}
-		.bigGGBtnClose{
+
+		.bigGGBtnClose {
 			color: white;
 			border-radius: 50%;
 			border: 4rpx solid white;
