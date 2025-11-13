@@ -76,13 +76,13 @@
 				<view class="home_center_box">
 					<view class="center_item_box" v-for="item in menuList">
 						<template v-for="i in item">
-							<view class="center_item" v-if="!(i.showTestAccount == false && userType == 'test')"
+							<view class="center_item" v-if="!(i?.showTestAccount == false && userType == 'test')"
 								@click="toPage(i)">
 								<view class="flex_center">
-									<image :src="i.iconUrl" class="icon-wrapper" />
+									<image :src="i?.iconUrl" class="icon-wrapper" />
 								</view>
 								<view class="center_item_t">
-									<text>{{ splitText(i.menuName) }}</text>
+									<text>{{ splitText(i?.menuName) }}</text>
 								</view>
 							</view>
 						</template>
@@ -588,9 +588,9 @@
 		},
 		mounted() {
 			this.currency = uni.getStorageSync('settings').currency
-			this.getMenuListApi()
 		},
 		onLoad() {
+			this.getMenuListApi()
 			// 是否有滚动消息
 			if (uni.getStorageSync('settings').rollSwitch == 1) {
 				this.rollContent = htmlToPlainText(uni.getStorageSync('settings').rollContent)
