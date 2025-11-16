@@ -105,7 +105,7 @@
 				});
 				positionApplyApi(this.details.pid).then((res) => {
 					// this.$refs.popup.open('center')
-					this.$showMessage('success', this.$t('post.applicationApproved'));
+					this.$showMessage('success', res.msg);
 					setTimeout(() => {
 						uni.redirectTo({
 							url: '/pages/MinePage/applicationRecord'

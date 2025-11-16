@@ -54,21 +54,22 @@
 						<!-- 已领取 -->
 						<text class="home_salary_box_v_c_t" v-else-if="salaryIsGet">Received today</text>
 						<!-- 职位任务未达标 -->
-						<text class="home_salary_box_v_c_t" v-else-if="userInfo.compliance == 0">{{ $t("暂停发放") }}</text>
+						<text class="home_salary_box_v_c_t"
+							v-else-if="userInfo.compliance == 0">{{ $t("职位任务未完成") }}</text>
 						<!-- 未到发薪日 -->
-						<text class="home_salary_box_v_c_t" v-else-if="!salaryIsGet && todaySalary == 0">Not yet reached
-							the payday</text>
+						<text class="home_salary_box_v_c_t" v-else-if="!salaryIsGet && NoPayday">{{NoPayday}}</text>
 						<!-- 薪资未领取 -->
 						<text class="home_salary_box_v_c_t" v-else-if="!salaryIsGet">{{ $t('home.TodaySalary') }} :
 							<text>{{ todaySalary }}</text> {{ currency }}</text>
 						<text class="home_salary_box_v_c_t" v-else>Unable to receive</text>
 					</view>
 					<view @tap="isRestrictAccess ? this.$refs.promptpopup2.open() : onGetDailyWage()"
-						:class="'home_salary_box_r_btn' + (salaryIsGet ? ' disable' : '')">
+						:class="'home_salary_box_r_btn' + (salaryIsGet ? ' disable' : '')"
+						v-if="!NoPayday && (userInfo.compliance || !userInfo.positio)">
 						<text v-if="!userInfo.position">Go</text>
-						<text v-else-if="!salaryIsGet && todaySalary == 0">Details
+						<text v-else-if="!salaryIsGet && todaySalary == 0 && userInfo.compliance">Details
 						</text>
-						<text v-else>Get</text>
+						<text v-else-if="userInfo.compliance">Get</text>
 					</view>
 				</view>
 
@@ -199,6 +200,7 @@
 		},
 		data() {
 			return {
+				NoPayday: '',
 				popWindowContent: '',
 				rollContent: '',
 				isShowMessage2: false,
@@ -237,28 +239,11 @@
 				bigGG: false,
 				bigGGIndex: 0,
 				bigGGBtnNum: 0, // 按钮倒计时
-				bigGGTimer: null // 定时器
+				bigGGTimer: null, // 定时器
+				menuList: []
 			}
 		},
 		methods: {
-			// 五秒倒计时
-			countdown(time) {
-				if (this.bigGGBtnNum > 0) {
-					return
-				}
-				// 清除已存在的定时器
-				if (this.bigGGTimer) {
-					clearInterval(this.bigGGTimer);
-				}
-				this.bigGGBtnNum = time
-				this.bigGGTimer = setInterval(() => {
-					time--
-					this.bigGGBtnNum = time
-					if (time <= 0) {
-						clearInterval(this.bigGGTimer)
-					}
-				}, 1000)
-			},
 			// 首页全屏公告
 			closeBigGG() {
 				uni.showTabBar();
@@ -352,6 +337,7 @@
 			},
 			// 薪资
 			getTadaySalary() {
+				this.NoPayday = ''
 				withdrawalSalaryApi("0").then(res => {
 					this.todaySalary = res.data.todayAmount ?? 0
 					this.salary.payType = res.data.payType
@@ -363,6 +349,9 @@
 					}
 					// this.salaryIsGet = false
 				}).catch(err => {
+					if (err.msg.includes("The next payday is")) {
+						this.NoPayday = err.msg
+					}
 					// this.$showMessage('warning', err.msg);
 				})
 			},
@@ -700,29 +689,32 @@
 	}
 
 	.home_salary_box {
-		width: 650rpx;
-		margin: 40rpx auto;
-		padding: 20rpx 0rpx;
+		// width: 650rpx;
+		margin: 40rpx 40rpx;
+		padding: 30rpx 40rpx;
 		background: rgb(23, 94, 183);
 		background: linear-gradient(90deg, rgba(23, 94, 183, 1) 0%, rgba(40, 112, 204, 1) 56%, rgba(54, 133, 227, 1) 100%);
 		border-radius: 20rpx;
 		display: flex;
-		justify-content: space-around;
+		// justify-content: space-around;
 		align-items: center;
 		color: white;
 
 		.home_salary_box_img {
 			width: 80rpx;
+			min-width: 80rpx;
 			height: 80rpx;
+			margin-right: 40rpx;
 		}
 
 		.home_salary_box_v_c {
+			flex: 1;
 			display: flex;
 			justify-content: space-between;
 			align-items: center;
 
 			.home_salary_box_v_c_t {
-				line-height: 100rpx;
+				// line-height: 100rpx;
 				font-family: "DINPro-Medium", sans-serif;
 				font-weight: 300;
 				font-size: 26rpx;
