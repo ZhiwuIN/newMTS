@@ -65,7 +65,7 @@
 					</view>
 					<view @tap="isRestrictAccess ? this.$refs.promptpopup2.open() : onGetDailyWage()"
 						:class="'home_salary_box_r_btn' + (salaryIsGet ? ' disable' : '')"
-						v-if="!NoPayday && (userInfo.compliance || !userInfo.positio)">
+						v-if="!NoPayday && (userInfo.compliance || !userInfo.position)">
 						<text v-if="!userInfo.position">Go</text>
 						<text v-else-if="!salaryIsGet && todaySalary == 0 && userInfo.compliance">Details
 						</text>
@@ -244,6 +244,24 @@
 			}
 		},
 		methods: {
+			// 五秒倒计时
+			countdown(time) {
+				if (this.bigGGBtnNum > 0) {
+					return
+				}
+				// 清除已存在的定时器
+				if (this.bigGGTimer) {
+					clearInterval(this.bigGGTimer);
+				}
+				this.bigGGBtnNum = time
+				this.bigGGTimer = setInterval(() => {
+					time--
+					this.bigGGBtnNum = time
+					if (time <= 0) {
+						clearInterval(this.bigGGTimer)
+					}
+				}, 1000)
+			},
 			// 首页全屏公告
 			closeBigGG() {
 				uni.showTabBar();
