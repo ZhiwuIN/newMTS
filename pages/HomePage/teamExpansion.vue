@@ -49,10 +49,10 @@
 		</view>
 	</customnavbar>
 	<canvas canvas-id="finalPosterCanvas" style="width: 375px; height: 600px; position: fixed; top: -9999px;"></canvas>
-	<uni-popup ref="promptpopup" type="center" :mask-click="false" >
+	<uni-popup ref="promptpopup" type="center" :mask-click="false">
 		<view class="prompt_pop_page">
 			<view class="prompt_pop_top">{{$t('home.Prompt')}}</view>
-			<view class="prompt_pop_taps" >{{this.$t("withdrawal.restrictedAccess")}}</view>
+			<view class="prompt_pop_taps">{{this.$t("withdrawal.restrictedAccess")}}</view>
 			<view class="prompt_pop_bottom">
 				<button class="prompt_confirm_btn" @click="prompt_confirm">{{$t('pay.yes')}}</button>
 			</view>
@@ -64,7 +64,8 @@
 	import UQRCode from '../../uni_modules/Sansnn-uQRCode/js_sdk/uqrcode/uqrcode.js';
 	import customnavbar from '@/component/custom-navbar/custom-navbar.vue'
 	import {
-		userInfoApi
+		userInfoApi,
+		settingsApi
 	} from "@/common/api/users.js";
 	export default {
 		components: {
@@ -81,36 +82,52 @@
 				userInfo: {},
 				posterImage: '',
 				isRestrictAccess: false,
+				settings: {}
 			}
 		},
 		onShow() {
-			userInfoApi().then((res) => {
-				this.userInfo = res.data
-				if (this.userInfo.levelCode == '0') {
-					this.$showMessage('warning', this.$t('实习生没有权限'))
-					uni.switchTab({
-						url: '/pages/HomePage/index'
-					})
-					return
-				}
-				if  (this.userInfo.housekeeper == 1) {
-					this.isRestrictAccess = true 
-					this.$refs.promptpopup.open()
-				}
-				this.qrcodeUrl = uni.getStorageSync('settings').regUrl + '/#/'
-				this.code = res.data.invitationCode;
-				uni.setStorageSync('userInfo', res.data)
-				this.generateQrCode()
-			}).catch((err) => {
+			settingsApi().then((res) => {
+				this.settings = res.data
+				uni.setStorageSync('settings', res.data)
+				// uni.setLocale(res.data.defaultLanguage);
+				// this.$i18n.locale = res.data.defaultLanguage;
+				userInfoApi().then((res) => {
+					this.userInfo = res.data
+					if (this.userInfo.levelCode == '0') {
+						this.$showMessage('warning', this.$t('实习生没有权限'))
+						uni.switchTab({
+							url: '/pages/HomePage/index'
+						})
+						return
+					}
+					if (this.userInfo.housekeeper == 1) {
+						this.isRestrictAccess = true
+						this.$refs.promptpopup.open()
+					}
+					this.qrcodeUrl = this.settings.regUrl + '/#/'
+					this.code = res.data.invitationCode;
+					uni.setStorageSync('userInfo', res.data)
+					this.generateQrCode()
+				}).catch((err) => {
+					console.log('request fail', err);
+					this.$showMessage('warning', err.msg);
+				})
+				uni.setLocale('en');
+				this.$i18n.locale = 'en';
+			}).catch(err => {
 				console.log('request fail', err);
-				this.$showMessage('warning', err.msg);
+				if (err.data?.code == 403) {
+					this.$showMessage('warning', err.data?.msg);
+				} else {
+					this.$showMessage('warning', err.msg);
+				}
 			})
 		},
 		onReady() {
 			this.posterImage = uni.getLocale() == 'fr' ? '/static/posterFR.jpg' : '/static/posterEN.jpg';
 		},
 		methods: {
-			prompt_confirm(){
+			prompt_confirm() {
 				this.$refs.promptpopup.close()
 				uni.navigateBack()
 			},
@@ -464,11 +481,13 @@
 		margin-top: 26rpx;
 		margin-bottom: 74rpx;
 	}
+
 	.prompt_pop_page {
 		width: 570rpx;
 		background: #FFFFFF;
 		border-radius: 28rpx;
 		padding: 40rpx 54rpx 28rpx 54rpx;
+
 		.prompt_pop_top {
 			font-family: "DINPro-Medium", sans-serif;
 			font-weight: 500;
@@ -478,6 +497,7 @@
 			text-align: center;
 			font-style: normal;
 		}
+
 		.prompt_pop_taps {
 			font-family: "DINPro-Regular", sans-serif;
 			font-weight: 400;
@@ -488,11 +508,12 @@
 			font-style: normal;
 			margin-top: 40rpx;
 		}
+
 		.prompt_pop_bottom {
 			display: flex;
 			margin-top: 54rpx;
 		}
-		
+
 		.prompt_confirm_btn {
 			width: 212rpx;
 			height: 72rpx;

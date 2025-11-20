@@ -17,12 +17,16 @@ const messages = {
 const {
 	t
 } = initVueI18n(messages)
+
+// 防止请求失败时重复弹窗
+let globalRequestFailedAlerted = false;
+
 // 全局请求封装——也可像上述一样根据环境不同的判断
 // const base_url = '/api';8080'; //开发环境
-const base_url = 'http://192.168.0.9:8081' //开发环境
-// const base_url = 'https://4ba13e34.r19.cpolar.top' //开发环境
+// const base_url = 'http://192.168.0.9:8081' //开发环境
+// const base_url = 'http://47.122.125.169:19002' //开发环境
 // const base_url = 'http://18.175.218.68:8888'//测试环境
-// const base_url = 'https://api.cwpc.vip' // 域名
+const base_url = 'https://api.cwpc.cc' // 域名
 // const base_url = 'https://api.itslai.com' // 域名
 
 // 请求超时设置
@@ -166,9 +170,21 @@ function requestWithAuth(params, resolve, reject, retried = false) {
 			}
 		},
 		fail(err) {
-			showMessage('warning', err.msg && err.msg.indexOf('request:fail') !== -1 ? t(
-					'request.netError') :
-				t('request.netError'));
+			// 添加防重复弹窗机制
+			if (!globalRequestFailedAlerted) {
+				globalRequestFailedAlerted = true;
+				showMessage('warning', t('request.systemMaintenance'));
+
+				// 设置定时器，一段时间后允许再次显示提示
+				setTimeout(() => {
+					globalRequestFailedAlerted = false;
+				}, 3000); // 3秒内不会重复显示
+			}
+
+			// 原有逻辑可以保留或注释掉
+			// showMessage('warning', err.msg && err.msg.indexOf('request:fail') !== -1 ? t(
+			//         'request.netError') :
+			//     t('request.netError'));
 		},
 		complete() {
 			uni.hideLoading();
