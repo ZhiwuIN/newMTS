@@ -25,18 +25,19 @@
 											{{ info?.payType }}
 										</view>
 									</view>
-									<view class="row-item">
+									<view class="row-item" style="align-items: center;">
 										<view class="positionManage-info-title">{{ $t('positionManage.Payday') }}</view>
-										<view v-if="true">
+										<view v-if="infoData.status == 5" class="positionManage-info-value"
+											style="color: #FF0000;max-width: 320rpx;">
+											This week's assessment has not been met
+										</view>
+										<view v-else>
 											<view class="positionManage-info-value" v-if="info.payType == 'daily'">
 												{{ $t("每天") }}
 											</view>
 											<view class="positionManage-info-value" v-else>
 												{{ weekDay[infoData.payday - 1] ?? '-' }}
 											</view>
-										</view>
-										<view v-else class="positionManage-info-value" style="color: #FF0000;max-width: 320rpx;">
-											This week's assessment has not been met
 										</view>
 									</view>
 									<view class="row-item">
@@ -107,12 +108,14 @@
 												:percentage="infoData.completed / infoData.target * 100" />
 										</view>
 										<view class="info_text">
+											{{ $t('考核要求') }}:
+										</view>
+										<view class="info_text">
 											{{ infoData.assessmentRequirements || infoData.requirements }}
 										</view>
-										<view class="info_text" style="color: #666666;">
+										<view class="info_text" style="color: #FE9301;">
 											**Once the assessment conditions are met, the salary will be paid in the
-											next
-											week**
+											next week**
 										</view>
 									</view>
 								</view>
@@ -504,6 +507,7 @@
 						font-size: 24rpx;
 						color: #000000;
 						text-align: left;
+						word-break: break-all
 					}
 
 					.progress_max_Box_title {
