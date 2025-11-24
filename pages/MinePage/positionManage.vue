@@ -61,7 +61,8 @@
 									<view class="row-item" v-if="info?.latestId">
 										<view class="positionManage-info-title">{{ $t('考核日') }}
 										</view>
-										<view class="positionManage-info-value">{{ weekList[info?.assessmentDay] }}
+										<view class="positionManage-info-value">{{ infoData?.maturityTime.split(' ')[0] }}
+										<!-- ({{ weekList[info?.assessmentDay] }}) -->
 										</view>
 									</view>
 									<view class="row-item progress_max_Box">

@@ -23,6 +23,7 @@ let globalRequestFailedAlerted = false;
 
 // 全局请求封装——也可像上述一样根据环境不同的判断
 // const base_url = '/api';8080'; //开发环境
+// const base_url = 'http://192.168.0.5:8080' //开发环境
 const base_url = 'http://192.168.0.9:8081' //开发环境
 // const base_url = 'http://47.122.125.169:19002' //开发环境
 // const base_url = 'http://18.175.218.68:8888'//测试环境
@@ -170,21 +171,29 @@ function requestWithAuth(params, resolve, reject, retried = false) {
 			}
 		},
 		fail(err) {
-			// 添加防重复弹窗机制
-			if (!globalRequestFailedAlerted) {
-				globalRequestFailedAlerted = true;
-				showMessage('warning', t('request.systemMaintenance'));
+			// 判定是否为 502 错误（适配不同的 err 格式，覆盖常见场景）
+			const is502Error =
+				// 场景1：err 里有 statusCode 字段（如 axios/uni.request 等）
+				err.statusCode === 502 ||
+				// 场景2：err.msg/err.message 包含 502 关键词（如自定义错误信息）
+				(err.msg && err.msg.includes('502')) ||
+				(err.message && err.message.includes('502'));
 
-				// 设置定时器，一段时间后允许再次显示提示
-				setTimeout(() => {
-					globalRequestFailedAlerted = false;
-				}, 3000); // 3秒内不会重复显示
+			// 仅 502 错误触发「系统维护」提示（带防重复弹窗）
+			if (is502Error) {
+				if (!globalRequestFailedAlerted) {
+					globalRequestFailedAlerted = true;
+					showMessage('warning', t('request.systemMaintenance'));
+
+					// 3秒内禁止重复弹窗
+					setTimeout(() => {
+						globalRequestFailedAlerted = false;
+					}, 3000);
+				}
+			} else {
+				// 非 502 错误：保留原有网络错误提示（可根据需求调整）
+				// showMessage('warning', t('request.netError'));
 			}
-
-			// 原有逻辑可以保留或注释掉
-			// showMessage('warning', err.msg && err.msg.indexOf('request:fail') !== -1 ? t(
-			//         'request.netError') :
-			//     t('request.netError'));
 		},
 		complete() {
 			uni.hideLoading();
