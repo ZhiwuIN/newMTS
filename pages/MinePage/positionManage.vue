@@ -27,11 +27,16 @@
 									</view>
 									<view class="row-item">
 										<view class="positionManage-info-title">{{ $t('positionManage.Payday') }}</view>
-										<view class="positionManage-info-value" v-if="info.payType == 'daily'">
-											{{ $t("每天下午五点") }}
+										<view v-if="true">
+											<view class="positionManage-info-value" v-if="info.payType == 'daily'">
+												{{ $t("每天") }}
+											</view>
+											<view class="positionManage-info-value" v-else>
+												{{ weekDay[infoData.payday - 1] ?? '-' }}
+											</view>
 										</view>
-										<view class="positionManage-info-value" v-else>
-											Five o 'clock on {{ weekDay[infoData.payday - 1] ?? '-' }} afternoon
+										<view v-else class="positionManage-info-value" style="color: #FF0000;max-width: 320rpx;">
+											This week's assessment has not been met
 										</view>
 									</view>
 									<view class="row-item">
@@ -52,80 +57,64 @@
 									<view class="row-item" v-if="info.assessmentRequirements">
 										<text style="font-size: 18rpx;">{{ info.assessmentRequirements }}</text>
 									</view>
-								</view>
-							</view>
-
-							<view class="positionManage_info positionManage_info2" v-if="infoData?.status">
-								<view class="info-row">
-									<view class="row-item">
-										<view class="positionManage-info-title">{{ $t('positionManage.Status') }}</view>
-										<view class="positionManage-info-value" v-if="infoData.status == 6">
-											{{ $t('positionManage.Agreed') }}
-										</view>
-										<view class="positionManage-info-value" v-if="infoData.status == 3">
-											{{ $t('positionManage.Failed') }}
-										</view>
-										<view class="positionManage-info-value" v-if="infoData.status == 2">
-											{{ $t('positionManage.underReview') }}
-										</view>
-										<view class="positionManage-info-value" v-if="infoData.status == 5">
-											{{ $t('positionManage.notReach') }}
-										</view>
-										<view class="positionManage-info-value" v-if="infoData.status == 4">
-											{{ $t('positionManage.InProgress') }}
-										</view>
-									</view>
-									<view class="row-item">
-										<view class="positionManage-info-title">
-											{{ $t('positionManage.JobRequirements') }}
-										</view>
-										<view class="positionManage-info-value" style="font-size: 20rpx;">
-											{{infoData?.jobRequirements}}
-										</view>
-									</view>
-									<view class="row-item">
-										<view class="positionManage-info-title">
-											Assessment Requirement
-										</view>
-										<view class="positionManage-info-value" style="font-size: 20rpx;">
-											{{ $t('JobRequirementsA') }} {{ infoData.target }} {{ infoData.applicationType
-											== "aLevel" ? "team" : "team" }} {{ $t('JobRequirementsB') }}
-											{{ infoData.cycle }}
-											{{
-											$t('JobRequirementsC')
-										}}({{infoData.applicationType == "aLevel" ? "A" : "A、B、C"}})
-										</view>
-									</view>
-									<view class="row-item">
-										<view class="positionManage-info-title">{{ $t('positionManage.WorkProgress') }}
-										</view>
-										<view class="progressBox">
-											<t-progress style="width: 360rpx;" :label="false"
-												:percentage="infoData.completed / infoData.target * 100" />
-											<view>
-												<text class="themeColor">{{ infoData.completed }}</text>/{{ infoData.target
-											}}
-											</view>
-										</view>
-									</view>
 									<view class="row-item" v-if="info?.latestId">
 										<view class="positionManage-info-title">{{ $t('考核日') }}
 										</view>
 										<view class="positionManage-info-value">{{ weekList[info?.assessmentDay] }}
 										</view>
 									</view>
-									<view class="row-item">
-										<view class="positionManage-info-title">{{ $t('positionManage.ApprovalTime') }}
+									<view class="row-item progress_max_Box">
+										<view class="progress_max_Box_title">
+											<view class="positionManage-info-title">
+												{{ $t('positionManage.WorkProgress') }}
+											</view>
+											<view class="positionManage-info-title">
+												<view class="positionManage-info-value" style="color: #3FCF05;"
+													v-if="infoData.status == 6">
+													{{ $t('positionManage.Agreed') }}
+												</view>
+												<view class="positionManage-info-value" v-if="infoData.status == 3">
+													{{ $t('positionManage.Failed') }}
+												</view>
+												<view class="positionManage-info-value" v-if="infoData.status == 2">
+													{{ $t('positionManage.underReview') }}
+												</view>
+												<view class="positionManage-info-value" style="color: #FF0000;"
+													v-if="infoData.status == 5">
+													{{ $t('positionManage.notReach') }}
+												</view>
+												<view class="positionManage-info-value" style="color: #1167D1;"
+													v-if="infoData.status == 4">
+													{{ $t('positionManage.InProgress') }}
+												</view>
+											</view>
 										</view>
-										<view class="positionManage-info-value">{{ infoData.approveTime || '-' }}</view>
+										<view class="progress_max_Box_title">
+											<view class="icon_box">
+												<image class="icon" v-if="infoData?.complianceType == 'aLevel'"
+													src="/static/positions/subordinate.png" mode=""></image>
+												<image class="icon" v-if="infoData?.complianceType == 'team'"
+													src="/static/positions/team.png" mode=""></image>
+												<view class="completed_text">
+													{{ infoData.completed }}/{{ infoData.target }}
+												</view>
+											</view>
+											<view class="positionManage-info-value time">{{ time }}
+											</view>
+										</view>
+										<view class="progressBox">
+											<t-progress style="width: 100%;" :label="false"
+												:percentage="infoData.completed / infoData.target * 100" />
+										</view>
+										<view class="info_text">
+											{{ infoData.assessmentRequirements || infoData.requirements }}
+										</view>
+										<view class="info_text" style="color: #666666;">
+											**Once the assessment conditions are met, the salary will be paid in the
+											next
+											week**
+										</view>
 									</view>
-									<view class="row-item">
-										<view class="positionManage-info-title">{{ $t('positionManage.RemainingTime') }}
-										</view>
-										<view class="positionManage-info-value" style="color: #FF3333;">{{ time }}
-										</view>
-									</view>
-
 								</view>
 							</view>
 
@@ -405,7 +394,7 @@
 
 <style scoped lang="scss">
 	::v-deep .t-progress__inner {
-		background: $themeColor;
+		background: #3FCF05;
 	}
 
 	.themeColor {
@@ -437,9 +426,10 @@
 		flex-direction: column;
 		align-items: center;
 		background: #FFFFFF;
-		box-shadow: 0rpx 14rpx 22rpx 0rpx rgba(198, 198, 198, 0.5);
+		box-shadow: 0rpx 22rpx 28rpx -6rpx #F9FCFF;
+		border: 2rpx solid #F6F6F6;
 		border-radius: 32rpx;
-		padding: 30rpx 40rpx 40rpx;
+		padding: 30rpx 0 0;
 		margin-bottom: 40rpx;
 
 		.positionManage-image {
@@ -473,11 +463,16 @@
 			display: flex;
 			flex-direction: column;
 			width: 100%;
-			gap: 40rpx;
+			// gap: 40rpx;
 
 			.row-item {
 				display: flex;
 				justify-content: space-between;
+				padding: 30rpx;
+
+				&:nth-child(2n) {
+					background-color: #f5f8ff;
+				}
 
 				.positionManage-info-title {
 					font-family: PingFangSC, PingFang SC;
@@ -497,11 +492,61 @@
 					font-style: normal;
 					text-align: right;
 				}
+
+				&.progress_max_Box {
+					display: flex;
+					flex-direction: column;
+					gap: 22rpx;
+
+					.info_text {
+						font-family: DIN, DIN;
+						font-weight: normal;
+						font-size: 24rpx;
+						color: #000000;
+						text-align: left;
+					}
+
+					.progress_max_Box_title {
+						display: flex;
+						align-items: center;
+						justify-content: space-between;
+
+						.time {
+							font-family: DINPro, DINPro;
+							font-weight: 500;
+							font-size: 24rpx;
+							color: #FE9301;
+							text-align: right;
+							font-style: normal;
+						}
+
+						.icon_box {
+							display: flex;
+							align-items: center;
+							gap: 10rpx;
+
+							.completed_text {
+								font-family: PingFangSC, PingFang SC;
+								font-weight: 400;
+								font-size: 24rpx;
+								color: #000000;
+								text-align: left;
+								font-style: normal;
+							}
+
+							.icon {
+								width: 32rpx;
+								min-width: 32rpx;
+								height: 32rpx;
+							}
+						}
+					}
+				}
 			}
 		}
 
 		&.positionManage_info2 {
-			padding: 40rpx;
+			padding: 0;
 
 			.info-row .row-item {
 				.positionManage-info-title {
