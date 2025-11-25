@@ -27,7 +27,7 @@
 									</view>
 									<view class="row-item" style="align-items: center;">
 										<view class="positionManage-info-title">{{ $t('positionManage.Payday') }}</view>
-										<view v-if="infoData.status == 5" class="positionManage-info-value"
+										<view v-if="userInfo.compliance == 0" class="positionManage-info-value"
 											style="color: #FF0000;max-width: 320rpx;">
 											This week's assessment has not been met
 										</view>
@@ -61,8 +61,9 @@
 									<view class="row-item" v-if="info?.latestId">
 										<view class="positionManage-info-title">{{ $t('考核日') }}
 										</view>
-										<view class="positionManage-info-value">{{ infoData?.maturityTime.split(' ')[0] }}
-										<!-- ({{ weekList[info?.assessmentDay] }}) -->
+										<view class="positionManage-info-value">
+											{{ infoData?.maturityTime?.split(' ')[0] }}
+											<!-- ({{ weekList[info?.assessmentDay] }}) -->
 										</view>
 									</view>
 									<view class="row-item progress_max_Box">
@@ -124,7 +125,7 @@
 
 							<view class="table">
 								<t-config-provider :global-config="globalConfig">
-									<t-table row-key="index" :data="data" :columns="columns"
+									<t-table row-key="index" :data="salaryList" :columns="columns"
 										:custom-class="'custom-table'">
 									</t-table>
 								</t-config-provider>
@@ -167,8 +168,8 @@
 		positionMyPositionInfoApi
 	} from '@/common/api/position.js'
 	import {
-		vipInfoApi,
-	} from "@/common/api/level.js";
+		userInfoApi
+	} from "@/common/api/users.js";
 	export default {
 		components: {
 			customnavbar
@@ -228,9 +229,6 @@
 						style: "height: 400rpx;"
 					}
 				],
-				url: 'http://13.245.95.135:8888',
-
-				// url: 'http://192.168.2.35:8080',
 				info: {},
 				topStyle: 0,
 				globalConfig: {
@@ -256,12 +254,15 @@
 						width: 110
 					},
 				],
-				data: [],
+				salaryList: [],
 				infoData: {},
 				time: '',
 				countdownInterval: null,
 				weekDay: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
-				vipInfo: {}
+				userInfo: {},
+				// 新增用于倒计时计算的变量
+				initialServerTime: null,
+				localStartTime: null
 			}
 		},
 		methods: {
@@ -270,27 +271,6 @@
 				uni.navigateTo({
 					url: '/pages/MinePage/ElectronicContract?positionName=' + this.info.positionName
 				})
-			},
-			// 计算考核剩余时间
-			getAssessmentDay(targetDay) {
-				const today = new Date();
-				today.setHours(0, 0, 0, 0);
-				const currentDay = today.getDay();
-				// 修正计算逻辑：直接计算正向天数差
-				let daysUntilTarget = (targetDay - currentDay + 7) % 7;
-				// 如果今天大于目标日，则自动指向下周目标日（不需要+7）
-				// 例如：周四(4)到周三(3) → (3-4+7)=6 → 正确指向下周三
-				// 周三(3)到周三(3) → 0 → 通过下面判断设为7（下周三）
-				// 特殊处理：如果今天就是目标日，则计算到下周同一天
-				if (daysUntilTarget === 0) {
-					daysUntilTarget = 7;
-				}
-				const targetDate = new Date(today);
-				targetDate.setDate(today.getDate() + daysUntilTarget);
-				targetDate.setHours(0, 0, 0, 0);
-				const diffMs = targetDate - today;
-				const diffDays = Math.floor(diffMs / 86400000);
-				return diffDays;
 			},
 			mtop(e) {
 				this.topStyle = "margin-top:-" + e + "rpx;height:" + (e + 396) +
@@ -304,6 +284,13 @@
 							positionMyPositionInfoApi(this.info?.latestId).then(res => {
 								if (res.code == 200) {
 									this.infoData = res.data
+									// 重置倒计时计算所需变量
+									this.initialServerTime = null;
+									this.localStartTime = null;
+									// 清除之前的定时器
+									if (this.countdownInterval) {
+										clearInterval(this.countdownInterval);
+									}
 									this.countdownInterval = setInterval(this.updateCountdown, 1000)
 									this.updateCountdown()
 								} else {
@@ -331,28 +318,51 @@
 				})
 			},
 			updateCountdown() {
-				const isoStr = this.infoData.maturityTime.replace(" ", "T");
-				const targetTime = new Date(isoStr);
-				const now = new Date();
-				const diff = targetTime - now;
+				// 第一次运行时记录初始时间
+				if (!this.initialServerTime) {
+					this.initialServerTime = new Date(this.infoData.systemTime).getTime();
+					this.localStartTime = new Date().getTime();
+				}
 
+				if (!this.initialServerTime) {
+					this.time = '0' + this.$t('day') + '0' + this.$t('hour') + '0' + this.$t('min') + '0' + this.$t(
+						'second');
+					return;
+				}
+
+				// 将后端返回的目标时间字符串转换为标准ISO格式
+				const isoStr = this.infoData.maturityTime.replace(" ", "T");
+				// 创建目标时间对象（考核截止时间）
+				const targetTime = new Date(isoStr).getTime();
+
+				// 基于初始服务器时间加上经过的本地时间差来计算当前服务器时间
+				const elapsed = new Date().getTime() - this.localStartTime;
+				const currentServerTime = this.initialServerTime + elapsed;
+
+				// 计算时间差（毫秒）
+				const diff = targetTime - currentServerTime;
+
+				// 如果时间已过期，显示全零
 				if (diff <= 0) {
 					this.time = '0' + this.$t('day') + '0' + this.$t('hour') + '0' + this.$t('min') + '0' + this.$t(
 						'second');
 					return;
 				}
 
+				// 分别计算天、小时、分钟、秒
 				const days = Math.floor(diff / (1000 * 60 * 60 * 24));
 				const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
 				const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
 				const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+				// 格式化并更新显示文本
 				this.time = days + this.$t('day') + hours + this.$t('hour') + minutes + this.$t('min') + seconds + this.$t(
 					'second');
 			},
 			getPositionEffectivePositionApi() {
 				positionEffectivePositionApi().then(res => {
 					if (res.code == 200) {
-						this.data = res.rows || []
+						this.salaryList = res.rows || []
 
 					} else {
 						this.$showMessage('error', res.msg || 'error')
@@ -373,10 +383,11 @@
 			this.columns[2].title = this.$t('positionManage.Date')
 			this.getMyPosition()
 			this.getPositionEffectivePositionApi()
-			vipInfoApi().then((res) => {
-				this.vipInfo = res.data
+
+			userInfoApi().then((res) => {
+				this.userInfo = res.data
+				uni.setStorageSync('userInfo', res.data)
 			}).catch((err) => {
-				console.log('request fail', err);
 				this.$showMessage('warning', err.msg);
 			})
 		},
