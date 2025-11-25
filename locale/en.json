@@ -521,5 +521,6 @@
 	"request.systemMaintenance": "System maintenance, please try again later",
 	"positionManage.audit": "Under Review",
 	"您的职位申请正在审核中": "Your job application is currently under review",
-	"每天": "daily"
+	"每天": "daily",
+	"request.timeout": "Network Timeout"
 }
