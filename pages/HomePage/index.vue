@@ -504,12 +504,13 @@
 			// 会员福利
 			toPageMemberBenefits() {
 				noticeListApi(3, {
-					pageNum: 1
+					pageNum: 1,
+					pageSize: 10
 				}).then((res) => {
-					if (res.data.count) {
+					if (res.total) {
 						uni.navigateTo({
 							url: '/pages/commonDetailsPage?title=' + this.$t('home.Memberbenefits') +
-								'&id=' + res.data.list[0].noticeId
+								'&id=' + res.rows[0].noticeId
 						})
 					} else {
 						uni.navigateTo({

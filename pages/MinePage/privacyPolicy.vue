@@ -33,11 +33,12 @@
 		onLoad(options) {
 			this.title = options.title
 			noticeListApi(options.gropid, {
-				pageNum: 1
+				pageNum: 1,
+				pageSize: 10
 			}).then((res) => {
-				if (res.data.list.length) {
-					this.data = res.data.list[0]
-					this.privacyPolicyInfo = formatRichText(res.data.list[0]?.content)
+				if (res.rows.length) {
+					this.data = res.rows[0]
+					this.privacyPolicyInfo = formatRichText(res.rows[0]?.content)
 				}
 			}).catch((err) => {
 				console.log('request fail', err);

@@ -24,10 +24,11 @@
 		},
 		onLoad() {
 			noticeListApi(4, {
-				pageNum: 1
+				pageNum: 1,
+				pageSize: 10
 			}).then((res) => {
-				if (res.data.list.length) {
-					this.privacyPolicyInfo = res.data.list
+				if (res.rows.length) {
+					this.privacyPolicyInfo = res.rows
 				}
 			}).catch((err) => {
 				console.log('request fail', err);

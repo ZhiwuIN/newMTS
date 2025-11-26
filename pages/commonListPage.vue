@@ -1,13 +1,16 @@
 <template>
 	<customnavbar :title="pageTitle">
-		<view class="common-list-page">
-			<view class="list-box" v-for="(item,index) in list" :key="index" @click="toDeatils(item.noticeId)">
-				<image class="image-container" :style="{ width: '652rpx', height: '372rpx' }" fit="fill"
-					:src=" item.coverImg"></image>
-				<view class="common-list-info">{{item.title}}</view>
+		<scroll-view scroll-y @scrolltolower="onReachBottom" :refresher-threshold="120" class="scroll-view-box list">
+			<view class="common-list-page">
+				<view class="list-box" v-for="(item, index) in list" :key="index" @click="toDeatils(item.noticeId)">
+					<image class="image-container" :style="{ width: '652rpx', height: '372rpx' }" fit="fill"
+						:src="item.coverImg"></image>
+					<view class="common-list-info">{{ item.title }}</view>
+				</view>
 			</view>
-		</view>
-		<listbottom :hasMore="hasMore" :loading="loading" :noData='nodata' image="/static/default/No content.png"></listbottom>
+			<listbottom :hasMore="hasMore" :loading="loading" :noData='nodata' image="/static/default/No content.png">
+			</listbottom>
+		</scroll-view>
 	</customnavbar>
 </template>
 
@@ -24,15 +27,14 @@
 		},
 		data() {
 			return {
-				url: 'http://13.245.95.135:8888',
-				// url: 'http://192.168.2.35:8080',
 				pageTitle: '',
 				groupId: 0,
 				list: [],
 				page: {
 					pageNum: 1,
-					pageSize: 10
+					pageSize: 5
 				},
+				isRefreshing: false,
 				nodata: false,
 				hasMore: true,
 				loading: false
@@ -47,18 +49,15 @@
 			getNotice() {
 				this.loading = true
 				noticeListApi(this.groupId, this.page).then((res) => {
+					// console.log(res)
 					this.loading = false
-					if (this.page.pageNum == 1) this.list = res.data.list
-					else this.list.concat(res.data.list)
-					this.nodata = res.data.count == 0
-					if (this.list.length == res.data.count) this.hasMore = false
+					if (this.page.pageNum == 1) this.list = res.rows
+					else this.list.push(...res.rows)
+					this.nodata = res.total == 0
+					if (this.list.length == res.count) this.hasMore = false
 				}).catch((err) => {
 					console.log('request fail', err);
 					this.$showMessage('warning', err.msg);
-					// uni.showToast({
-					// 	title: err.msg,
-					// 	icon: 'none'
-					// })
 				})
 			},
 		},
@@ -83,7 +82,7 @@
 		padding: 50rpx;
 	}
 
-	.list-box {}
+	/* .list-box {} */
 
 	.common-list-title {
 		color: rgba(51, 51, 51, 1);
@@ -107,7 +106,7 @@
 		margin-bottom: 40rpx;
 		display: -webkit-box;
 		-webkit-box-orient: vertical;
-		-webkit-line-clamp: 2;
+		/* -webkit-line-clamp: 2; */
 		overflow: hidden;
 	}
 

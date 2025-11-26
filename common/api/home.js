@@ -31,7 +31,7 @@ export function noticeCategoryApi(data) {
 //查询图文信息
 export function noticeListApi(gropid, page) {
 	return request({
-		url: '/app/notice/list/' + gropid + '?pageNum=' + page.pageNum,
+		url: '/app/notice/list/' + gropid + '?pageNum=' + page.pageNum + '&pageSize=' + page.pageSize,
 		method: 'get'
 	})
 }
