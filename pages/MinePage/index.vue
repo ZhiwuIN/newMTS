@@ -117,7 +117,8 @@
 	import customnavbar from '@/component/custom-navbar/custom-navbar.vue'
 	import {
 		userInfoApi,
-		logoutApi
+		logoutApi,
+		settingsApi
 	} from "@/common/api/users.js";
 	import {
 		menuListApi
@@ -138,6 +139,16 @@
 			this.getMenuListApi()
 		},
 		onShow() {
+			settingsApi().then((res) => {
+				uni.setStorageSync('settings', res.data)
+			}).catch(err => {
+				console.log('request fail', err);
+				if (err.data?.code == 403) {
+					this.$showMessage('warning', err.data?.msg);
+				} else {
+					this.$showMessage('warning', err.msg);
+				}
+			})
 			userInfoApi().then((res) => {
 				this.userInfo = res.data
 				if (this.userInfo.firstPurchaseLevelDate) {

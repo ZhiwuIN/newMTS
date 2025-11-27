@@ -70,7 +70,8 @@
 		taskInfoApi
 	} from '@/common/api/task.js'
 	import {
-		userInfoApi
+		userInfoApi,
+		settingsApi
 	} from "@/common/api/users.js";
 
 	export default {
@@ -115,6 +116,16 @@
 			this.isShow = true;
 		},
 		onShow() {
+			settingsApi().then((res) => {
+				uni.setStorageSync('settings', res.data)
+			}).catch(err => {
+				console.log('request fail', err);
+				if (err.data?.code == 403) {
+					this.$showMessage('warning', err.data?.msg);
+				} else {
+					this.$showMessage('warning', err.msg);
+				}
+			})
 			this.getUserInfo();
 			this.$refs.promptpopup2.close()
 			const completedId = uni.getStorageSync('isTodayCompletedId');
@@ -155,7 +166,7 @@
 					url: '/pages/MinePage/identity'
 				})
 			},
-			prompt_confirm_yes(){
+			prompt_confirm_yes() {
 				this.$refs.promptpopup2.close()
 				return
 			},
@@ -272,7 +283,7 @@
 				});
 			},
 			startTask(e) {
-				if(this.userInfo.housekeeper == 1){
+				if (this.userInfo.housekeeper == 1) {
 					this.dialog_yes_message = this.$t("withdrawal.restrictedAccess")
 					this.$refs.promptpopup2.open()
 					return

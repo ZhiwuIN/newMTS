@@ -55,7 +55,7 @@
 						<text class="home_salary_box_v_c_t" v-else-if="salaryIsGet">Received today</text>
 						<!-- 职位任务未达标 -->
 						<text class="home_salary_box_v_c_t"
-							v-else-if="userInfo.compliance == 0">{{ $t("职位任务未完成") }}</text>
+							v-else-if="userInfo.compliance == 0">{{ $t("Performancetargetnotmet") }}</text>
 						<!-- 未到发薪日 -->
 						<text class="home_salary_box_v_c_t" v-else-if="!salaryIsGet && NoPayday">{{NoPayday}}</text>
 						<!-- 薪资未领取 -->
@@ -181,7 +181,8 @@
 		menuListApi
 	} from "@/common/api/home.js";
 	import {
-		userInfoApi
+		userInfoApi,
+		settingsApi
 	} from "@/common/api/users.js";
 	import {
 		withdrawalSalaryApi
@@ -329,7 +330,7 @@
 					return
 				}
 				if (this.userInfo.compliance == 0) {
-					this.pop_message_yes = this.$t("职位任务未完成")
+					this.pop_message_yes = this.$t("Performancetargetnotmet")
 					this.$refs.promptpopup2.open()
 					return
 				}
@@ -587,6 +588,34 @@
 			}
 		},
 		onShow() {
+			settingsApi().then((res) => {
+				uni.setStorageSync('settings', res.data)
+				// 是否有滚动消息
+				if (uni.getStorageSync('settings').rollSwitch == 1) {
+					this.rollContent = htmlToPlainText(uni.getStorageSync('settings').rollContent)
+					this.isShowMessage2 = true
+				}
+				// 是否有全屏公告
+				if (uni.getStorageSync('settings').popWindowSwitch == 1 && uni.getStorageSync('settings')
+					.popWindowContentList
+					.length && !uni.getStorageSync('popWindowContentShow')) {
+					// console.log(uni.getStorageSync('settings').popWindowContent)
+					this.bigGGIndex = 0
+					this.popWindowContent = formatRichText(uni.getStorageSync('settings').popWindowContentList[this
+						.bigGGIndex])
+					this.bigGG = true
+					uni.hideTabBar();
+					this.countdown(5);
+					uni.setStorageSync('popWindowContentShow', '1')
+				}
+			}).catch(err => {
+				console.log('request fail', err);
+				if (err.data?.code == 403) {
+					this.$showMessage('warning', err.data?.msg);
+				} else {
+					this.$showMessage('warning', err.msg);
+				}
+			})
 			this.getCompanyInfo()
 			this.getUserInfo()
 			this.getSlideListApi()
@@ -598,23 +627,10 @@
 			this.currency = uni.getStorageSync('settings').currency
 		},
 		onLoad() {
+			if (uni.getStorageSync('popWindowContentShow')) {
+				uni.removeStorageSync('popWindowContentShow')
+			}
 			this.getMenuListApi()
-			// 是否有滚动消息
-			if (uni.getStorageSync('settings').rollSwitch == 1) {
-				this.rollContent = htmlToPlainText(uni.getStorageSync('settings').rollContent)
-				this.isShowMessage2 = true
-			}
-			// 是否有全屏公告
-			if (uni.getStorageSync('settings').popWindowSwitch == 1 && uni.getStorageSync('settings').popWindowContentList
-				.length) {
-				// console.log(uni.getStorageSync('settings').popWindowContent)
-				this.bigGGIndex = 0
-				this.popWindowContent = formatRichText(uni.getStorageSync('settings').popWindowContentList[this
-					.bigGGIndex])
-				this.bigGG = true
-				uni.hideTabBar();
-				this.countdown(5);
-			}
 		}
 	}
 </script>

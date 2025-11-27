@@ -56,166 +56,167 @@
 						:current='currentPIndex' previous-margin="40rpx" next-margin="40rpx"
 						active-class="active-swiper">
 					<!-- #endif -->
-					<!-- #ifdef APP-PLUS -->
-					<swiper circular :indicator-dots="false" :autoplay="false" :interval="3000" :duration="500"
-						@change="swiperChange" @transition="swiperTransition" style="height: 1660rpx"
-						:current='currentPIndex' previous-margin="40rpx" next-margin="40rpx"
-						active-class="active-swiper">
-					<!-- #endif -->
-						<swiper-item class="level-swiper-item" v-for="(item, index) in levelList" :key="index">
+						<!-- #ifdef APP-PLUS -->
+						<swiper circular :indicator-dots="false" :autoplay="false" :interval="3000" :duration="500"
+							@change="swiperChange" @transition="swiperTransition" style="height: 1660rpx"
+							:current='currentPIndex' previous-margin="40rpx" next-margin="40rpx"
+							active-class="active-swiper">
+						<!-- #endif -->
+							<swiper-item class="level-swiper-item" v-for="(item, index) in levelList" :key="index">
 
-							<view class="level_main">
-								<view class="level_table_box">
-									<view class="tag" v-if="index == userLevelIndex">
-										{{$t('当前等级')}}
-									</view>
-									<view class="tag" v-if="index < userLevelIndex">
-										{{$t('已解锁')}}
-									</view>
-									<view class="tag" v-if="index > userLevelIndex">
-										{{$t('待解锁')}}
-									</view>
+								<view class="level_main">
+									<view class="level_table_box">
+										<view class="tag" v-if="index == userLevelIndex">
+											{{$t('当前等级')}}
+										</view>
+										<view class="tag" v-if="index < userLevelIndex">
+											{{$t('已解锁')}}
+										</view>
+										<view class="tag" v-if="index > userLevelIndex">
+											{{$t('待解锁')}}
+										</view>
 
-									<view class="amount_box" v-if="currentPIndex > userLevelIndex">
-										{{(+item?.amount).toFixed(2)}}
-									</view>
+										<view class="amount_box" v-if="currentPIndex > userLevelIndex">
+											{{(+item?.amount).toFixed(2)}}
+										</view>
 
-									<view class="level_title">
-										{{item?.levelName}}
+										<view class="level_title">
+											{{item?.levelName}}
+										</view>
+										<view class="level_title2">
+											{{$t('level.desc')}}
+										</view>
+										<view class="level_table_item table_item_bg">
+											<view class="table_title w30">{{$t('level.Timeunit')}}</view>
+											<view class="table_title w30">{{$t('level.Numberoftasks')}}</view>
+											<view class="table_title w30">{{$t('level.Totalcommission')}}</view>
+										</view>
+										<view class="level_table_item">
+											<view class="table_value w30">Daily</view>
+											<view class="table_value w30">{{item.numberTasks}}</view>
+											<view class="table_value w30">{{item.totalCommission}}</view>
+										</view>
+										<view class="level_title2">
+											{{$t('level.desc2')}}
+										</view>
+										<view class="level_table_item table_item_bg">
+											<view class="table_title w40">{{$t('level.InvitationMethod')}}</view>
+											<view class="table_title w35">{{$t('level.Invitationcommissionrate')}}
+											</view>
+											<view class="table_title w15">{{$t('level.Incomeamount')}}</view>
+										</view>
+										<view class="level_table_item">
+											<view class="table_value w40">
+												{{$t('level.InvitationMethod1') + item?.levelName}}
+											</view>
+											<view class="table_value w35 text_center">
+												{{item.profitMargin[0]?.invitationCommission || '-'}}
+											</view>
+											<view class="table_value w15 text_center">
+												{{item.profitMargin[0]?.incomeAmount || '-'}}
+											</view>
+										</view>
+										<view class="level_table_item">
+											<view class="table_value w40">
+												{{$t('level.InvitationMethod2') + item?.levelName}}
+											</view>
+											<view class="table_value w35 text_center">
+												{{item.profitMargin[1]?.invitationCommission || '-'}}
+											</view>
+											<view class="table_value w15 text_center">
+												{{item.profitMargin[1]?.incomeAmount || '-'}}
+											</view>
+										</view>
+										<view class="level_table_item">
+											<view class="table_value w40">
+												{{$t('level.InvitationMethod3') + item?.levelName}}
+											</view>
+											<view class="table_value w35 text_center">
+												{{item.profitMargin[2]?.invitationCommission || '-'}}
+											</view>
+											<view class="table_value w15 text_center">
+												{{item.profitMargin[2]?.incomeAmount || '-'}}
+											</view>
+										</view>
+										<view class="level_title2">
+											{{$t('level.desc3')}}
+										</view>
+										<view class="level_table_item table_item_bg">
+											<view class="table_title w40">{{$t('level.Taskcompletionfrom')}}</view>
+											<view class="table_title w35">{{$t('level.Taskcommissionratio')}}</view>
+											<view class="table_title w15">{{$t('level.Incomeamount')}}</view>
+										</view>
+										<view class="level_table_item" v-if="item.levelCode == 0">
+											<view class="table_value w40">{{$t('level.Taskcompletionfrom1')}}</view>
+											<view class="table_value w35 text_center">
+												0
+											</view>
+											<view class="table_value w15 text_center">
+												0
+											</view>
+										</view>
+										<view class="level_table_item" v-else>
+											<view class="table_value w40">{{$t('level.Taskcompletionfrom1')}}</view>
+											<view class="table_value w35 text_center">
+												{{item.incomeRatio[0]?.taskCommissionRatioStr || '-'}}
+											</view>
+											<view class="table_value w15 text_center">
+												{{item.incomeRatio[0]?.incomeAmount || '-'}}
+											</view>
+										</view>
+										<view class="level_table_item" v-if="item.levelCode == 0">
+											<view class="table_value w40">{{$t('level.Taskcompletionfrom2')}}</view>
+											<view class="table_value w35 text_center">
+												0
+											</view>
+											<view class="table_value w15 text_center">
+												0
+											</view>
+										</view>
+										<view class="level_table_item" v-else>
+											<view class="table_value w40">{{$t('level.Taskcompletionfrom2')}}</view>
+											<view class="table_value w35 text_center">
+												{{item.incomeRatio[1]?.taskCommissionRatioStr || '-'}}
+											</view>
+											<view class="table_value w15 text_center">
+												{{item.incomeRatio[1]?.incomeAmount || '-'}}
+											</view>
+										</view>
+										<view class="level_table_item" v-if="item.levelCode == 0">
+											<view class="table_value w40">{{$t('level.Taskcompletionfrom3')}}</view>
+											<view class="table_value w35 text_center">
+												0
+											</view>
+											<view class="table_value w15 text_center">
+												0
+											</view>
+										</view>
+										<view class="level_table_item" v-else>
+											<view class="table_value w40">{{$t('level.Taskcompletionfrom3')}}</view>
+											<view class="table_value w35 text_center">
+												{{item.incomeRatio[2]?.taskCommissionRatioStr || '-'}}
+											</view>
+											<view class="table_value w15 text_center">
+												{{item.incomeRatio[2]?.incomeAmount || '-'}}
+											</view>
+										</view>
 									</view>
-									<view class="level_title2">
-										{{$t('level.desc')}}
-									</view>
-									<view class="level_table_item table_item_bg">
-										<view class="table_title w30">{{$t('level.Timeunit')}}</view>
-										<view class="table_title w30">{{$t('level.Numberoftasks')}}</view>
-										<view class="table_title w30">{{$t('level.Totalcommission')}}</view>
-									</view>
-									<view class="level_table_item">
-										<view class="table_value w30">Daily</view>
-										<view class="table_value w30">{{item.numberTasks}}</view>
-										<view class="table_value w30">{{item.totalCommission}}</view>
-									</view>
-									<view class="level_title2">
-										{{$t('level.desc2')}}
-									</view>
-									<view class="level_table_item table_item_bg">
-										<view class="table_title w40">{{$t('level.InvitationMethod')}}</view>
-										<view class="table_title w35">{{$t('level.Invitationcommissionrate')}}</view>
-										<view class="table_title w15">{{$t('level.Incomeamount')}}</view>
-									</view>
-									<view class="level_table_item">
-										<view class="table_value w40">
-											{{$t('level.InvitationMethod1') + item?.levelName}}
+									<view v-if="currentPIndex == index">
+										<view class="bottom_btn"
+											v-if="currentPIndex>userLevelIndex && !isLoading && item.state == 1">
+											<view class="join_btn" @click="handleJoin">{{$t('level.join')}}</view>
 										</view>
-										<view class="table_value w35 text_center">
-											{{item.profitMargin[0]?.invitationCommission || '-'}}
+										<view class="bottom_btn" v-if="item.state == 0 && !isLoading">
+											<view class="join_btn">{{$t('level.comingSoon')}}</view>
 										</view>
-										<view class="table_value w15 text_center">
-											{{item.profitMargin[0]?.incomeAmount || '-'}}
-										</view>
-									</view>
-									<view class="level_table_item">
-										<view class="table_value w40">
-											{{$t('level.InvitationMethod2') + item?.levelName}}
-										</view>
-										<view class="table_value w35 text_center">
-											{{item.profitMargin[1]?.invitationCommission || '-'}}
-										</view>
-										<view class="table_value w15 text_center">
-											{{item.profitMargin[1]?.incomeAmount || '-'}}
-										</view>
-									</view>
-									<view class="level_table_item">
-										<view class="table_value w40">
-											{{$t('level.InvitationMethod3') + item?.levelName}}
-										</view>
-										<view class="table_value w35 text_center">
-											{{item.profitMargin[2]?.invitationCommission || '-'}}
-										</view>
-										<view class="table_value w15 text_center">
-											{{item.profitMargin[2]?.incomeAmount || '-'}}
-										</view>
-									</view>
-									<view class="level_title2">
-										{{$t('level.desc3')}}
-									</view>
-									<view class="level_table_item table_item_bg">
-										<view class="table_title w40">{{$t('level.Taskcompletionfrom')}}</view>
-										<view class="table_title w35">{{$t('level.Taskcommissionratio')}}</view>
-										<view class="table_title w15">{{$t('level.Incomeamount')}}</view>
-									</view>
-									<view class="level_table_item" v-if="item.levelCode == 0">
-										<view class="table_value w40">{{$t('level.Taskcompletionfrom1')}}</view>
-										<view class="table_value w35 text_center">
-											0
-										</view>
-										<view class="table_value w15 text_center">
-											0
-										</view>
-									</view>
-									<view class="level_table_item" v-else>
-										<view class="table_value w40">{{$t('level.Taskcompletionfrom1')}}</view>
-										<view class="table_value w35 text_center">
-											{{item.incomeRatio[0]?.taskCommissionRatioStr || '-'}}
-										</view>
-										<view class="table_value w15 text_center">
-											{{item.incomeRatio[0]?.incomeAmount || '-'}}
-										</view>
-									</view>
-									<view class="level_table_item" v-if="item.levelCode == 0">
-										<view class="table_value w40">{{$t('level.Taskcompletionfrom2')}}</view>
-										<view class="table_value w35 text_center">
-											0
-										</view>
-										<view class="table_value w15 text_center">
-											0
-										</view>
-									</view>
-									<view class="level_table_item" v-else>
-										<view class="table_value w40">{{$t('level.Taskcompletionfrom2')}}</view>
-										<view class="table_value w35 text_center">
-											{{item.incomeRatio[1]?.taskCommissionRatioStr || '-'}}
-										</view>
-										<view class="table_value w15 text_center">
-											{{item.incomeRatio[1]?.incomeAmount || '-'}}
-										</view>
-									</view>
-									<view class="level_table_item" v-if="item.levelCode == 0">
-										<view class="table_value w40">{{$t('level.Taskcompletionfrom3')}}</view>
-										<view class="table_value w35 text_center">
-											0
-										</view>
-										<view class="table_value w15 text_center">
-											0
-										</view>
-									</view>
-									<view class="level_table_item" v-else>
-										<view class="table_value w40">{{$t('level.Taskcompletionfrom3')}}</view>
-										<view class="table_value w35 text_center">
-											{{item.incomeRatio[2]?.taskCommissionRatioStr || '-'}}
-										</view>
-										<view class="table_value w15 text_center">
-											{{item.incomeRatio[2]?.incomeAmount || '-'}}
+										<view class="bottom_btn" v-if="isLoading">
+											<t-loading style="margin-top: 42rpx;" v-model="isLoading" theme="spinner"
+												size="22px" :text="$t('loading.btn') + '...'" />
 										</view>
 									</view>
 								</view>
-								<view v-if="currentPIndex == index">
-									<view class="bottom_btn"
-										v-if="currentPIndex>userLevelIndex && !isLoading && item.state == 1">
-										<view class="join_btn" @click="handleJoin">{{$t('level.join')}}</view>
-									</view>
-									<view class="bottom_btn" v-if="item.state == 0 && !isLoading">
-										<view class="join_btn">{{$t('level.comingSoon')}}</view>
-									</view>
-									<view class="bottom_btn" v-if="isLoading">
-										<t-loading style="margin-top: 42rpx;" v-model="isLoading" theme="spinner"
-											size="22px" :text="$t('loading.btn') + '...'" />
-									</view>
-								</view>
-							</view>
-						</swiper-item>
-					</swiper>
+							</swiper-item>
+						</swiper>
 
 				</view>
 				<view class="right_arrow" @click="handleSwipe(1)" v-if="levelList[0]?.levelName">
@@ -259,7 +260,8 @@
 <script>
 	import customnavbar from '@/component/custom-navbar/custom-navbar.vue'
 	import {
-		userInfoApi
+		userInfoApi,
+		settingsApi
 	} from "@/common/api/users.js";
 	import {
 		vipInfoApi,
@@ -473,6 +475,16 @@
 			}
 		},
 		onShow() {
+			settingsApi().then((res) => {
+				uni.setStorageSync('settings', res.data)
+			}).catch(err => {
+				console.log('request fail', err);
+				if (err.data?.code == 403) {
+					this.$showMessage('warning', err.data?.msg);
+				} else {
+					this.$showMessage('warning', err.msg);
+				}
+			})
 			this.initData();
 		}
 	}

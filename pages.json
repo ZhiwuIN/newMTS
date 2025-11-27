@@ -327,7 +327,13 @@
 			}
 		},
 		{
-			"path" : "pages/notificationDetails",
+			"path": "pages/notificationDetails",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/HomePage/scheduledWithdrawal",
 			"style": {
 				"navigationStyle": "custom"
 			}

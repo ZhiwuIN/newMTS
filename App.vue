@@ -91,8 +91,6 @@
 			// #endif
 			settingsApi().then((res) => {
 				uni.setStorageSync('settings', res.data)
-				// uni.setLocale(res.data.defaultLanguage);
-				// this.$i18n.locale = res.data.defaultLanguage;
 				uni.setLocale('en');
 				this.$i18n.locale = 'en';
 			}).catch(err => {

@@ -517,10 +517,11 @@
 	"mine.PromotionalBrochure": "Promotional Brochure",
 	"通知详情": "Notification Details",
 	"暂停发放": "Provisional salary",
-	"职位任务未完成": "Performance target not met. Contact HR Manager",
+	"Performancetargetnotmet": "Performance target not met. Contact HR Manager",
 	"request.systemMaintenance": "System maintenance, please try again later",
 	"positionManage.audit": "Under Review",
 	"您的职位申请正在审核中": "Your job application is currently under review",
 	"每天": "daily",
-	"request.timeout": "Network Timeout"
+	"request.timeout": "Network Timeout",
+	"scheduledWithdrawal": "Scheduled Withdrawal"
 }
