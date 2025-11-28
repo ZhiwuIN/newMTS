@@ -217,7 +217,9 @@
 					this._shuffleArray()
 				}
 
-				this.shuffling = false
+				setTimeout(() => {
+					this.shuffling = false
+				}, 1000)
 			},
 
 			reset() {
