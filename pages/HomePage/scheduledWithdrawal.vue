@@ -36,13 +36,41 @@ export default {
 			date: '',
 			customDate: [{
 				cellClass: 'custom-cell',
-				date: '2025-12-01',
+				date: '2025-11-29',
 				top: [{
 					class: 'custom-cell-top-1',
 					text: '✔'
 				},
 				]
-			}]
+			},
+			{
+				cellClass: 'custom-cell',
+				date: '2025-11-30',
+				top: [{
+					class: 'custom-cell-top-1',
+					text: '✔'
+				},
+				]
+			},
+			{
+				cellClass: 'custom-cell',
+				date: '2025-12-02',
+				top: [{
+					class: 'custom-cell-top-1',
+					text: '✔'
+				},
+				]
+			},
+			{
+				cellClass: 'custom-cell',
+				date: '2025-12-04',
+				top: [{
+					class: 'custom-cell-top-1',
+					text: '✔'
+				},
+				]
+			}
+			]
 		}
 	},
 	methods: {

@@ -1,5 +1,5 @@
 <template>
-	<customnavbar :title="$t('pages.privacyPolicy')">
+	<customnavbar :title="$t('pages.license')">
 		<view class="privacyPolicy-page" v-for="item in privacyPolicyInfo">
 			<image mode="widthFix" class="privacyPolicy_image" :src="item?.coverImg"></image>
 			<view class="privacyPolicy-info" v-html="item?.content"></view>

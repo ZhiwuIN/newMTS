@@ -1,5 +1,5 @@
 <template>
-	<customnavbar :title="$t('pages.account')">
+	<customnavbar :title="$t('mine.AccountSecurity')">
 		<view class="account-security">
 			<!-- 头像部分 -->
 			<!-- <view class="avatar-section">

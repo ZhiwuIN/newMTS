@@ -1,5 +1,5 @@
 <template>
-	<customnavbar :title="$t('team.title')" backgroundStr="url('/static/team/team_bg.png') top left/100%  no-repeat"
+	<customnavbar :title="$t('mine.myTeam')" backgroundStr="url('/static/team/team_bg.png') top left/100%  no-repeat"
 		@mtop="mtop" :whiteTitle="true" @scrolltolower="onLower">
 		<view>
 			<view class="team_top_bg" :style="topStyle">

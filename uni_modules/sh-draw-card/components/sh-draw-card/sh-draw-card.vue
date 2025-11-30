@@ -2,8 +2,8 @@
 	<view class="draw-card">
 		<template v-for="(i, index) in cardLength" :key="i.key">
 			<view class="card-item" @click="_cardHandle(index)"
-				:style="{...cardStyle[index], ...cardList[index]?.style}"
-				:class="{opened: currentIndex.includes(index) || allOpen}">
+				:style="{...cardStyle[index], ...cardList[index]?.style, zIndex: cardZIndex[index]}"
+				:class="{opened: currentIndex.includes(index) || allOpen, shuffling: shuffling}">
 				<view class="back">
 					<image v-if="!$slots.back" :src="cardList[index]?.data?.backImg" mode="scaleToFill" />
 					<view v-else style="width: 100%;height: 100%;">
@@ -69,15 +69,36 @@
 			},
 			shuffleAnimate: {
 				type: Boolean,
-				default: false
+				default: true
 			},
 			collectTime: {
 				type: Number,
-				default: 0.3
+				default: 0.4
 			},
 			turnTime: {
 				type: Number,
 				default: 0.4
+			},
+			// 洗牌动画配置
+			shuffleTotalTime: {
+				type: Number,
+				default: 3.5 // 洗牌总时长（秒）
+			},
+			maxRotateAngle: {
+				type: Number,
+				default: 360 // 最大旋转角度
+			},
+			maxDisplacement: {
+				type: Number,
+				default: 150 // 最大位移距离(px)
+			},
+			minScale: {
+				type: Number,
+				default: 0.6 // 最小缩放比例
+			},
+			maxScale: {
+				type: Number,
+				default: 1.2 // 最大缩放比例
 			},
 			onOpenAsync: {
 				type: Function,
@@ -88,10 +109,16 @@
 				currentIndex: [],
 				cardList: [],
 				cardStyle: [],
+				cardZIndex: [], // 卡片层级
 				allOpen: false,
 				shuffling: false,
 				isStart: false,
-				userSelectedIndex: ''
+				userSelectedIndex: '',
+				centerPoint: {
+					x: 0,
+					y: 0
+				},
+				shuffleSteps: 6 // 洗牌步骤数
 			}
 		},
 		emits: ['onMax', 'onSelect', 'onTab'],
@@ -115,27 +142,29 @@
 				return this.height + 'rpx'
 			},
 			collectTransition() {
-				return `all ${this.collectTime}s`
+				return `all ${this.collectTime}s cubic-bezier(0.4, 0, 0.2, 1)`
 			},
 			turnTransition() {
-				return `all ${this.turnTime}s`
+				return `all ${this.turnTime}s ease`
 			},
+			shuffleTransition() {
+				return `all ${this.shuffleTotalTime / (this.shuffleSteps * 1.5)}s cubic-bezier(0.68, -0.55, 0.27, 1.55)`
+			}
 		},
 		mounted() {
-			// this._setData()
-			this.allOpen = true; // 初始化时显示背面
+			this.allOpen = true;
 			if (this.list.length > 0) {
 				this.$nextTick(() => {
 					this._setData().then(() => {
-						// 数据加载完成后可以关闭所有卡片（如果需要）
-						// this.allOpen = false;
+						// 初始化卡片层级
+						this.cardZIndex = Array(this.cardLength).fill(1)
 					});
 				});
 			}
 		},
 		watch: {
 			list: {
-				immediate: true, // 立即触发一次
+				immediate: true,
 				handler(newList) {
 					if (newList.length > 0) {
 						this.$nextTick(() => {
@@ -147,12 +176,9 @@
 		},
 		methods: {
 			/**
-			 * 新增：设置指定中奖项
+			 * 设置指定中奖项
 			 * @param {Number} index 中奖卡片索引
 			 * @param {Object} options 配置项
-			 * @param {Boolean} options.autoOpen 是否自动翻转卡片（默认true）
-			 * @param {Boolean} options.emitEvent 是否触发onSelect事件（默认true）
-			 * @param {Number} options.delay 全部翻转延迟时间（默认300ms）
 			 */
 			setPrize(index, options = {}) {
 				if (index < 0 || index >= this.cardLength) {
@@ -166,7 +192,6 @@
 						delay = 300
 				} = options
 
-				// 清除当前选中状态
 				this.currentIndex = []
 
 				if (autoOpen) {
@@ -207,10 +232,8 @@
 				}
 
 				if (shuffleAnimate) {
-					const shuffleTime = ((this.cardLength - 1) * 0.2 + this.collectTime) * 1000
-					await this._delay(() => this.cardStyle = this.cardList.map(item => item.colseStyle), this
-						.turnTime * 1000 + 200)
-					await this._delay(() => this.cardStyle = this.cardList.map(item => item.openStyle), shuffleTime)
+					// 执行超级复杂的洗牌动画
+					await this._superComplexShuffleAnimation()
 				}
 
 				if (this.shuffle) {
@@ -219,15 +242,125 @@
 
 				setTimeout(() => {
 					this.shuffling = false
-				}, 1000)
+				}, 800)
+			},
+
+			/**
+			 * 超级复杂的洗牌动画主流程
+			 * 多层级随机位移+旋转+缩放+层级变化+交错延迟
+			 */
+			async _superComplexShuffleAnimation() {
+				// 初始化洗牌状态
+				this.cardZIndex = Array(this.cardLength).fill(1)
+
+				// 步骤1: 初始快速聚拢到中心
+				await this._delay(() => {
+					this.cardStyle = this.cardList.map((item, index) => ({
+						...item.colseStyle,
+						transition: this.collectTransition,
+						transitionDelay: `${Math.random() * 0.2}s`, // 随机延迟
+						transform: `translate(${item.x}px, ${item.y}px) scale(0.9) rotate(${Math.random() * 30}deg)`
+					}))
+				}, 100)
+				await this._delay(null, this.collectTime * 1000 + 100)
+
+				// 步骤2: 多轮随机洗牌（核心复杂动画）
+				for (let step = 0; step < this.shuffleSteps; step++) {
+					await this._delay(() => {
+						// 每一轮都重新计算随机参数
+						this.cardStyle = this.cardList.map((item, index) => {
+							// 随机位移（X/Y轴）
+							const randomX = (Math.random() - 0.5) * this.maxDisplacement * (1 - step /
+								this.shuffleSteps)
+							const randomY = (Math.random() - 0.5) * this.maxDisplacement * (1 - step /
+								this.shuffleSteps)
+
+							// 随机旋转（包含3D旋转）
+							const rotateX = Math.random() * this.maxRotateAngle * (Math.random() >
+								0.5 ? 1 : -1)
+							const rotateY = Math.random() * this.maxRotateAngle * (Math.random() >
+								0.5 ? 1 : -1)
+							const rotateZ = Math.random() * this.maxRotateAngle * (Math.random() >
+								0.5 ? 1 : -1)
+
+							// 随机缩放
+							const scale = this.minScale + Math.random() * (this.maxScale - this
+								.minScale)
+
+							// 随机透明度
+							const opacity = 0.8 + Math.random() * 0.2
+
+							return {
+								transform: `translate(${randomX}px, ${randomY}px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) rotateZ(${rotateZ}deg) scale(${scale})`,
+								opacity,
+								transition: this.shuffleTransition,
+								transitionDelay: `${Math.random() * 0.4}s` // 完全随机的延迟
+							}
+						})
+
+						// 随机改变卡片层级（制造堆叠效果）
+						this.cardZIndex = this.cardZIndex.map(() => Math.floor(Math.random() * 10) + 1)
+					}, 50)
+
+					// 等待当前步骤动画完成
+					await this._delay(null, (this.shuffleTotalTime / this.shuffleSteps) * 1000)
+				}
+
+				// 步骤3: 二次聚拢（带抖动效果）
+				await this._delay(() => {
+					this.cardStyle = this.cardList.map((item, index) => {
+						// 轻微抖动的聚拢效果
+						const jitterX = (Math.random() - 0.5) * 20
+						const jitterY = (Math.random() - 0.5) * 20
+
+						return {
+							transform: `translate(${item.x + jitterX}px, ${item.y + jitterY}px) rotate(0deg) scale(1)`,
+							opacity: 1,
+							transition: this.collectTransition,
+							transitionDelay: `${index * 0.03}s`
+						}
+					})
+
+					// 重置层级
+					this.cardZIndex = Array(this.cardLength).fill(1)
+				}, 200)
+				await this._delay(null, this.collectTime * 1000 + 300)
+
+				// 步骤4: 散开前的微抖动
+				await this._delay(() => {
+					this.cardStyle = this.cardList.map((item, index) => {
+						const microJitterX = (Math.random() - 0.5) * 8
+						const microJitterY = (Math.random() - 0.5) * 8
+
+						return {
+							transform: `translate(${microJitterX}px, ${microJitterY}px) rotate(${Math.random() * 5}deg) scale(1.02)`,
+							transition: `all 0.2s ease`,
+							transitionDelay: `${Math.random() * 0.15}s`
+						}
+					})
+				}, 100)
+				await this._delay(null, 200)
+
+				// 步骤5: 最终回归原位（带弹性效果）
+				await this._delay(() => {
+					this.cardStyle = this.cardList.map((item, index) => ({
+						transform: `translate(0, 0) rotate(0deg) scale(1)`,
+						opacity: 1,
+						transition: `all ${this.collectTime * 1.2}s cubic-bezier(0.175, 0.885, 0.32, 1.275)`, // 弹性曲线
+						transitionDelay: `${index * 0.04}s`
+					}))
+				}, 100)
+				await this._delay(null, this.collectTime * 1200 + 500)
 			},
 
 			reset() {
 				if (this.shuffling) return
 				this.isStart = false
 				this.currentIndex = []
+				this.cardZIndex = Array(this.cardLength).fill(1)
 				this._setData()
 			},
+
 			_setData() {
 				return new Promise(resolve => {
 					uni.createSelectorQuery().in(this).selectAll('.card-item').boundingClientRect((nodes) => {
@@ -236,6 +369,12 @@
 							left: pLeft,
 							top: pTop
 						} = centerEl
+
+						this.centerPoint = {
+							x: pLeft + centerEl.width / 2,
+							y: pTop + centerEl.height / 2
+						}
+
 						const cardList = nodes.map((node, index) => {
 							const {
 								top,
@@ -246,18 +385,18 @@
 							return {
 								x,
 								y,
-								key: new Date().getTime().toString(),
+								key: `${new Date().getTime()}-${index}-${Math.random()}`, // 增加随机key确保重渲染
 								style: {
 									'margin-right': (index + 1) % this.col === 0 ? 0 : this
 										.gridGap,
 								},
 								colseStyle: {
 									transform: `translate(${x}px, ${y}px)`,
-									'transition-delay': `${index * 0.2}s`
+									'transition-delay': `${Math.random() * 0.15}s`
 								},
 								openStyle: {
 									transform: `translate(0, 0)`,
-									'transition-delay': `${index * 0.2}s`
+									'transition-delay': `${Math.random() * 0.15}s`
 								},
 								data: this.list[index]
 							}
@@ -274,16 +413,13 @@
 					index: index
 				}
 				this.$emit('onTab', params)
-
 				if (this.currentIndex.includes(index)) return
 				if (this.shuffling || !this.isStart) return
 				if (this.maxOpenCount <= this.currentIndex.length) return this.$emit('onMax', params)
 
-				// 新增：保存用户点击的索引
 				this.userSelectedIndex = index
 
 				if (this.onOpenAsync) {
-					// 修改：等待异步结果并处理
 					const realPrizeIndex = await this.onOpenAsync(params)
 					this._processRealPrize(realPrizeIndex, index)
 				} else {
@@ -299,10 +435,10 @@
 					}
 				}
 			},
+
 			_processRealPrize(realPrizeIndex, clickedIndex) {
 				let realPrizeData
 				if (realPrizeIndex != -1) {
-					// 1. 保存真实奖品数据（从原始list获取）
 					realPrizeData = this.list[realPrizeIndex]
 				} else {
 					realPrizeData = {
@@ -310,37 +446,31 @@
 					}
 				}
 
-
-				// 2. 将用户点击的卡片数据替换为真实奖品
 				this.cardList[clickedIndex].data = realPrizeData
 
-
-				// 3. 创建其他卡片的索引数组（排除真实中奖项）
 				const otherIndexes = Array.from({
 						length: this.cardLength
 					}, (_, i) => i)
 					.filter(i => i !== clickedIndex)
-				// 4. 从原始list获取其他奖品数据
+
 				const otherPrizes = this.list.filter((_, index) => index != realPrizeIndex)
 
-				// 5. 随机打乱其他奖品
+				// 更彻底的随机打乱
 				for (let i = otherPrizes.length - 1; i > 0; i--) {
 					const j = Math.floor(Math.random() * (i + 1));
 					[otherPrizes[i], otherPrizes[j]] = [otherPrizes[j], otherPrizes[i]];
-
 				}
-				// 6. 将随机后的奖品分配到其他卡片
+
 				otherIndexes.forEach((cardIndex, prizeIndex) => {
 					this.$set(this.cardList[cardIndex], 'data', otherPrizes[prizeIndex])
 				})
-				// 7. 翻转用户点击的卡片
+
 				this.currentIndex.push(clickedIndex)
 				this.$emit('onSelect', {
 					data: realPrizeData,
 					index: clickedIndex
 				})
 
-				// 8. 如果需要结束全部翻转
 				if (this.endTurnAll) {
 					setTimeout(() => {
 						for (let i = 0; i < this.cardLength; i++) {
@@ -354,7 +484,7 @@
 
 			_delay(cb, time = 600) {
 				return new Promise(resolve => setTimeout(() => {
-					cb()
+					if (cb) cb()
 					resolve()
 				}, time))
 			},
@@ -362,6 +492,12 @@
 			_shuffleArray() {
 				const cardList = [...this.cardList]
 				const list = [...this.list]
+				// Fisher-Yates 洗牌算法 + 双重打乱
+				for (let i = list.length - 1; i > 0; i--) {
+					const j = Math.floor(Math.random() * (i + 1));
+					[list[i], list[j]] = [list[j], list[i]];
+				}
+				// 二次打乱确保随机性
 				for (let i = list.length - 1; i > 0; i--) {
 					const j = Math.floor(Math.random() * (i + 1));
 					[list[i], list[j]] = [list[j], list[i]];
@@ -381,7 +517,8 @@
 		display: inline-flex;
 		flex-wrap: wrap;
 		width: v-bind(gridWidth);
-		// height: v-bind(gridHeight);
+		perspective: 2000px; // 增强透视效果
+		perspective-origin: center center;
 
 		.card-item {
 			width: v-bind(itemWidth);
@@ -389,9 +526,16 @@
 			margin-bottom: v-bind(gridGap);
 			position: relative;
 			transition: v-bind(collectTransition);
+			transform-style: preserve-3d;
+			backface-visibility: hidden;
+			z-index: 1;
 
 			&:nth-child(n + 4) {
 				margin-top: -46rpx;
+			}
+
+			&.shuffling {
+				transition: none; // 洗牌时临时禁用默认过渡
 			}
 
 			.front,
@@ -400,23 +544,32 @@
 				left: 0;
 				right: 0;
 				width: 100%;
-				height: 100%;
+				height: 88%;
 				backface-visibility: hidden;
 				transition: v-bind(turnTransition);
+				border-radius: 12rpx;
+				overflow: hidden;
+				box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.15);
+				transform-style: preserve-3d;
 
 				image {
 					width: 100%;
 					height: 100%;
+					backface-visibility: hidden;
 				}
 			}
 
 			.back {
 				transform: rotateY(180deg);
+				background-color: #ffffff;
+				// 添加纹理效果增强混淆
+				background-image: radial-gradient(circle at 10% 20%, rgba(0, 0, 0, 0.03) 0%, transparent 90%);
+			}
 
-				.back-content {
-					width: 100%;
-					height: 100%;
-				}
+			.front {
+				background-color: #f8f9fa;
+				// 添加细微纹理
+				background-image: radial-gradient(circle at 10% 20%, rgba(0, 0, 0, 0.02) 0%, transparent 90%);
 			}
 		}
 
@@ -428,6 +581,11 @@
 			.back {
 				transform: rotateY(0deg);
 			}
+		}
+
+		// 洗牌时的全局效果
+		.shuffling-container & {
+			filter: blur(0.5rpx);
 		}
 	}
 </style>
