@@ -9,19 +9,19 @@
 						<view class="user_avatar" @click="pushAccount">
 							<view class="avatarBox">
 								<image class="avatar_img" mode="aspectFill"
-									:src="userInfo.avatar ?  userInfo.avatar : '/static/default-avatar.png'">
+									:src="userInfo.avatar ? userInfo.avatar : '/static/default-avatar.png'" :lazy-load="true">
 								</image>
 								<view class="avatarEdit_img_Box">
-									<image class="avatarEdit_img" src="/static/mine/editAvatar.png"></image>
+									<image class="avatarEdit_img" src="/static/mine/editAvatar.png" :lazy-load="true"></image>
 								</view>
 							</view>
 						</view>
 
 						<view class="user-detail">
-							<view class="username">{{userInfo?.levelName || '--'}}</view>
-							<view class="username" style="margin-top: 0;">{{userInfo?.positionName || '--'}}</view>
+							<view class="username">{{ userInfo?.levelName || '--' }}</view>
+							<view class="username" style="margin-top: 0;">{{ userInfo?.positionName || '--' }}</view>
 							<!-- <view class="username" style="margin-top: 0;">{{userInfo.username || '--'}}</view> -->
-							<view class="user-level">{{userInfo.username || ''}}</view>
+							<view class="user-level">{{ userInfo.username || '' }}</view>
 						</view>
 					</view>
 
@@ -30,50 +30,50 @@
 					<view class="money-card">
 						<view class="money-grid">
 							<view class="money-item">
-								<view class="amount">{{userInfo.dailyRevenue || '0'}}</view>
-								<view class="label"><text>{{splitText($t('mine.DailyRevenue'))}}</text></view>
+								<view class="amount">{{ userInfo.dailyRevenue || '0' }}</view>
+								<view class="label"><text>{{ splitText($t('mine.DailyRevenue')) }}</text></view>
 							</view>
 							<view class="money-item">
-								<view class="amount">{{userInfo.monthlyRevenue || '0'}}</view>
-								<view class="label"><text>{{splitText($t('mine.MonthlyRevenue'))}}</text></view>
+								<view class="amount">{{ userInfo.monthlyRevenue || '0' }}</view>
+								<view class="label"><text>{{ splitText($t('mine.MonthlyRevenue')) }}</text></view>
 							</view>
 							<view class="money-item">
-								<view class="amount">{{userInfo.totalRevenue || '0'}}</view>
-								<view class="label"><text>{{splitText($t('mine.TotalIncome'))}}</text></view>
+								<view class="amount">{{ userInfo.totalRevenue || '0' }}</view>
+								<view class="label"><text>{{ splitText($t('mine.TotalIncome')) }}</text></view>
 							</view>
 							<view class="money-item">
-								<view class="amount">{{userInfo.totalWithdrawals || '0'}}</view>
-								<view class="label"><text>{{splitText($t('mine.Totalwithdrawals'))}}</text></view>
+								<view class="amount">{{ userInfo.totalWithdrawals || '0' }}</view>
+								<view class="label"><text>{{ splitText($t('mine.Totalwithdrawals')) }}</text></view>
 							</view>
 							<view class="money-item">
-								<view class="amount">{{userInfo.accountBalance || '0'}}</view>
-								<view class="label"><text>{{splitText($t('mine.AccountBalance'))}}</text></view>
+								<view class="amount">{{ userInfo.accountBalance || '0' }}</view>
+								<view class="label"><text>{{ splitText($t('mine.AccountBalance')) }}</text></view>
 							</view>
 							<view class="money-item">
-								<view class="amount">{{userInfo.totalProfits || '0'}}</view>
-								<view class="label"><text>{{splitText($t('mine.TotalProfits'))}}</text></view>
+								<view class="amount">{{ userInfo.totalProfits || '0' }}</view>
+								<view class="label"><text>{{ splitText($t('mine.TotalProfits')) }}</text></view>
 							</view>
 						</view>
 						<view style="grid-template-columns: repeat(2, 1fr);padding: 0 48rpx;" class="money-grid">
 							<view class="money-item">
-								<view class="amount" v-if="userInfo.levelCode == '0'">{{'0'}}</view>
-								<view class="amount" v-else>{{userInfo.depositAmount || '0'}}</view>
-								<view class="label"><text>{{splitText($t('保证金'))}}</text></view>
+								<view class="amount" v-if="userInfo.levelCode == '0'">{{ '0' }}</view>
+								<view class="amount" v-else>{{ userInfo.depositAmount || '0' }}</view>
+								<view class="label"><text>{{ splitText($t('保证金')) }}</text></view>
 							</view>
 							<view class="money-item" style="transform: translateX(-6rpx);">
-								<view class="amount" v-if="userInfo.levelCode == '0'">{{'--'}}</view>
-								<view class="amount" v-else>{{userInfo.firstPurchaseLevelDate || '--'}}</view>
-								<view class="label"><text>{{$t('第一次购买等级日期')}}</text></view>
+								<view class="amount" v-if="userInfo.levelCode == '0'">{{ '--' }}</view>
+								<view class="amount" v-else>{{ userInfo.firstPurchaseLevelDate || '--' }}</view>
+								<view class="label"><text>{{ $t('第一次购买等级日期') }}</text></view>
 							</view>
 						</view>
 					</view>
 					<view class="button-group" v-if="userInfo.userType != 'test'">
 						<view class="btn deposit" @click="toPage2('/pages/HomePage/RechargeChannel')">
-							{{$t('mine.Deposit')}}
+							{{ $t('mine.Deposit') }}
 						</view>
 						<view class="btn withdraw"
 							@click="isRestrictAccess ? this.$refs.promptpopup_access.open() : toPage2('/pages/MinePage/withdrawal')">
-							{{$t('mine.Withdrawal')}}
+							{{ $t('mine.Withdrawal') }}
 						</view>
 					</view>
 				</view>
@@ -83,8 +83,8 @@
 				<view class="function-card">
 					<view class="function-grid">
 						<view class="function-item" @click="toPage(item)" v-for="item in menuList">
-							<image :src="item?.iconUrl"></image>
-							<text>{{splitText(item?.menuName)}}</text>
+							<image :src="item?.iconUrl" :lazy-load="true"></image>
+							<text>{{ splitText(item?.menuName) }}</text>
 						</view>
 					</view>
 				</view>
@@ -92,21 +92,21 @@
 		</customnavbar>
 		<uni-popup ref="promptpopup" type="center">
 			<view class="prompt_pop_page">
-				<view class="prompt_pop_top">{{$t('home.Prompt')}}</view>
-				<view class="prompt_pop_taps">{{$t('请先实名')}}</view>
+				<view class="prompt_pop_top">{{ $t('home.Prompt') }}</view>
+				<view class="prompt_pop_taps">{{ $t('请先实名') }}</view>
 				<view class="prompt_pop_bottom">
-					<button class="prompt_cancel_btn" @click="prompt_cancel">{{$t('pay.no')}}</button>
-					<button class="prompt_confirm_btn" @click="prompt_confirm">{{$t('pay.yes')}}</button>
+					<button class="prompt_cancel_btn" @click="prompt_cancel">{{ $t('pay.no') }}</button>
+					<button class="prompt_confirm_btn" @click="prompt_confirm">{{ $t('pay.yes') }}</button>
 				</view>
 			</view>
 		</uni-popup>
 		<uni-popup ref="promptpopup_access" type="center">
 			<view class="prompt_pop_page">
-				<view class="prompt_pop_top">{{$t('home.Prompt')}}</view>
-				<view class="prompt_pop_taps">{{this.$t("withdrawal.restrictedAccess")}}</view>
+				<view class="prompt_pop_top">{{ $t('home.Prompt') }}</view>
+				<view class="prompt_pop_taps">{{ this.$t("withdrawal.restrictedAccess") }}</view>
 				<view class="prompt_pop_bottom">
 					<button class="prompt_confirm_btn"
-						@click="this.$refs.promptpopup_access.close()">{{$t('pay.yes')}}</button>
+						@click="this.$refs.promptpopup_access.close()">{{ $t('pay.yes') }}</button>
 				</view>
 			</view>
 		</uni-popup>
@@ -255,14 +255,30 @@
 				// #endif
 			},
 			splitText(t) {
-				if (uni.getStorageSync('settings').defaultLanguage == 'fr') {
-					const parts = t.split(' ');
-					return parts.length > 1 ? parts[0] + ' ' + parts[1] + '\n' + parts.slice(2).join(' ') : t;
-				} else {
-					const newline = '\n';
-					return t.split(' ').join(newline);
+				// 添加缓存避免重复计算
+				if (!t) return '';
+
+				const lang = uni.getStorageSync('settings')?.defaultLanguage || 'fr';
+				const cacheKey = `${lang}_${t}`;
+
+				if (this.textCache && this.textCache[cacheKey]) {
+					return this.textCache[cacheKey];
 				}
-			},
+
+				let result;
+				if (lang === 'fr') {
+					const parts = t.split(' ');
+					result = parts.length > 1 ? parts[0] + ' ' + parts[1] + '\n' + parts.slice(2).join(' ') : t;
+				} else {
+					result = t.split(' ').join('\n');
+				}
+
+				// 缓存结果
+				if (!this.textCache) this.textCache = {};
+				this.textCache[cacheKey] = result;
+
+				return result;
+			}
 		}
 	}
 </script>

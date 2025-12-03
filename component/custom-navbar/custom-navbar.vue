@@ -1,18 +1,18 @@
 <template>
 	<view>
 		<view :style="navStyle" class="custom-navbar">
-			<image src="/static/home/setting.svg" class="left-icon" v-if="isHome" @click="toLanguage"></image>
-			<image src="/static/back_icon.png" class="left-icon" v-if="showBack&&!whiteTitle" @click="back"></image>
-			<image src="/static/back_icon2.png" class="left-icon" v-if="showBack&&whiteTitle" @click="back"></image>
+			<image :lazy-load="true" src="/static/home/setting.svg" class="left-icon" v-if="isHome" @click="toLanguage"></image>
+			<image :lazy-load="true" src="/static/back_icon.png" class="left-icon" v-if="showBack&&!whiteTitle" @click="back"></image>
+			<image :lazy-load="true" src="/static/back_icon2.png" class="left-icon" v-if="showBack&&whiteTitle" @click="back"></image>
 			<view class="nav-white-title" v-if="whiteTitle">{{ title }}</view>
 			<view class="nav-title" v-else>{{ title }}</view>
 			<view class="right-menu" v-if="rightMenu">{{rightMenu}}</view>
 			<!-- <image src="/static/home/message.svg" class="right-icon" v-if="isHome" @click="toMsg"></image> -->
 			<!-- <view class="redDot"  v-if="isHome && hasMessage"></view> -->
-			<image src="/static/mine/application_record.png" class="right-icon" v-if="isPositionManage"
+			<image src="/static/mine/application_record.png" :lazy-load="true" class="right-icon" v-if="isPositionManage"
 				@click="toApplication('/pages/MinePage/applicationRecord')">
 			</image>
-			<image src="/static/home/Record.png" class="right-icon isFinancePage" v-if="isFinancePage"
+			<image :lazy-load="true" src="/static/home/Record.png" class="right-icon isFinancePage" v-if="isFinancePage"
 				@click="toApplication('/pages/MinePage/financePage')">
 			</image>
 			<!-- <view class="right-text" v-if="isPositionManage">申请记录</view> -->

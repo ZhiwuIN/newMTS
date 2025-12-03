@@ -3,7 +3,7 @@
 		<view class="waterfalls-flow-column" ref="column1">
 			<view v-for="(item,index) in data1" :key="item?.taskId" class="waterfalls-item" @click="pushInfo(item)"
 				@load="onImageLoaded(item)" :data-task-id="item.taskId">
-				<image :src="item?.image" mode="widthFix" class="waterfalls-image" :data-task-id="item.taskId"></image>
+				<image :lazy-load="true" :src="item?.image" mode="widthFix" class="waterfalls-image" :data-task-id="item.taskId"></image>
 				<view class="item">
 					<view class="one">
 						<view class="tag">{{item?.content}}</view>
@@ -20,7 +20,7 @@
 		<view class="waterfalls-flow-column" ref="column2">
 			<view v-for="(item,index) in data2" :key="item?.taskId" class="waterfalls-item" @click="pushInfo(item)"
 				@load="onImageLoaded(item)" :data-task-id="item.taskId">
-				<image :src="item?.image" mode="widthFix" class="waterfalls-image" :data-task-id="item.taskId"></image>
+				<image :lazy-load="true" :src="item?.image" mode="widthFix" class="waterfalls-image" :data-task-id="item.taskId"></image>
 				<view class="item">
 					<view class="one">
 						<view class="tag">{{item?.content}}</view>

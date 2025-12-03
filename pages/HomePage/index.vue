@@ -21,16 +21,16 @@
 						<view class="home_top_center">
 							<view class="avatar_container">
 								<view class="avatar_box">
-									<image :src="userInfo.avatar ? userInfo.avatar : '/static/default-avatar.png'"
+									<image :lazy-load="true" :src="userInfo.avatar ? userInfo.avatar : '/static/default-avatar.png'"
 										mode="aspectFill" alt="" class="avatar_img" />
 								</view>
 								<view class="level_box">
-									<image src="/static/home/level.svg" mode="" class="level_img"></image>
+									<image :lazy-load="true" src="/static/home/level.svg" mode="" class="level_img"></image>
 								</view>
 							</view>
 							<view class="home_top_center_right">
 								<view class="account_balance_box">
-									<image src="/static/home/accountbalance.svg" mode="" class="account_balance_img">
+									<image :lazy-load="true" src="/static/home/accountbalance.svg" mode="" class="account_balance_img">
 									</image>
 									<view class="">{{ $t('home.Accountbalance') }}</view>
 								</view>
@@ -46,7 +46,7 @@
 				</view>
 				<!-- 每日工资提取 -->
 				<view class="home_salary_box">
-					<image src="/static/home/darller.png" mode="" class="home_salary_box_img"></image>
+					<image src="/static/home/darller.png" :lazy-load="true" mode="" class="home_salary_box_img"></image>
 					<view class="home_salary_box_v_c">
 						<!-- 如果职位不存在 -->
 						<text class="home_salary_box_v_c_t" v-if="!userInfo.position">{{
@@ -80,7 +80,7 @@
 							<view class="center_item" v-if="!(i?.showTestAccount == false && userType == 'test')"
 								@click="toPage(i)">
 								<view class="flex_center">
-									<image :src="i?.iconUrl" class="icon-wrapper" />
+									<image :src="i?.iconUrl" :lazy-load="true" class="icon-wrapper" />
 								</view>
 								<view class="center_item_t">
 									<text>{{ splitText(i?.menuName) }}</text>
@@ -99,7 +99,7 @@
 				<view style="padding: 62rpx 50rpx 0 50rpx;">
 					<swiper :autoplay="true" @change="handleChange" style="height: 346rpx">
 						<swiper-item v-for="(item, index) in swiperList" :key="index" style="height: 346rpx">
-							<image @click="pushUrl(item.pushUrl)" :src="item.imgPath" class="swiper_img"></image>
+							<image :lazy-load="true" @click="pushUrl(item.pushUrl)" :src="item.imgPath" class="swiper_img"></image>
 						</swiper-item>
 					</swiper>
 					<view class="dots_box">
@@ -112,7 +112,7 @@
 				<view style="padding:  4rpx 50rpx 50rpx 50rpx" @click="toCompanyInfo">
 					<view style="display: flex;justify-content: space-between;">
 						<view class="company_profile_t">{{ $t("home.CompanyProfile") }}</view>
-						<image src="/static/home/more.svg" class="more_icon"></image>
+						<image src="/static/home/more.svg" class="more_icon" :lazy-load="true"></image>
 					</view>
 					<rich-text :nodes="companyInfo" class="company_profile_t2">
 					</rich-text>
@@ -161,7 +161,7 @@
 				<view @click="prompt_confirm3" class="bigGG_text" v-html="popWindowContent"></view>
 			</view>
 			<view v-if="bigGGBtnNum > 0" class="bigGGBtnClose">{{ bigGGBtnNum }}</view>
-			<image v-else class="xImage" src="/static/lottery/x.png" mode="" @click="closeBigGG"></image>
+			<image v-else class="xImage" src="/static/lottery/x.png" mode="" @click="closeBigGG" :lazy-load="true"></image>
 		</view>
 	</view>
 </template>

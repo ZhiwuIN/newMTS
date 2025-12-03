@@ -87,7 +87,11 @@
 		onShow: function() {
 			console.log('App onShow')
 			// #ifdef APP-PLUS
-			uni.$yeIM.intoApp();
+			if (uni.$yeIM) {
+				uni.$yeIM.intoApp();
+			} else {
+				console.warn('yeIM 未初始化，跳过 intoApp 调用');
+			}
 			// #endif
 			settingsApi().then((res) => {
 				uni.setStorageSync('settings', res.data)
