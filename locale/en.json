@@ -523,5 +523,10 @@
 	"您的职位申请正在审核中": "Your job application is currently under review",
 	"每天": "daily",
 	"request.timeout": "Network Timeout",
-	"scheduledWithdrawal": "Scheduled Withdrawal"
+	"scheduledWithdrawal": "Scheduled Withdrawal",
+	"今日剩余次数": "Today's Remaining Count",
+	"今日总完成次数": "Today's Total Completion Count",
+	"今日任务收益": "Task Earnings Today",
+	"今日完成次数": "Completed Times Today",
+	"暂无职位": "Get a promotion to earn a higher salary"
 }

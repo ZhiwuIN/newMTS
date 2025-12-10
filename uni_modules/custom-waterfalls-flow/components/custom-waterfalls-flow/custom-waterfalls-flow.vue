@@ -3,16 +3,20 @@
 		<view class="waterfalls-flow-column" ref="column1">
 			<view v-for="(item,index) in data1" :key="item?.taskId" class="waterfalls-item" @click="pushInfo(item)"
 				@load="onImageLoaded(item)" :data-task-id="item.taskId">
-				<image :lazy-load="true" :src="item?.image" mode="widthFix" class="waterfalls-image" :data-task-id="item.taskId"></image>
+				<image :lazy-load="true" :src="item?.image" mode="widthFix" class="waterfalls-image"
+					:data-task-id="item.taskId"></image>
 				<view class="item">
 					<view class="one">
 						<view class="tag">{{item?.content}}</view>
 					</view>
 					<view class="one">
-						<view class="tag2">{{$t('Commission')}}：</view>
-						<view class="num">{{item?.rewardPrice || 0}}{{currency}}</view>
+						<view class="tag2">{{$t('Commission')}}:</view>
+						<view class="num">{{item?.rewardPrice || 0}} {{currency}}</view>
 					</view>
-					<view class="two">{{$t('Completed')}}:{{item?.taskCompletedCount || 0}}</view>
+					<view class="two">
+						<view>{{$t('Completed')}}:{{item?.taskCompletedCount || 0}}</view>
+						<image style="width: 28rpx;min-width: 28rpx;height: 28rpx;" src="/static/task/add.png" mode=""></image>
+					</view>
 				</view>
 			</view>
 		</view>
@@ -20,16 +24,20 @@
 		<view class="waterfalls-flow-column" ref="column2">
 			<view v-for="(item,index) in data2" :key="item?.taskId" class="waterfalls-item" @click="pushInfo(item)"
 				@load="onImageLoaded(item)" :data-task-id="item.taskId">
-				<image :lazy-load="true" :src="item?.image" mode="widthFix" class="waterfalls-image" :data-task-id="item.taskId"></image>
+				<image :lazy-load="true" :src="item?.image" mode="widthFix" class="waterfalls-image"
+					:data-task-id="item.taskId"></image>
 				<view class="item">
 					<view class="one">
 						<view class="tag">{{item?.content}}</view>
 					</view>
 					<view class="one">
-						<view class="tag2">{{$t('Commission')}}：</view>
-						<view class="num">{{item?.rewardPrice || 0}}{{currency}}</view>
+						<view class="tag2">{{$t('Commission')}}:</view>
+						<view class="num">{{item?.rewardPrice || 0}} {{currency}}</view>
 					</view>
-					<view class="two">{{$t('Completed')}}:{{item?.taskCompletedCount || 0}}</view>
+					<view class="two">
+						<view>{{$t('Completed')}}:{{item?.taskCompletedCount || 0}}</view>
+						<image style="width: 28rpx;min-width: 28rpx;height: 28rpx;" src="/static/task/add.png" mode=""></image>
+					</view>
 				</view>
 			</view>
 		</view>
@@ -165,6 +173,8 @@
 		display: flex;
 		justify-content: space-between;
 		padding: 40rpx;
+		padding-top: 0;
+		// margin-top: 40rpx;
 		gap: 30rpx;
 
 		.waterfalls-flow-column {
@@ -190,9 +200,8 @@
 				.item {
 					display: flex;
 					flex-direction: column;
-					gap: 10rpx;
-					padding: 20rpx;
-					padding-right: 0;
+					gap: 4rpx;
+					padding: 10rpx;
 
 					.one {
 						display: flex;
@@ -202,7 +211,13 @@
 						font-size: 28rpx;
 
 						.tag {
-							color: #070707;
+							font-family: PingFangSC, PingFang SC;
+							font-weight: 500;
+							font-size: 28rpx;
+							color: #000000;
+							line-height: 40rpx;
+							text-align: left;
+							font-style: normal;
 							display: -webkit-box;
 							-webkit-box-orient: vertical;
 							-webkit-line-clamp: 2;
@@ -212,22 +227,38 @@
 						}
 
 						.tag2 {
-							color: #333333;
-							margin-right: 8rpx;
+							font-family: PingFangSC, PingFang SC;
+							font-weight: 500;
+							font-size: 24rpx;
+							color: $themeColor;
+							line-height: 34rpx;
+							text-align: left;
+							font-style: normal;
 						}
 
 						.num {
-							color: #FF0000;
+							font-family: PingFangSC, PingFang SC;
+							font-weight: 500;
+							font-size: 24rpx;
+							color: $themeColor;
+							line-height: 34rpx;
+							text-align: left;
+							font-style: normal;
 							overflow-wrap: anywhere;
 						}
 					}
 
 					.two {
-						font-family: DINPro, DINPro;
+						display: flex;
+						align-items: center;
+						justify-content: space-between;
+						font-family: PingFangSC, PingFang SC;
 						font-weight: 400;
-						font-size: 22rpx;
-						color: #333333;
-						padding-top: 5rpx;
+						font-size: 20rpx;
+						color: #666666;
+						line-height: 28rpx;
+						text-align: left;
+						font-style: normal;
 					}
 				}
 			}
