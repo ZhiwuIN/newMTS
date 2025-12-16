@@ -47,24 +47,40 @@
 								</view>
 							</view>
 
-							<view class="money_list">
-								<view class="money-item">
-									<view class="label">{{ $t('mine.Totalwithdrawals') }}</view>
-									<view class="amount">{{ userInfo.totalWithdrawals || '0' }}</view>
+							<view>
+								<view class="money_list">
+									<view class="money-item">
+										<view class="label">{{ $t('mine.Totalwithdrawals') }}</view>
+										<view class="amount">{{ userInfo.totalWithdrawals || '0' }}</view>
+									</view>
+									<view class="money-item">
+										<view class="label">{{ $t('mine.MonthlyRevenue') }}</view>
+										<view class="amount">{{ userInfo.monthlyRevenue || '0' }}</view>
+									</view>
+									<view class="money-item">
+										<view class="label">{{ $t('mine.DailyRevenue') }}</view>
+										<view class="amount">{{ userInfo.dailyRevenue || '0' }}</view>
+									</view>
+									<view class="money-item">
+										<view class="label">{{ $t('mine.TotalProfits') }}</view>
+										<view class="amount">{{ userInfo.totalProfits || '0' }}</view>
+									</view>
 								</view>
-								<view class="money-item">
-									<view class="label">{{ $t('mine.MonthlyRevenue') }}</view>
-									<view class="amount">{{ userInfo.monthlyRevenue || '0' }}</view>
-								</view>
-								<view class="money-item">
-									<view class="label">{{ $t('mine.DailyRevenue') }}</view>
-									<view class="amount">{{ userInfo.dailyRevenue || '0' }}</view>
-								</view>
-								<view class="money-item">
-									<view class="label">{{ $t('mine.TotalProfits') }}</view>
-									<view class="amount">{{ userInfo.totalProfits || '0' }}</view>
+								<view style="grid-template-columns: repeat(2, 1fr);padding: 0 30rpx;"
+									class="money-grid">
+									<view class="money-item">
+										<view class="label"><text>{{ splitText($t('保证金')) }}</text></view>
+										<view class="amount" v-if="userInfo.levelCode == '0'">{{ '0' }}</view>
+										<view class="amount" v-else>{{ userInfo.depositAmount || '0' }}</view>
+									</view>
+									<view class="money-item">
+										<view class="label"><text>{{ $t('第一次购买等级日期') }}</text></view>
+										<view class="amount" v-if="userInfo.levelCode == '0'">{{ '--' }}</view>
+										<view class="amount" v-else>{{ userInfo.firstPurchaseLevelDate || '--' }}</view>
+									</view>
 								</view>
 							</view>
+
 
 						</view>
 					</view>
@@ -113,6 +129,7 @@
 						</view>
 					</view>
 				</view>
+
 				<!-- 功能卡片2 -->
 				<view class="function-card2">
 					<view class="function-grid">
@@ -173,6 +190,9 @@
 	import {
 		vipInfoApi,
 	} from "@/common/api/level.js";
+	import {
+		positionMyPositionApi,
+	} from '@/common/api/position.js'
 	export default {
 		components: {
 			customnavbar
@@ -182,14 +202,13 @@
 				menuList: [],
 				topStyle: 0,
 				userInfo: {},
+				myPosition: {},
 				myvipInfo: {},
 				isRestrictAccess: false
 			}
 		},
-		onLoad() {
-			this.getMenuListApi()
-		},
 		onShow() {
+			positionMyPositionApi().then(res => this.myPosition = res.data)
 			settingsApi().then((res) => {
 				uni.setStorageSync('settings', res.data)
 			}).catch(err => {
@@ -216,6 +235,7 @@
 					})
 				}
 				uni.setStorageSync('userInfo', res.data)
+				this.getMenuListApi()
 				vipInfoApi().then(vipinfo => this.myvipInfo = vipinfo.data.list.filter(v => v.levelCode == res.data
 						.levelCode)[0])
 					.catch(err =>
@@ -240,6 +260,11 @@
 					type: 'personal'
 				}).then(res => {
 					this.menuList = res.data
+					if (this.userInfo.levelCode == '0') {
+						this.menuList = this.menuList.filter(item => {
+							return item.canEnterIntern != false;
+						});
+					}
 				}).catch((err) => {
 					console.log('request fail', err);
 					this.$showMessage('warning', err.msg);
@@ -364,7 +389,7 @@
 		align-items: center;
 		width: 690rpx;
 		margin: 0 auto;
-		background: linear-gradient(178deg, #91C3FF 0%, #287DD4 100%);
+		background: linear-gradient(178deg, #7cb7ff 0%, #287DD4 100%);
 		border-radius: 20rpx;
 		// height: 128rpx;
 
@@ -504,6 +529,38 @@
 
 		.money-grid {
 			display: grid;
+			border-radius: 8rpx;
+
+			.money-item {
+				text-align: center;
+				background: #f4f7fe;
+				padding: 14rpx 20rpx;
+
+				.amount {
+					font-family: PingFangSC, PingFang SC;
+					font-weight: 500;
+					font-size: 24rpx;
+					color: #000000;
+					// line-height: 34rpx;
+					text-align: center;
+					font-style: normal;
+				}
+
+				.label {
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					font-family: PingFangSC, PingFang SC;
+					font-weight: 400;
+					font-size: 16rpx;
+					color: #666666;
+					text-align: center;
+					font-style: normal;
+					height: 40rpx;
+					margin-bottom: 10rpx;
+					// white-space: nowrap;
+				}
+			}
 
 			.money_max_box {
 				display: flex;
@@ -566,11 +623,11 @@
 				display: grid;
 				grid-template-columns: repeat(4, 1fr);
 				margin: 0 30rpx;
+				border-radius: 8rpx;
 
 				.money-item {
 					text-align: center;
 					background: #f4f7fe;
-					border-radius: 8rpx;
 					padding: 14rpx 20rpx;
 
 					.amount {
@@ -615,7 +672,7 @@
 
 
 		.function-grid {
-			padding: 40rpx 26rpx;
+			padding: 40rpx 12rpx;
 			display: grid;
 			grid-template-columns: repeat(4, 1fr);
 

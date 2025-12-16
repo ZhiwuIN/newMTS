@@ -71,6 +71,16 @@
 				</view>
 			</view>
 		</uni-popup>
+		<!-- 富文本提示 -->
+		<uni-popup ref="promptpopup3" type="center" :mask-click="false">
+			<view class="prompt_pop_page">
+				<view class="prompt_pop_top">{{$t('home.Prompt')}}</view>
+				<view class="prompt_pop_taps" v-html="failTips"></view>
+				<view class="prompt_pop_bottom">
+					<button class="prompt_confirm_btn" @click="prompt_confirm_yes2">{{$t('pay.yes')}}</button>
+				</view>
+			</view>
+		</uni-popup>
 	</customnavbar>
 </template>
 
@@ -85,7 +95,9 @@
 		userInfoApi,
 		settingsApi
 	} from "@/common/api/users.js";
-
+	import {
+		htmlToPlainText
+	} from "@/utils/utils.js";
 	export default {
 		components: {
 			customnavbar,
@@ -93,6 +105,7 @@
 		},
 		data() {
 			return {
+				failTips: '',
 				dialog_yes_message: '',
 				scrollTop: 0,
 				needRestoreScroll: false,
@@ -114,7 +127,8 @@
 				isRefreshing: false,
 				levelCode: '',
 				preLoadScrollTop: 0,
-				taskCardHeight: 298 // 顶部卡片固定高度（rpx）
+				taskCardHeight: 298, // 顶部卡片固定高度（rpx）
+				errorCode: 0
 			};
 		},
 		onLoad() {
@@ -180,6 +194,10 @@
 			},
 			prompt_confirm_yes() {
 				this.$refs.promptpopup2.close()
+				return
+			},
+			prompt_confirm_yes2() {
+				this.$refs.promptpopup3.close()
 				return
 			},
 			prompt_cancel() {
@@ -251,12 +269,17 @@
 				});
 			},
 			getTaskInfo() {
+				this.errorCode = 0
 				taskInfoApi().then((res) => {
 					this.taskInfo = res.data;
 					uni.setStorageSync('levelCode', res.data.levelCode);
 				}).catch((err) => {
 					console.log('request fail', err);
-					this.$showMessage('warning', err.msg);
+					// this.$showMessage('warning', err.msg);
+					this.failTips = err.msg
+					if (htmlToPlainText(err.msg)) {
+						this.$refs.promptpopup3.open()
+					}
 				});
 			},
 			getTaskList() {

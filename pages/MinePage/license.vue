@@ -1,39 +1,64 @@
 <template>
 	<customnavbar :title="$t('pages.license')">
-		<view class="privacyPolicy-page" v-for="item in privacyPolicyInfo">
-			<image mode="widthFix" class="privacyPolicy_image" :src="item?.coverImg"></image>
-			<view class="privacyPolicy-info" v-html="item?.content"></view>
-		</view>
+		<scroll-view scroll-y @scrolltolower="onReachBottom" :refresher-threshold="120" class="scroll-view-box list">
+			<view class="privacyPolicy-page" v-for="item in privacyPolicyInfo">
+				<image mode="widthFix" class="privacyPolicy_image" :src="item?.coverImg"></image>
+				<view class="privacyPolicy-info" v-html="item?.content"></view>
+			</view>
+			<listbottom :hasMore="hasMore" :loading="loading" :noData='nodata' image="/static/default/No content.png">
+			</listbottom>
+		</scroll-view>
 
 	</customnavbar>
 </template>
 
 <script>
 	import customnavbar from '@/component/custom-navbar/custom-navbar.vue'
+	import listbottom from '@/component/list-bottom/list_bottom.vue'
 	import {
 		noticeListApi
 	} from '@/common/api/home.js'
 	export default {
 		components: {
-			customnavbar
+			customnavbar,
+			listbottom
 		},
 		data() {
 			return {
 				privacyPolicyInfo: [],
+				isRefreshing: false,
+				nodata: false,
+				hasMore: true,
+				loading: false,
+				page: {
+					pageNum: 1,
+					pageSize: 5
+				},
 			}
 		},
 		onLoad() {
-			noticeListApi(4, {
-				pageNum: 1,
-				pageSize: 10
-			}).then((res) => {
-				if (res.rows.length) {
-					this.privacyPolicyInfo = res.rows
-				}
-			}).catch((err) => {
-				console.log('request fail', err);
-				this.$showMessage('warning', err.msg);
-			})
+			this.getNoticeList()
+		},
+		methods: {
+			getNoticeList() {
+				this.loading = true
+				noticeListApi(4, this.page).then((res) => {
+					this.loading = false
+					if (this.page.pageNum == 1) this.privacyPolicyInfo = res.rows || []
+					else this.privacyPolicyInfo.push(...res.rows)
+					this.nodata = res.total == 0
+					if (this.privacyPolicyInfo.length == res.count) this.hasMore = false
+				}).catch((err) => {
+					console.log('request fail', err);
+					this.$showMessage('warning', err.msg);
+				})
+			}
+		},
+		onReachBottom() {
+			if (!this.loading && this.hasMore) {
+				this.page.pageNum += 1
+				this.getNoticeList()
+			}
 		}
 	}
 </script>
@@ -41,6 +66,7 @@
 <style scoped lang="scss">
 	.privacyPolicy-page {
 		padding: 50rpx;
+
 		.privacyPolicy_image {
 			width: 100%;
 		}

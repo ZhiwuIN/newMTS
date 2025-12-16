@@ -21,16 +21,19 @@
 						<view class="home_top_center">
 							<view class="avatar_container">
 								<view class="avatar_box">
-									<image :lazy-load="true" :src="userInfo.avatar ? userInfo.avatar : '/static/default-avatar.png'"
+									<image :lazy-load="true"
+										:src="userInfo.avatar ? userInfo.avatar : '/static/default-avatar.png'"
 										mode="aspectFill" alt="" class="avatar_img" />
 								</view>
 								<view class="level_box">
-									<image :lazy-load="true" src="/static/home/level.svg" mode="" class="level_img"></image>
+									<image :lazy-load="true" src="/static/home/level.svg" mode="" class="level_img">
+									</image>
 								</view>
 							</view>
 							<view class="home_top_center_right">
 								<view class="account_balance_box">
-									<image :lazy-load="true" src="/static/home/accountbalance.svg" mode="" class="account_balance_img">
+									<image :lazy-load="true" src="/static/home/accountbalance.svg" mode=""
+										class="account_balance_img">
 									</image>
 									<view class="">{{ $t('home.Accountbalance') }}</view>
 								</view>
@@ -99,7 +102,8 @@
 				<view style="padding: 62rpx 50rpx 0 50rpx;">
 					<swiper :autoplay="true" @change="handleChange" style="height: 346rpx">
 						<swiper-item v-for="(item, index) in swiperList" :key="index" style="height: 346rpx">
-							<image :lazy-load="true" @click="pushUrl(item.pushUrl)" :src="item.imgPath" class="swiper_img"></image>
+							<image :lazy-load="true" @click="pushUrl(item.pushUrl)" :src="item.imgPath"
+								class="swiper_img"></image>
 						</swiper-item>
 					</swiper>
 					<view class="dots_box">
@@ -161,7 +165,8 @@
 				<view @click="prompt_confirm3" class="bigGG_text" v-html="popWindowContent"></view>
 			</view>
 			<view v-if="bigGGBtnNum > 0" class="bigGGBtnClose">{{ bigGGBtnNum }}</view>
-			<image v-else class="xImage" src="/static/lottery/x.png" mode="" @click="closeBigGG" :lazy-load="true"></image>
+			<image v-else class="xImage" src="/static/lottery/x.png" mode="" @click="closeBigGG" :lazy-load="true">
+			</image>
 		</view>
 	</view>
 </template>
@@ -418,6 +423,7 @@
 						})
 					}
 					uni.setStorageSync('userInfo', res.data)
+					this.getMenuListApi()
 				}).catch((err) => {
 					console.log('request fail', err);
 					this.$showMessage('warning', err.msg);
@@ -571,7 +577,12 @@
 				menuListApi({
 					type: 'home'
 				}).then(res => {
-					const originalData = res.data;
+					let originalData = res.data;
+					if (this.userInfo.levelCode == '0') {
+						originalData = originalData.filter(item => {
+							return item.canEnterIntern != false;
+						});
+					}
 					const menuList = [];
 					// 每4个元素分一组
 					for (let i = 0; i < originalData.length; i += 4) {
@@ -630,7 +641,6 @@
 			if (uni.getStorageSync('popWindowContentShow')) {
 				uni.removeStorageSync('popWindowContentShow')
 			}
-			this.getMenuListApi()
 		}
 	}
 </script>
