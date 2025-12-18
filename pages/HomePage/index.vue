@@ -448,6 +448,8 @@
 				this.$refs.promptpopup.close()
 			},
 			toPage(value) {
+				// uni.removeStorageSync('pageTitle')
+				uni.setStorageSync('pageTitle', value.menuName)
 				const {
 					canEnterButlerMode, // 管家模式
 					canEnterIntern, // 实习生

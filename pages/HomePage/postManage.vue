@@ -1,13 +1,15 @@
 <template>
-	<customnavbar :title="$t('home.Postmanage')"
-		backgroundStr="url('/static/task/background.jpg') top left/100%  no-repeat" :whiteTitle="true" @mtop='mtop'>
+	<customnavbar :title="pageTitle" backgroundStr="url('/static/task/background.jpg') top left/100%  no-repeat"
+		:whiteTitle="true" @mtop='mtop'>
 		<view class="task-page" :style="topStyle2">
 			<!-- 顶部数据卡片 -->
 			<view class="task_top_card" :style="topStyle">
 				<view class="data_box">
 					<image class="my_postmanage"
 						:src="postList?.find(item => item.pid == userInfo?.position)?.image ?? ''" mode=""></image>
-					<view class="top_tag">{{$t('当前职位')}}: {{postList?.find(item => item.pid == userInfo?.position)?.positionName || '--'}}</view>
+					<view class="top_tag">{{$t('当前职位')}}:
+						{{postList?.find(item => item.pid == userInfo?.position)?.positionName || '--'}}
+					</view>
 					<view class="top_box_info">
 						<view>{{$t('A级下属人数')}}: {{userInfo?.lv1Count || 0}}</view>
 						<view>{{$t('团队人数')}}: {{userInfo?.totalCount || 0}}</view>
@@ -144,6 +146,7 @@
 		},
 		data() {
 			return {
+				pageTitle: '',
 				weekList: {
 					1: 'Monday',
 					2: 'Tuesday',
@@ -162,7 +165,14 @@
 				idx: -1,
 			}
 		},
-		onShow() {
+		onLoad(options) {
+			if (options.title) {
+				this.pageTitle = options.title
+			} else {
+				this.pageTitle = uni.getStorageSync('pageTitle')
+			}
+		},
+		onShow(options) {
 			positionApi().then((res) => {
 				this.postList = res.data
 				positionSubordinateInformationApi(uni.getStorageSync('userInfo').userId).then((res) => {

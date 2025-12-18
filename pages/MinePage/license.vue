@@ -1,5 +1,5 @@
 <template>
-	<customnavbar :title="$t('pages.license')">
+	<customnavbar :title="pageTitle">
 		<scroll-view scroll-y @scrolltolower="onReachBottom" :refresher-threshold="120" class="scroll-view-box list">
 			<view class="privacyPolicy-page" v-for="item in privacyPolicyInfo">
 				<image mode="widthFix" class="privacyPolicy_image" :src="item?.coverImg"></image>
@@ -34,9 +34,15 @@
 					pageNum: 1,
 					pageSize: 5
 				},
+				pageTitle: ''
 			}
 		},
-		onLoad() {
+		onLoad(options) {
+			if (uni.getStorageSync('pageTitle')) {
+				this.pageTitle = uni.getStorageSync('pageTitle')
+			} else {
+				this.pageTitle = options.title
+			}
 			this.getNoticeList()
 		},
 		methods: {

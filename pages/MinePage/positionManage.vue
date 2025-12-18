@@ -1,6 +1,6 @@
 <template>
 	<view>
-		<customnavbar :title="$t('mine.PositionManagement')"
+		<customnavbar :title="pageTitle"
 			backgroundStr="url('/static/login/login_bg.png') top left/100%  no-repeat" @mtop="mtop" :showBack="true"
 			:whiteTitle="true" :isPositionManage="true">
 			<uv-skeletons :loading="isLoading" :skeleton="skeleton" :style="isLoading ? 'margin: 0 40rpx;' : ''">
@@ -262,7 +262,8 @@
 				userInfo: {},
 				// 新增用于倒计时计算的变量
 				initialServerTime: null,
-				localStartTime: null
+				localStartTime: null,
+				pageTitle: ''
 			}
 		},
 		methods: {
@@ -390,6 +391,13 @@
 			}).catch((err) => {
 				this.$showMessage('warning', err.msg);
 			})
+		},
+		onLoad(options) {
+			if (uni.getStorageSync('pageTitle')) {
+				this.pageTitle = uni.getStorageSync('pageTitle')
+			} else {
+				this.pageTitle = options.title
+			}
 		},
 		onUnload() {
 			// 页面隐藏时清除定时器

@@ -1,5 +1,5 @@
 <template>
-	<customnavbar :title="$t('mine.AccountSecurity')">
+	<customnavbar :title="pageTitle">
 		<view class="account-security">
 			<!-- 头像部分 -->
 			<!-- <view class="avatar-section">
@@ -69,6 +69,7 @@
 		},
 		data() {
 			return {
+				pageTitle: '',
 				userInfo: {}
 			}
 		},
@@ -80,6 +81,13 @@
 				console.log('request fail', err);
 				this.$showMessage('warning', err.msg);
 			})
+		},
+		onLoad(options) {
+			if (uni.getStorageSync('pageTitle')) {
+				this.pageTitle = uni.getStorageSync('pageTitle')
+			} else {
+				this.pageTitle = options.title
+			}
 		},
 		methods: {
 			// 跳转到修改头像

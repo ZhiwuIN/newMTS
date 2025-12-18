@@ -101,7 +101,7 @@
 				<view class="function-card">
 					<!-- 等级职位 -->
 					<view class="user_card">
-						<view class="member_card" @click="toPage('/pages/LevelPage/index')">
+						<view class="member_card" @click="toPage3('/pages/LevelPage/index')">
 							<view class="member_card_img" v-if="myvipInfo?.image">
 								<image style="width: 100%;height: 100%;" :src="myvipInfo?.image"></image>
 							</view>
@@ -110,7 +110,8 @@
 							</view>
 						</view>
 						<view class="line"></view>
-						<view class="member_card" @click="toPage('/pages/HomePage/postManage')">
+						<view class="member_card"
+							@click="toPage3('/pages/HomePage/postManage?title=Management+Positions')">
 							<view class="member_card_img" v-if="myPosition?.image">
 								<image style="width: 100%;height: 100%;" :src="myPosition?.image">
 								</image>
@@ -310,6 +311,7 @@
 				})
 			},
 			toPage(value) {
+				uni.setStorageSync('pageTitle', value.menuName)
 				const {
 					canEnterButlerMode, // 管家模式
 					canEnterIntern, // 实习生
@@ -334,6 +336,19 @@
 				uni.navigateTo({
 					url: targetValue
 				})
+			},
+			toPage3(path) {
+				return
+				if (path == '/pages/LevelPage/index') {
+					uni.switchTab({
+						url: path
+					})
+				} else {
+					uni.navigateTo({
+						url: path
+					})
+				}
+
 			},
 			mtop(e) {
 				// #ifdef H5
