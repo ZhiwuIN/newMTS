@@ -423,7 +423,7 @@
 	"请输入账号": "Please enter your account",
 	"充值通道": "Choose Storage Method",
 	"充值限额": "Recharge Limit: ",
-	"convenience": "Your reward has been credited to your account. Please check it at your convenience",
+	"convenience": "Congratulations on winning!",
 	"nationality.Ghana": "Ghana",
 	"nationality.CotedIvoire": "Cote d'Ivoire",
 	"nationality.burkinafaso": "Burkina Faso",
@@ -523,5 +523,6 @@
 	"您的职位申请正在审核中": "Your job application is currently under review",
 	"每天": "daily",
 	"request.timeout": "Network Timeout",
-	"scheduledWithdrawal": "Scheduled Withdrawal"
+	"scheduledWithdrawal": "Scheduled Withdrawal",
+	"Startthelotterydraw": "Start flipping"
 }

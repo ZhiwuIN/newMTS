@@ -3,6 +3,8 @@ import en from './locale/en.json'
 import ru from './locale/ru.json'
 import es from './locale/es.json'
 import fr from './locale/fr.json'
+import music from './utils/music.js'
+
 // import zh from './locale/zh.json'
 import './uni.scss'
 
@@ -69,6 +71,7 @@ Vue.config.productionTip = false
 App.mpType = 'app'
 
 Vue.prototype.$showMessage = showMessage
+Vue.prototype.$music = music
 Vue.prototype.$getImToken = getImToken
 Vue.prototype.$yeIM = YeIMUniSDK;
 Vue.prototype.$yeIMDefines = YeIMUniSDKDefines;
@@ -131,6 +134,7 @@ export function createApp() {
 	app.config.globalProperties.$showMessage = showMessage
 	app.config.globalProperties.$getImToken = getImToken
 	app.config.globalProperties.$yeIM = YeIMUniSDK;
+	app.config.globalProperties.$music = music
 	app.config.globalProperties.$yeIMDefines = YeIMUniSDKDefines;
 	app.config.globalProperties.$customizeBack = customizeBack;
 	app.use(i18n)

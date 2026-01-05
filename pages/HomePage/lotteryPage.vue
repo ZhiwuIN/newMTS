@@ -6,7 +6,7 @@
 			<view class="lottery_top_bg" :style="topStyle">
 				<view class="wheel-section">
 					<image v-if="lang == 'fr'" src="/static/lottery/title-fr.png" mode="" class="titleImg"></image>
-					<image v-if="lang == 'en'" src="/static/lottery/title-en.png" mode="" class="titleImg"></image>
+					<image v-else src="/static/lottery/title-en.png" mode="" class="titleImg"></image>
 					<view class="tabBox" v-if="pointWheel == 1 && luckyWheel == 1">
 						<view class="tabs">
 							<view class="tabItem" @click="onchangeActiveTab(0)" :class="{'active': activeTab == 0}">
@@ -18,7 +18,7 @@
 						</view>
 					</view>
 					<!-- 我的积分 -->
-					<view class="dataBox">
+					<!-- <view class="dataBox">
 						<view class="title">{{$t('myBonusPoints')}}</view>
 						<view class="row">
 							<view class="num">{{points}}</view>
@@ -27,7 +27,7 @@
 								&nbsp;▶
 							</view>
 						</view>
-					</view>
+					</view> -->
 					<view style="display: flex;justify-content: center;padding-top: 30rpx;">
 						<!-- :row="Math.ceil(this.prizes.length / 3)" -->
 						<sh-draw-card ref="drawCardRef" :list="prizes" :targetIndex="1" :gap="38"
@@ -35,7 +35,10 @@
 							:shuffleAnimate="true" :shuffle="true" :shuffleTurnAll="true" :turnTime="0.3"
 							:onOpenAsync="getRealPrize" :width="209" :height="330">
 							<template #back="{data}">
-								<view class="prizesItem" v-if="data.prizeName">
+								<view class="prizesItem"
+									:style="{background: `url(${data.backgroundImage || '/static/lottery/backImg.png'}) top left / 100% 100% no-repeat`}">
+									<image class="prizeLogo" :src="data.logoImage || ''" mode="">
+									</image>
 									<image class="prizeImg"
 										:src="data.image ?  data.image : '/static/lottery/losing.png'" mode="">
 									</image>
@@ -45,11 +48,10 @@
 						</sh-draw-card>
 					</view>
 					<view class="footBox">
-						<image src="/static/lottery/btn-fr.png" mode="" @click="start" class="btn"
-							style="width: 592rpx;" v-if="isLoading != 'underway' && lang == 'fr'"></image>
-						<image src="/static/lottery/btn-en.png" mode="" @click="start" class="btn"
-							style="width: 542rpx;" v-if="isLoading != 'underway' && lang == 'en'"></image>
-						<!--  && lang == 'fr' -->
+						<view @click="start" class="btn" style="width: 592rpx;"
+							v-if="isLoading != 'underway' && prizes.length">
+							{{$t('Startthelotterydraw')}}
+						</view>
 						<view class="times" v-if="isLoading != 'underway' && activeTab == 0">
 							{{ costs }}{{$t('每次抽奖消耗积分')}}
 						</view>
@@ -78,7 +80,8 @@
 								<view class="record-list-item">
 									<view class="left">
 										<view class="record-list-item-img">
-											<image :src="item.img" mode="aspectFit" v-if="item.img"></image>
+											<image src="/static/default-avatar.png" class="record-list-item-img_img"
+												mode="aspectFit"></image>
 										</view>
 										<view class="record-list-item-text">
 											<view class="record-list-item-text-name">
@@ -87,7 +90,6 @@
 											<view class="record-list-item-text-con">
 												<text>{{item.con}}</text>
 											</view>
-
 										</view>
 									</view>
 									<view class="record-list-item-text-prizes">
@@ -103,17 +105,35 @@
 
 		<!-- 抽奖反馈 -->
 		<view class="popups" v-if="isShowPopups">
-			<view class="popupsMain">
-				<image class="popupsImage" :src="image || '/static/lottery/losing.png'" mode=""
+			<view class="popupsMain" :style="{background: `url(${backgroundImage}) top left / 100% 100% no-repeat`}">
+				<!-- <image class="popupsImage" :src="image || '/static/lottery/losing.png'" mode=""
 					:style="{'height': image ?  '320rpx' : '220rpx', 'margin-bottom': image ?  '62rpx' : '152rpx'}">
-				</image>
-				<view style="margin-bottom: 58rpx;">{{content}}</view>
-				<view v-if="isWin != '0' && prizeType != 'points' && prizeType != 'coin'" style="padding: 0 34rpx;">
+				</image> -->
+				<view class="prizeName_grade" :data-text="isWin != '0' ? rankType : $t('未中奖')">
+					{{isWin != '0' ? rankType : $t('未中奖')}}
+				</view>
+				<view v-if="isWin != '0' && prizeType != 'points' && prizeType != 'coin'" class="text">
 					{{$t('getGift')}}
 				</view>
-				<view v-if="isWin != '0' && prizeType == 'points'" style="padding: 0 34rpx;">{{$t('convenience')}}
+				<view v-if="isWin != '0' && prizeType == 'points'" class="text">
+					{{$t('convenience')}}
 				</view>
-				<view v-if="isWin != '0' && prizeType == 'coin'" style="padding: 0 34rpx;">{{$t('convenience')}}</view>
+				<view v-if="isWin != '0' && prizeType == 'coin'" class="text">
+					{{$t('convenience')}}
+				</view>
+				<view class="prizeName_img_box">
+					<view class="prizeName_box">
+						<image v-if="prizeType == 'coin'" style="width: 60rpx;min-width: 60rpx;height: 59rpx;"
+							src="/static/lottery/money.png" mode=""></image>
+						<view>{{content}}</view>
+					</view>
+				</view>
+				<!-- 礼花 -->
+				<image v-if="this.prizeType" class="Fireworks Fireworks_left" src="/static/lottery/Fireworks.gif"
+					mode="widthFix"></image>
+				<image v-if="this.prizeType" class="Fireworks Fireworks_right" src="/static/lottery/Fireworks.gif"
+					mode="widthFix"></image>
+				<!-- 关闭按钮 -->
 				<image class="xImage" src="/static/lottery/x.png" mode="" @click="isShowPopups = false"></image>
 			</view>
 		</view>
@@ -143,15 +163,16 @@
 		},
 		data() {
 			return {
-				url: 'http://13.245.95.135:8888',
-				// url: 'http://192.168.2.35:8080',
+				rankType: '',
+				backgroundImage: '/static/lottery/prizeBgi.png',
 				costs: 0, // 多少积分抽一次奖
 				count: 0, // 剩余抽奖次数
 				activeTab: 0,
 				points: 0, // 剩余积分
 				prizesIndex: 0,
 				prizes: [],
-				topStyle: 0,
+				topStyle2: '',
+				topStyle: '',
 				isWin: '0',
 				content: '',
 				image: '',
@@ -162,7 +183,7 @@
 				pointWheel: 1,
 				luckyWheel: 1,
 				mallSwitch: 1,
-				prizeType: ''
+				prizeType: '',
 			}
 		},
 		watch: {
@@ -229,6 +250,7 @@
 					if (res.data) {
 						this.prizesIndex = this.prizes.findIndex(item => item.id == res.data.pid);
 						this.isWin = res.data.isWin;
+						this.backgroundImage = '/static/lottery/prizeBgi.png'
 						this.onDone(this.prizesIndex, res.data)
 						this.isLoading = 'reset'
 					}
@@ -247,16 +269,21 @@
 				if (index != -1) {
 					const prize = this.prizes[index]
 					this.content = prize.prizeName
-					this.image = prize.image ? prize.image : ''
 					console.log(prize)
+					this.backgroundImage = prize.winBackImage || '/static/lottery/prizeBgi.png'
+					this.image = prize.image ? prize.image : ''
 					this.prizeType = prize.prizeType
+					this.rankType = prize.rankType
 				} else {
+					this.prizeType = ''
 					this.content = data.prizeName || this.$t('下次再试试吧')
 					this.image = data.image ? data.image : ''
 				}
 				setTimeout(() => {
-					// console.log(this.image)
 					this.isShowPopups = true
+					if (this.prizeType) {
+						this.$music.play_winner()
+					}
 				}, 1000)
 			},
 			// 奖品
@@ -266,6 +293,7 @@
 				});
 				let api = this.activeTab == 1 ? luckyPrizeApi() : pointPrizeApi()
 				api.then((res) => {
+					this.prizes = []
 					this.prizes = res.data
 					this.prizes.forEach(item => item.frontImg = '/static/lottery/frontImg.png')
 				}).catch((err) => {
@@ -289,9 +317,11 @@
 				// #ifdef H5
 				// this.topStyle = "margin-top:-" + e + "rpx;padding-top:" + (e) + "rpx;height:" + `calc(100vh - ${e}rpx)`
 				this.topStyle = "margin-top:-" + e + "rpx;padding-top:" + (e) + "rpx"
+				this.topStyle2 = `height:calc(100vh - ${e - 88.1}rpx);`
 				// #endif
 				// #ifdef APP-PLUS
 				this.topStyle = "margin-top:-" + e + "rpx;padding-top:" + e + "rpx"
+				this.topStyle2 = `height:calc(100vh);`
 				// #endif
 			},
 			// 获取中奖记录
@@ -338,8 +368,6 @@
 	.container {
 		.lottery_top_bg {
 			background: url('/static/lottery/bgi.png') top left/100% 100% no-repeat;
-			// min-height: 100vh;
-			// padding-bottom: 28rpx;
 
 			.wheel-section {
 				.tabBox {
@@ -354,8 +382,8 @@
 						padding: 15rpx;
 						font-family: PingFangSC, PingFang SC;
 						font-weight: 400;
-						font-size: 30rpx;
-						color: #000;
+						font-size: 24rpx;
+						color: #000000;
 						text-align: center;
 						font-style: normal;
 						text-transform: none;
@@ -365,18 +393,23 @@
 							align-items: center;
 							max-width: 280rpx;
 							padding: 20rpx 35rpx;
-							font-size: 26rpx;
+							font-size: 24rpx;
 							line-height: 26rpx;
 							// white-space: nowrap;
 							// overflow: hidden;
 							// text-overflow: ellipsis;
 
 							&.active {
-								background: linear-gradient(to right, #00AAF6 0%, #063497 99%);
-								box-shadow: 6rpx 0rpx 12rpx 0rpx #4F76E6;
+								background: #1167D1;
+								// box-shadow: 6rpx 0rpx 12rpx 0rpx #4F76E6;
 								border-radius: 35rpx 35rpx 35rpx 35rpx;
+								font-family: PingFangSC, PingFang SC;
 								font-weight: 600;
-								color: #fff;
+								font-size: 24rpx;
+								color: #000000;
+								text-align: center;
+								font-style: normal;
+								text-transform: none;
 							}
 						}
 					}
@@ -415,7 +448,8 @@
 
 						.Mall {
 							padding: 12rpx 15rpx;
-							background-color: #f9e162;
+							background: #1167D1;
+							// box-shadow: 2rpx 0rpx 2rpx 0rpx #FFFFFF;
 							color: #fff;
 							font-family: PingFangSC, PingFang SC;
 							font-weight: 400;
@@ -433,9 +467,22 @@
 					align-items: center;
 
 					.btn {
+						display: flex;
+						align-items: center;
+						justify-content: center;
 						width: 442rpx;
-						height: 135rpx;
+						height: 100rpx;
 						margin-top: -20rpx;
+						background: #1167D1;
+						border: 4rpx solid #fff;
+						border-radius: 2025rpx;
+						font-family: DIN, DIN;
+						font-weight: 800;
+						font-size: 34rpx;
+						color: #FFFFFF;
+						text-align: center;
+						font-style: normal;
+						text-transform: none;
 					}
 
 					.times {
@@ -455,26 +502,45 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		justify-content: end;
-		gap: 42rpx;
+		justify-content: space-between;
+		// gap: 42rpx;
 		width: 209rpx;
 		height: 288rpx;
-		background: url('/static/lottery/prizeBgi.png') top left/100% 100% no-repeat;
-		color: #fff;
-		font-size: 34rpx;
-		padding-bottom: 40rpx;
+		background: url('/static/lottery/backImg.png') top left/100% 100% no-repeat;
+		border-radius: 13rpx;
+		overflow: hidden;
+		padding-top: 18rpx;
+
+		.prizeLogo {
+			width: 69rpx;
+			height: 21rpx;
+			transform: translateX(-72%);
+		}
 
 		.prizeImg {
-			width: 110rpx;
-			height: 110rpx;
+			width: 102rpx;
+			height: 103rpx;
 		}
 
 		.prizeName {
-			width: 190rpx;
+			box-sizing: border-box;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			background-color: #fff;
+			width: 100%;
+			height: 71rpx;
+			font-family: Alibaba-PuHuiTi, Alibaba-PuHuiTi;
+			font-weight: normal;
+			font-size: 25rpx;
+			color: #000000;
+			font-style: normal;
+			text-transform: none;
 			text-align: center;
 			white-space: nowrap;
 			overflow: hidden;
 			text-overflow: ellipsis;
+			padding-bottom: 4rpx;
 		}
 	}
 
@@ -504,17 +570,134 @@
 			display: flex;
 			flex-direction: column;
 			align-items: center;
-			padding-top: 160rpx;
+			padding-top: 284rpx;
 			width: 620rpx;
-			height: 858rpx;
+			height: 984rpx;
 			background: url('/static/lottery/prizeBgi.png') top left/100% 100% no-repeat;
 			color: #fff;
 			font-size: 34rpx;
 
-			.popupsImage {
-				width: 320rpx;
-				height: 220rpx;
-				margin-bottom: 152rpx;
+			// 礼花
+			.Fireworks {
+				position: absolute;
+				bottom: 12rpx;
+				width: 360rpx;
+
+				&.Fireworks_left {
+					left: 12rpx;
+				}
+
+				&.Fireworks_right {
+					right: 12rpx;
+					transform: scaleX(-1)
+				}
+			}
+
+			.prizeName_grade {
+				position: relative;
+				font-family: DIN, DIN;
+				font-weight: 900;
+				font-size: 74rpx;
+				text-align: center;
+				margin-bottom: 30rpx;
+				transform: skewX(-6deg);
+				transform-origin: left center;
+			}
+
+			/* 底层：外描边 + 阴影 */
+			.prizeName_grade::before {
+				content: attr(data-text);
+				position: absolute;
+				left: 0;
+				top: 0;
+				width: 100%;
+				height: 100%;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				transform: skewX(-6deg);
+				transform-origin: left center;
+				/* 外描边：黑色，宽度2rpx */
+				-webkit-text-stroke: 8rpx #000;
+				text-stroke: 8rpx #000;
+				color: transparent;
+				/* 阴影效果 */
+				text-shadow: 5rpx 7rpx 0px #307cfe;
+				z-index: 0;
+			}
+
+			/* 上层：渐变文字 */
+			.prizeName_grade::after {
+				content: attr(data-text);
+				position: absolute;
+				left: 0;
+				top: 0;
+				width: 100%;
+				height: 100%;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				transform: skewX(-6deg);
+				transform-origin: left center;
+				background: linear-gradient(to bottom, #fff, #fdf6e6, #307cfe, #b3dfff);
+				-webkit-background-clip: text;
+				background-clip: text;
+				color: transparent;
+				/* 可选：给渐变层加极细描边，增强层次 */
+				/* -webkit-text-stroke: 0.5rpx #ffbf5a; */
+				z-index: 1;
+			}
+
+			.text {
+				padding: 0 34rpx;
+				word-break: break-all;
+				font-family: PingFangSC, PingFang SC;
+				font-weight: 400;
+				font-size: 33rpx;
+				color: #000000;
+				text-align: center;
+				font-style: normal;
+				text-transform: none;
+				// margin-bottom: 84rpx;
+
+			}
+
+			.prizeName_img_box {
+				position: relative;
+				top: 54rpx;
+				// #ifdef APP-PLUS
+				top: 74rpx;
+				// #endif
+				width: 562rpx;
+				height: 140rpx;
+				background: url('/static/lottery/1.png') top left/100% no-repeat;
+				padding-top: 12rpx;
+				// #ifdef APP-PLUS
+				padding-top: 16rpx;
+				// #endif
+			}
+
+			.prizeName_box {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				box-sizing: border-box;
+				min-width: 407rpx;
+				padding: 29rpx 40rpx;
+				// background: #000000;
+				border-radius: 2025rpx;
+				font-family: Alibaba-PuHuiTi, Alibaba-PuHuiTi;
+				font-weight: 700;
+				font-size: 50rpx;
+				color: #FFFFFF;
+				line-height: 47.5rpx;
+				text-align: center;
+				text-transform: none;
+				gap: 40rpx;
+				transform: skewX(-12deg);
+				transform-origin: left center;
+				text-shadow: 0px 5rpx 0px #307cfe;
+
 			}
 		}
 	}
@@ -571,6 +754,11 @@
 		height: 80rpx;
 		background: #f5f8ff;
 		border-radius: 50%;
+
+		.record-list-item-img_img {
+			width: 100%;
+			height: 100%;
+		}
 	}
 
 	.record-list-item-text {
