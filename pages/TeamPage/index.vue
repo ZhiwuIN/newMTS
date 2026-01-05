@@ -1,5 +1,5 @@
 <template>
-	<customnavbar :title="$t('mine.myTeam')" backgroundStr="url('/static/team/team_bg.png') top left/100%  no-repeat"
+	<customnavbar :title="pageTitle" backgroundStr="url('/static/team/team_bg.png') top left/100%  no-repeat"
 		@mtop="mtop" :whiteTitle="true" @scrolltolower="onLower">
 		<view>
 			<view class="team_top_bg" :style="topStyle">
@@ -52,7 +52,7 @@
 				</view>
 
 				<!-- 内容区域 -->
-				<scroll-view scroll-y="true" direction="vertical" style="height: 80vh;" @scrolltolower="onReachBottom" >
+				<scroll-view scroll-y="true" direction="vertical" style="height: 80vh;" @scrolltolower="onReachBottom">
 					<view class="content-section">
 						<view class="user-list">
 							<view class="user-item" v-for="(user, index) in memberList" :key="index"
@@ -61,7 +61,8 @@
 									<image :src=" user.image" alt="" class="user-ava" />
 									<view>
 										<view class="user-item-t1">{{user.username}}</view>
-										<view class="user-item-t2">{{$t('team.joinTime')}}:{{(user.joinTime).split(' ')[0]}}
+										<view class="user-item-t2">
+											{{$t('team.joinTime')}}:{{(user.joinTime).split(' ')[0]}}
 										</view>
 									</view>
 								</view>
@@ -69,7 +70,7 @@
 									<view class="user-item-t3">{{user.type}}</view>
 									<view class="user-item-t4">{{user.income}} {{currency}}</view>
 								</view>
-					
+
 							</view>
 						</view>
 						<view class="list_status_box" :style="{'auto' :'800rpx'}">
@@ -98,9 +99,7 @@
 		},
 		data() {
 			return {
-				url: 'http://13.245.95.135:8888',
-
-				// url: 'http://192.168.2.35:8080',
+				pageTitle: '',
 				currency: '',
 				teamInfo: {
 					joinTime: ''
@@ -130,6 +129,13 @@
 			this.currency = uni.getStorageSync('settings').currency
 			this.getTeamInfo()
 			this.getMember()
+		},
+		onLoad(options) {
+			if (uni.getStorageSync('pageTitle')) {
+				this.pageTitle = uni.getStorageSync('pageTitle')
+			} else {
+				this.pageTitle = options.title
+			}
 		},
 
 		methods: {

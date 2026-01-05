@@ -1,5 +1,5 @@
 <template>
-	<customnavbar :title="$t('pages.bills')" @mtop="mtop">
+	<customnavbar :title="pageTitle" @mtop="mtop">
 		<view class="bill-record">
 			<view class="bill-record-content" :style="topStyle">
 				<!-- 标签卡切换 -->
@@ -86,6 +86,7 @@
 		},
 		data() {
 			return {
+				pageTitle: '',
 				currency: '',
 				currentTab: 0,
 				tabs: [],
@@ -191,6 +192,11 @@
 			}
 		},
 		onLoad(options) {
+			if (uni.getStorageSync('pageTitle')) {
+				this.pageTitle = uni.getStorageSync('pageTitle')
+			} else {
+				this.pageTitle = options.title
+			}
 			if (options.currentTab) {
 				this.currentTab = +options.currentTab
 			}

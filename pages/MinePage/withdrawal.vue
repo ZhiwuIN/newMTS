@@ -36,7 +36,8 @@
 						</view>
 					</view>
 					<view class="withdraw-amount-input" v-if="customizedAmountList.length && userInfo.levelCode == '0'">
-						<input type="digit" v-model="withdrawAmount" :placeholder="withdrawalInfo.limitAmount ? $t('自由输入') + withdrawalInfo.limitAmount + '+' : $t('自由输入2')"
+						<input type="digit" v-model="withdrawAmount"
+							:placeholder="withdrawalInfo.limitAmount ? $t('自由输入') + withdrawalInfo.limitAmount + '+' : $t('自由输入2')"
 							@input="handleWithdrawInput" @blur="handleWithdrawInputBlur"
 							:disabled="withdrawalInfo.balance < withdrawalInfo.limitAmount"
 							placeholder-style="color: #E4E4E4;font-size: 28rpx;font-weight: 500;" />
@@ -73,7 +74,8 @@
 				<view class="pay_pop_no">{{withdrawAmount}} {{withdrawalInfo.currency}}</view>
 				<view class="pay_details">
 					<!--  手续费 -->
-					<view class="pay_details_t">{{$t('pay.ServiceCharge')}}: {{Fee.fee * usdtRateOut}} {{actualCurrency}}
+					<view class="pay_details_t">{{$t('pay.ServiceCharge')}}: {{Fee.fee * usdtRateOut}}
+						{{actualCurrency}}
 					</view>
 					<!--  费率 -->
 					<view class="pay_details_t">
@@ -100,7 +102,7 @@
 				<button class="pay_confirm_btn" @click="payConfirm">{{$t('home.Confirm')}}</button>
 			</view>
 		</uni-popup>
-		<uni-popup ref="promptpopup" type="center" :mask-click="false" >
+		<uni-popup ref="promptpopup" type="center" :mask-click="false">
 			<view class="prompt_pop_page">
 				<view class="prompt_pop_top">{{$t('home.Prompt')}}</view>
 				<view class="prompt_pop_taps">{{failTips}}</view>
@@ -112,7 +114,7 @@
 				</view>
 			</view>
 		</uni-popup>
-		<uni-popup ref="promptpopup2" type="center" :mask-click="false" >
+		<uni-popup ref="promptpopup2" type="center" :mask-click="false">
 			<view class="prompt_pop_page">
 				<view class="prompt_pop_top">{{$t('home.Prompt')}}</view>
 				<view class="prompt_pop_taps" v-html="failTips"></view>
@@ -121,7 +123,7 @@
 				</view>
 			</view>
 		</uni-popup>
-		<uni-popup ref="promptpopup3" type="center" :mask-click="false" >
+		<uni-popup ref="promptpopup3" type="center" :mask-click="false">
 			<view class="prompt_pop_page">
 				<view class="prompt_pop_top">{{$t('home.Prompt')}}</view>
 				<view class="prompt_pop_taps">
@@ -146,6 +148,9 @@
 	import {
 		userInfoApi
 	} from "@/common/api/users.js";
+	import {
+		htmlToPlainText
+	} from "@/utils/utils.js";
 	export default {
 		components: {
 			customnavbar: customnavbar
@@ -174,7 +179,7 @@
 			}
 		},
 		onShow() {
-			
+
 			this.userType = uni.getStorageSync('userInfo').userType
 			if (this.userType == 'test') {
 				this.$customizeBack()
@@ -192,7 +197,7 @@
 				userInfoApi().then((res) => {
 					this.userInfo = res.data
 					this.getCustomizedAmount(this.userInfo.levelCode)
-					if(res.data.housekeeper == 1){
+					if (res.data.housekeeper == 1) {
 						this.isRestrictedAccess = true
 						this.failTips = this.$t("withdrawal.restrictedAccess")
 						this.$refs.promptpopup.open()
@@ -214,7 +219,7 @@
 				this.promptConfirm = ''
 				withdrawalInfoApi().then((res) => {
 					this.withdrawalInfo = res.data
-					if (!this.withdrawalInfo.existWithdrawalPassword && !this.isRestrictedAccess ) {
+					if (!this.withdrawalInfo.existWithdrawalPassword && !this.isRestrictedAccess) {
 						this.failTips = this.$t('withdrawal.failTips1')
 						this.promptConfirm = 'toSetPwd'
 						this.$refs.promptpopup.open()
@@ -235,7 +240,9 @@
 					console.log('request fail', err);
 					if (err.code == 800) {
 						this.failTips = err.msg
-						this.$refs.promptpopup2.open()
+						if (htmlToPlainText(err.msg)) {
+							this.$refs.promptpopup2.open()
+						}
 					} else {
 						this.$showMessage('warning', err.msg);
 					}
@@ -310,13 +317,14 @@
 					this.$refs.promptpopup.open()
 					return
 				}
-				
+
 				// 实习提现强校验
-				if(this.userInfo.levelCode == '0' && this.withdrawAmount < this.withdrawalInfo.limitAmount && !this.customizedAmountList.includes(this.withdrawAmount)) {
+				if (this.userInfo.levelCode == '0' && this.withdrawAmount < this.withdrawalInfo.limitAmount && !this
+					.customizedAmountList.includes(this.withdrawAmount)) {
 					this.$showMessage('warning', this.$t('请遵循正确的提现规则'));
 					return
 				}
-				
+
 				// console.log(this.withdrawAmount + (this.withdrawAmount * (this.withdrawalInfo.fee / 100)))
 				this.getFee()
 
@@ -395,9 +403,9 @@
 					uni.navigateTo({
 						url: '/pages/MinePage/mobilePayment'
 					})
-				}else if (this.isRestrictedAccess) {
+				} else if (this.isRestrictedAccess) {
 					uni.navigateBack()
-				}else {
+				} else {
 					uni.redirectTo({
 						url: '/pages/MinePage/bills?currentTab=3'
 					})

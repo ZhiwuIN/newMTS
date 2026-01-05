@@ -1,5 +1,5 @@
 <template>
-	<customnavbar :title="$t('mine.ElectronicContract')">
+	<customnavbar :title="pageTitle">
 		<view class="privacyPolicy-page">
 			<view class="privacyPolicy-info" v-html="privacyPolicyInfo"></view>
 		</view>
@@ -24,10 +24,16 @@
 		},
 		data() {
 			return {
+				pageTitle: '',
 				privacyPolicyInfo: "",
 			}
 		},
 		onLoad(options) {
+			if (uni.getStorageSync('pageTitle')) {
+				this.pageTitle = uni.getStorageSync('pageTitle')
+			} else {
+				this.pageTitle = options.title
+			}
 			if (options?.positionName) {
 				this.privacyPolicyInfo = formatRichText(uni.getStorageSync('privacyPolicyInfo'))
 			} else {

@@ -62,7 +62,14 @@
 			},
 		},
 		onLoad(options) {
-			this.pageTitle = options.title
+			// console.log(uni.getStorageSync('pageTitle'))
+			if (uni.getStorageSync('pageTitle')) {
+				this.pageTitle = uni.getStorageSync('pageTitle')
+			} else {
+				this.pageTitle = options.title
+			}
+			// console.log(this.pageTitle)
+
 			this.groupId = options.groupId
 		},
 		onShow() {

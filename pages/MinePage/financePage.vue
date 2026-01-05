@@ -1,5 +1,5 @@
 <template>
-	<customnavbar :title="$t('mine.Financialmanagementfund')" @mtop="mtop">
+	<customnavbar :title="pageTitle" @mtop="mtop">
 		<view class="product-container" :style="topStyle">
 			<view class="tabs">
 				<view v-for="(item, index) in tabs" :key="index"
@@ -59,7 +59,8 @@
 					</view>
 				</view>
 			</view>
-			<listbottom :hasMore="hasMore" :loading="loading" :noData='nodata' image="/static/default/No order.png"></listbottom>
+			<listbottom :hasMore="hasMore" :loading="loading" :noData='nodata' image="/static/default/No order.png">
+			</listbottom>
 		</view>
 	</customnavbar>
 </template>
@@ -78,9 +79,7 @@
 		},
 		data() {
 			return {
-				url: 'http://13.245.95.135:8888',
-
-				// url: 'http://192.168.2.35:8080',
+				pageTitle: '',
 				currency: '',
 				productList: [],
 				nodata: false,
@@ -134,7 +133,12 @@
 				})
 			}
 		},
-		onLoad() {
+		onLoad(options) {
+			if (uni.getStorageSync('pageTitle')) {
+				this.pageTitle = uni.getStorageSync('pageTitle')
+			} else {
+				this.pageTitle = options.title
+			}
 			this.tabs = [
 				this.$t('pages.InProgress'),
 				this.$t('pages.Finished')

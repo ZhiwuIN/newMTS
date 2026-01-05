@@ -1,23 +1,35 @@
 <template>
-	<customnavbar :title="$t('pages.task')" backgroundStr="url('/static/task/background.jpg') top left/100% no-repeat"
+	<customnavbar :title="$t('pages.task')" backgroundStr="url('/static/task/taskBgi.png') top left/100% no-repeat"
 		:showBack="false" :whiteTitle="true" @mtop="mtop">
 		<view class="task-page" :style="topStyle2">
 			<view class="task_top_card" :style="topStyle">
 				<!-- 顶部数据卡片 -->
 				<view class="data_box">
-					<view class="dataItem">
-						<view class="num">{{taskInfo.tasksCompletedToday || 0}}</view>
-						<view class="tag">{{$t('Completed.Today')}}</view>
+					<view class="data_row">
+						<view class="dataItem">
+							<view class="tag">{{ $t('今日任务收益') }}</view>
+							<view class="income">{{ taskInfo.todayTaskCommission || 0 }} {{ currency }}</view>
+						</view>
+						<view class="dataItem progress_box">
+							<view class="progress_text">
+								<view class="tag">{{ $t('今日剩余次数') }}</view>
+								<view class="num">{{ taskInfo.totalTaskNum - taskInfo.tasksCompletedToday || 0 }}/{{
+									taskInfo.totalTaskNum || 0 }}</view>
+							</view>
+							<t-progress :color="'#ffaf37'" style="width: 100%;transform: rotate(180deg);" :label="false"
+								:percentage="(taskInfo.totalTaskNum - taskInfo.tasksCompletedToday) / taskInfo.totalTaskNum * 100" />
+						</view>
 					</view>
-					<view class="line"></view>
-					<view class="dataItem">
-						<view class="num">{{taskInfo.tasksRemainingToday || 0}}</view>
-						<view class="tag">{{$t('Remaining.Today')}}</view>
-					</view>
-					<view class="line"></view>
-					<view class="dataItem">
-						<view class="num">{{taskInfo.todayTaskCommission || 0}} {{currency}}</view>
-						<view class="tag">{{$t('Task.Commission')}}</view>
+
+					<view class="data_row">
+						<view class="dataItem">
+							<view class="tag">{{ $t('今日总完成次数') }}</view>
+							<view class="num">{{ taskInfo.totalTaskNum || 0 }}</view>
+						</view>
+						<view class="dataItem">
+							<view class="tag">{{ $t('今日完成次数') }}</view>
+							<view class="num">{{ taskInfo.tasksCompletedToday || 0 }}</view>
+						</view>
 					</view>
 				</view>
 			</view>
@@ -59,6 +71,16 @@
 				</view>
 			</view>
 		</uni-popup>
+		<!-- 富文本提示 -->
+		<uni-popup ref="promptpopup3" type="center" :mask-click="false">
+			<view class="prompt_pop_page">
+				<view class="prompt_pop_top">{{$t('home.Prompt')}}</view>
+				<view class="prompt_pop_taps" v-html="failTips"></view>
+				<view class="prompt_pop_bottom">
+					<button class="prompt_confirm_btn" @click="prompt_confirm_yes2">{{$t('pay.yes')}}</button>
+				</view>
+			</view>
+		</uni-popup>
 	</customnavbar>
 </template>
 
@@ -73,7 +95,9 @@
 		userInfoApi,
 		settingsApi
 	} from "@/common/api/users.js";
-
+	import {
+		htmlToPlainText
+	} from "@/utils/utils.js";
 	export default {
 		components: {
 			customnavbar,
@@ -81,6 +105,7 @@
 		},
 		data() {
 			return {
+				failTips: '',
 				dialog_yes_message: '',
 				scrollTop: 0,
 				needRestoreScroll: false,
@@ -102,7 +127,8 @@
 				isRefreshing: false,
 				levelCode: '',
 				preLoadScrollTop: 0,
-				taskCardHeight: 298 // 顶部卡片固定高度（rpx）
+				taskCardHeight: 298, // 顶部卡片固定高度（rpx）
+				errorCode: 0
 			};
 		},
 		onLoad() {
@@ -170,6 +196,10 @@
 				this.$refs.promptpopup2.close()
 				return
 			},
+			prompt_confirm_yes2() {
+				this.$refs.promptpopup3.close()
+				return
+			},
 			prompt_cancel() {
 				this.$refs.promptpopup.close()
 			},
@@ -205,18 +235,18 @@
 
 				// #ifdef H5
 				// H5端：额外减去底部可能的留白
-				this.topStyle = `margin-top:-${navHeight}rpx;padding-top:${navHeight + 44}rpx`;
+				this.topStyle = `margin-top:-${navHeight}rpx;padding-top:${navHeight + 114}rpx`;
 				this.topStyle2 = `height:calc(100vh - ${navHeight}rpx - 200rpx);`;
 				// 固定scroll-view高度：屏幕高度 - 导航栏高度 - 顶部卡片高度 - 额外留白
-				this.scrollViewStyle = `height: calc(100vh - ${navHeight}rpx - ${this.taskCardHeight}rpx - 200rpx);`;
+				this.scrollViewStyle = `height: calc(100vh - ${navHeight}rpx - ${this.taskCardHeight}rpx - 300rpx);`;
 				// #endif
 
 				// #ifdef APP-PLUS
 				// APP端：更紧凑的计算
-				this.topStyle = `margin-top:-${navHeight}rpx;padding-top:${navHeight - 2}rpx`;
+				this.topStyle = `margin-top:-${navHeight}rpx;padding-top:${navHeight + 68}rpx`;
 				this.topStyle2 = `height:calc(100vh - ${navHeight}rpx);`;
 				// 固定scroll-view高度：屏幕高度 - 导航栏高度 - 顶部卡片高度
-				this.scrollViewStyle = `height: calc(100vh - ${navHeight}rpx - ${this.taskCardHeight}rpx);`;
+				this.scrollViewStyle = `height: calc(100vh - ${navHeight}rpx - ${this.taskCardHeight}rpx - 128rpx);`;
 				// #endif
 			},
 			getUserInfo() {
@@ -239,12 +269,17 @@
 				});
 			},
 			getTaskInfo() {
+				this.errorCode = 0
 				taskInfoApi().then((res) => {
 					this.taskInfo = res.data;
 					uni.setStorageSync('levelCode', res.data.levelCode);
 				}).catch((err) => {
 					console.log('request fail', err);
-					this.$showMessage('warning', err.msg);
+					// this.$showMessage('warning', err.msg);
+					this.failTips = err.msg
+					if (htmlToPlainText(err.msg)) {
+						this.$refs.promptpopup3.open()
+					}
 				});
 			},
 			getTaskList() {
@@ -353,53 +388,120 @@
 		width: 100%;
 
 		.task_top_card {
+			position: relative;
 			width: 100%;
-			background: url('/static/task/background.jpg') top left/100% no-repeat;
-			height: v-bind(taskCardHeight + 'rpx'); // 使用数据中的高度值
+			background: url('/static/task/taskBgi.png') top left/100% no-repeat;
+			height: 356rpx; // 使用数据中的高度值
+			// padding-bottom: 24rpx;
+			margin-bottom: -110rpx;
 
 			.data_box {
-				display: flex;
-				align-items: center;
-				justify-content: space-between;
-				padding: 80rpx 60rpx;
+				box-sizing: border-box;
+				position: absolute;
+				left: 50%;
+				transform: translate(-50%, 0%);
+				padding: 40rpx 30rpx 38rpx;
+				background: #f6f9fe;
+				box-shadow: inset 0rpx 2rpx 4rpx 0rpx rgba(255, 255, 255, 0.5);
+				border-radius: 20rpx;
+				width: 690rpx;
+				z-index: 2;
+
+				.data_row {
+					display: flex;
+					gap: 30rpx;
+
+					&:nth-child(2) .dataItem {
+						margin-bottom: 0;
+					}
+				}
 
 				.dataItem {
+					flex: 1;
 					display: flex;
 					flex-direction: column;
-					align-items: center;
-					gap: 20rpx;
-					text-align: center;
-					color: #fff;
+					align-items: start;
+					gap: 10rpx;
+					margin-bottom: 30rpx;
 
-					.num {
-						flex: 1;
-						font-family: DINPro, DINPro;
+					&.progress_box {
+						// background: linear-gradient(180deg, #FFD75F 0%, #FFAE31 100%);
+						background-color: #2775d7;
+						border-radius: 12rpx;
+						padding: 18rpx 14rpx;
+
+						.progress_text {
+							display: flex;
+							width: 100%;
+							justify-content: space-between;
+							margin-bottom: 22rpx;
+
+							.tag {
+								font-family: PingFangSC, PingFang SC;
+								font-weight: 400;
+								font-size: 16rpx;
+								color: #fff;
+								line-height: 22rpx;
+								text-align: left;
+								font-style: normal;
+							}
+
+							.num {
+								font-family: PingFangSC, PingFang SC;
+								font-weight: 400;
+								font-size: 16rpx;
+								color: #fff;
+								line-height: 22rpx;
+								text-align: right;
+								font-style: normal;
+							}
+						}
+					}
+
+					.income {
+						font-family: PingFangSC, PingFang SC;
 						font-weight: 500;
 						font-size: 36rpx;
-						color: #FFFFFF;
+						color: #FFAE31;
+						line-height: 50rpx;
+						text-align: justify;
+						font-style: normal;
+					}
+
+
+
+					.num {
+						font-family: PingFangSC, PingFang SC;
+						font-weight: 500;
+						font-size: 28rpx;
+						color: #000000;
+						line-height: 40rpx;
+						text-align: justify;
+						font-style: normal;
 					}
 
 					.tag {
-						font-family: DINPro, DINPro;
+						font-family: PingFangSC, PingFang SC;
 						font-weight: 400;
-						font-size: 24rpx;
-						color: #FFFFFF;
-						width: 136rpx;
-						line-height: 30rpx;
+						font-size: 20rpx;
+						color: #666666;
+						line-height: 28rpx;
+						font-style: normal;
 					}
 				}
-
-				.line {
-					width: 2rpx;
-					height: 60rpx;
-					background: rgba(255, 255, 255, 0.6);
-				}
 			}
+
 		}
 
 		.custom-waterfalls {
 			// flex: 1; // 让瀑布流容器占满剩余空间
 			width: 100%;
+			// #ifdef H5
+			transform: translateY(9%);
+			// #endif
+			// #ifdef APP-PLUS
+			transform: translateY(12%);
+			// #endif
 		}
 	}
 

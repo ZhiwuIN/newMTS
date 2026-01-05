@@ -31,7 +31,11 @@
 			}
 		},
 		onLoad(options) {
-			this.title = options.title
+			if (uni.getStorageSync('pageTitle')) {
+				this.title = uni.getStorageSync('pageTitle')
+			} else {
+				this.title = options.title
+			}
 			noticeListApi(options.gropid, {
 				pageNum: 1,
 				pageSize: 10

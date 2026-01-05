@@ -1,5 +1,5 @@
 <template>
-	<customnavbar :title="$t('home.Financialproducts')" :isFinancePage="true" @mtop="mtop">
+	<customnavbar :title="pageTitle" :isFinancePage="true" @mtop="mtop">
 		<view class="product-container">
 			<view class="product-list" :style="topStyle">
 				<scroll-view scroll-y :refresher-enabled="true" :refresher-triggered="isRefreshing"
@@ -101,8 +101,7 @@
 		},
 		data() {
 			return {
-				url: 'http://13.245.95.135:8888',
-				// url: 'http://192.168.2.35:8080',
+				pageTitle: '',
 				currency: '',
 				productList: [],
 				nodata: false,
@@ -168,6 +167,9 @@
 			}
 		},
 		onShow() {
+			if (uni.getStorageSync('pageTitle')) {
+				this.pageTitle = uni.getStorageSync('pageTitle')
+			}
 			this.currency = uni.getStorageSync('settings').currency
 			this.getProductList()
 		},

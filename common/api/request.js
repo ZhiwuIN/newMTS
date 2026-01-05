@@ -23,10 +23,7 @@ let globalRequestFailedAlerted = false;
 
 // 全局请求封装——也可像上述一样根据环境不同的判断
 // const base_url = '/api';8080'; //开发环境
-// const base_url = 'http://192.168.0.5:8080' //开发环境
-// const base_url = 'http://192.168.0.9:8081' //开发环境
-// const base_url = 'http://47.122.125.169:19002' //开发环境
-const base_url = 'http://18.163.208.5:8881'//测试环境
+const base_url = 'http://192.168.0.9:8081' //开发环境
 // const base_url = 'https://api.cwpc.cc' // 域名
 // const base_url = 'https://api.itslai.com' // 域名
 
