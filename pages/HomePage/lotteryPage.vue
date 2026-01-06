@@ -37,7 +37,9 @@
 							<template #back="{data}">
 								<view class="prizesItem"
 									:style="{background: `url(${data.backgroundImage || '/static/lottery/backImg.png'}) top left / 100% 100% no-repeat`}">
-									<image class="prizeLogo" :src="data.logoImage || ''" mode="">
+									<image class="prizeLogo"
+										:src="data.logoImage || 'https://upload.cwpc.cc/upload_1767641716569_2b895ca75b604daba280.png'"
+										mode="">
 									</image>
 									<image class="prizeImg"
 										:src="data.image ?  data.image : '/static/lottery/losing.png'" mode="">
@@ -123,7 +125,7 @@
 				</view>
 				<view class="prizeName_img_box">
 					<view class="prizeName_box">
-						<image v-if="prizeType == 'coin'" style="width: 60rpx;min-width: 60rpx;height: 59rpx;"
+						<image v-if="prizeType == 'coin'" style="width: 68rpx;min-width: 68rpx;height: 60rpx;"
 							src="/static/lottery/money.png" mode=""></image>
 						<view>{{content}}</view>
 					</view>
@@ -295,7 +297,7 @@
 				api.then((res) => {
 					this.prizes = []
 					this.prizes = res.data
-					this.prizes.forEach(item => item.frontImg = '/static/lottery/frontImg.png')
+					this.prizes.forEach(item => item.frontImg = '/static/lottery/frontImg3.png')
 				}).catch((err) => {
 					console.log('request fail', err);
 					this.$showMessage('warning', err.msg);
@@ -406,7 +408,7 @@
 								font-family: PingFangSC, PingFang SC;
 								font-weight: 600;
 								font-size: 24rpx;
-								color: #000000;
+								color: #fff;
 								text-align: center;
 								font-style: normal;
 								text-transform: none;
@@ -513,13 +515,14 @@
 
 		.prizeLogo {
 			width: 69rpx;
-			height: 21rpx;
+			height: 56rpx;
 			transform: translateX(-72%);
 		}
 
 		.prizeImg {
 			width: 102rpx;
 			height: 103rpx;
+			transform: translateY(-12rpx);
 		}
 
 		.prizeName {
@@ -570,7 +573,7 @@
 			display: flex;
 			flex-direction: column;
 			align-items: center;
-			padding-top: 284rpx;
+			padding-top: 204rpx;
 			width: 620rpx;
 			height: 984rpx;
 			background: url('/static/lottery/prizeBgi.png') top left/100% 100% no-repeat;
@@ -654,7 +657,7 @@
 				font-family: PingFangSC, PingFang SC;
 				font-weight: 400;
 				font-size: 33rpx;
-				color: #000000;
+				color: #fff;
 				text-align: center;
 				font-style: normal;
 				text-transform: none;
@@ -670,7 +673,7 @@
 				// #endif
 				width: 562rpx;
 				height: 140rpx;
-				background: url('/static/lottery/1.png') top left/100% no-repeat;
+				// background: url('/static/lottery/1.png') top left/100% no-repeat;
 				padding-top: 12rpx;
 				// #ifdef APP-PLUS
 				padding-top: 16rpx;

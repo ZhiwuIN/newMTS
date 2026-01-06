@@ -1,8 +1,7 @@
 <template>
 	<view>
-		<customnavbar :title="pageTitle"
-			backgroundStr="url('/static/login/login_bg.png') top left/100%  no-repeat" @mtop="mtop" :showBack="true"
-			:whiteTitle="true" :isPositionManage="true">
+		<customnavbar :title="pageTitle" backgroundStr="url('/static/login/login_bg.png') top left/100%  no-repeat"
+			@mtop="mtop" :showBack="true" :whiteTitle="true" :isPositionManage="true">
 			<uv-skeletons :loading="isLoading" :skeleton="skeleton" :style="isLoading ? 'margin: 0 40rpx;' : ''">
 				<view class="positionManage_heradBox" :style="topStyle">
 					<view class="positionManage-container">
@@ -72,7 +71,7 @@
 												{{ $t('positionManage.WorkProgress') }}
 											</view>
 											<view class="positionManage-info-title">
-												<view class="positionManage-info-value" style="color: #3FCF05;"
+												<!-- 	<view class="positionManage-info-value" style="color: #3FCF05;"
 													v-if="infoData.status == 6">
 													{{ $t('positionManage.Agreed') }}
 												</view>
@@ -89,6 +88,14 @@
 												<view class="positionManage-info-value" style="color: #1167D1;"
 													v-if="infoData.status == 4">
 													{{ $t('positionManage.InProgress') }}
+												</view> -->
+												<view class="positionManage-info-value" style="color: #3FCF05;"
+													v-if="infoData.completed >= infoData.target">
+													{{ $t('positionManage.Agreed') }}
+												</view>
+												<view class="positionManage-info-value" style="color: #FF0000;"
+													v-if="infoData.completed < infoData.target">
+													{{ $t('positionManage.notReach') }}
 												</view>
 											</view>
 										</view>

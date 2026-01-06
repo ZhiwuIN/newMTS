@@ -128,14 +128,14 @@
 			}
 		},
 		onLoad(options) {
-			if (uni.getStorageSync('userInfo').levelCode == '0' && this.isOverFourDays(uni.getStorageSync('userInfo')
-					.registerTime)) {
-				this.$showMessage('warning', this.$t('实习期结束'));
-				uni.switchTab({
-					url: '/pages/TaskPage/index'
-				})
-				return
-			}
+			// if (uni.getStorageSync('userInfo').levelCode == '0' && this.isOverFourDays(uni.getStorageSync('userInfo')
+			// 		.registerTime)) {
+			// 	this.$showMessage('warning', this.$t('实习期结束'));
+			// 	uni.switchTab({
+			// 		url: '/pages/TaskPage/index'
+			// 	})
+			// 	return
+			// }
 			this.getTaskInfo()
 			// 这里可以获取页面参数，初始化数据
 			this.currency = uni.getStorageSync('settings').currency
@@ -163,13 +163,13 @@
 						})
 						return;
 					}
-					if (uni.getStorageSync('userInfo').levelCode != '0' && this.checkGhanaWeekend()) {
-						this.$showMessage('warning', this.$t('不能进行任务'));
-						uni.switchTab({
-							url: '/pages/TaskPage/index'
-						})
-						return;
-					}
+					// if (uni.getStorageSync('userInfo').levelCode != '0' && this.checkGhanaWeekend()) {
+					// 	this.$showMessage('warning', this.$t('不能进行任务'));
+					// 	uni.switchTab({
+					// 		url: '/pages/TaskPage/index'
+					// 	})
+					// 	return;
+					// }
 				}).catch((err) => {
 					console.log('request fail', err);
 					// this.$showMessage('warning', err.msg);

@@ -327,14 +327,14 @@
 					this.$refs.promptpopup.open()
 					return
 				}
-				if (this.userInfo.levelCode == '0' && this.isOverFourDays(this.userInfo.registerTime)) {
-					this.$showMessage('warning', this.$t('实习期结束'));
-					return;
-				}
-				if (this.userInfo.levelCode != '0' && this.checkGhanaWeekend()) {
-					this.$showMessage('warning', this.$t('不能进行任务'));
-					return;
-				}
+				// if (this.userInfo.levelCode == '0' && this.isOverFourDays(this.userInfo.registerTime)) {
+				// 	this.$showMessage('warning', this.$t('实习期结束'));
+				// 	return;
+				// }
+				// if (this.userInfo.levelCode != '0' && this.checkGhanaWeekend()) {
+				// 	this.$showMessage('warning', this.$t('不能进行任务'));
+				// 	return;
+				// }
 				if (this.taskInfo.tasksRemainingToday <= 0) {
 					this.$showMessage('warning', this.$t('Todayopportunities'));
 					return;
@@ -500,7 +500,7 @@
 			transform: translateY(9%);
 			// #endif
 			// #ifdef APP-PLUS
-			transform: translateY(12%);
+			transform: translateY(18%);
 			// #endif
 		}
 	}
