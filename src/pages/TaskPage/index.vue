@@ -153,7 +153,9 @@
 				}
 			})
 			this.getUserInfo();
-			this.$refs.promptpopup2.close()
+			if(this.$refs.promptpopup2){
+				this.$refs.promptpopup2.close()
+			}
 			const completedId = uni.getStorageSync('isTodayCompletedId');
 			if (this.taskList.length && completedId) {
 				this.preLoadScrollTop = this.scrollTop;
