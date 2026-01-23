@@ -22,7 +22,7 @@
     "@dcloudio/uni-mp-xhs": "3.0.0-4080720251210001",
     "@dcloudio/uni-quickapp-webview": "3.0.0-4080720251210001",
     "vue": "^3.4.21",
-    "sass": "*",
+    "sass": "1.77.8",
     "pinia": "*",
     "vue-router": "*"
   },
@@ -48,6 +48,7 @@
     "build": "uni build --mode production",
     "build:h5": "uni build",
     "build:h5:ssr": "uni build --ssr",
+    "build:app": "uni build -p app --mode production",
     "uniapp": "uniapp"
   }
 }
