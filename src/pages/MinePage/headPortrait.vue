@@ -38,7 +38,7 @@
 	} from '@/common/api/users.js'
 	import {
 		imListApi
-	} from "@/common/api/message.js";
+	} from "@/common/api/message";
 	export default {
 		components: {
 			customnavbar

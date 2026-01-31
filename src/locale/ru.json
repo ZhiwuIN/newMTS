@@ -124,6 +124,7 @@
 	"Deposit.PersonalAccount": "Personal Account",
 	"Deposit.pay": "Pay",
 	"Deposit.WithdrawAmount": "WithdrawAmount",
+	"Deposit.WithdrawRules": "Withdraw Rules",
 	"Deposit.balance": "Current account balance available for withdrawal: ",
 	"Deposit.WithdrawAccount": "Withdraw To Account",
 	"Account.Headportrait": "Head portrait",
