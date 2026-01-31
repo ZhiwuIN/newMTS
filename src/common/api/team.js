@@ -1,7 +1,7 @@
 import request from './request.js'
 
 // 团队基本信息
-export function teamApi(params){
+export function teamApi(){
 	return request({
 		url: '/app/team',
 		method: 'get',
@@ -12,7 +12,7 @@ export function teamApi(params){
 export function teamMemberApi(type,page,params){
 	return request({
 		url: '/app/teams/'+type+'?pageNum='+page.pageNum+'&pageSize='+ page.pageSize,
-		method: 'post',
+		method: 'get',
 		data:params
 	})
 }

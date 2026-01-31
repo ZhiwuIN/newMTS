@@ -529,5 +529,9 @@
 	"今日总完成次数": "Today's Total Completion Count",
 	"今日任务收益": "Task Earnings Today",
 	"今日完成次数": "Completed Times Today",
-	"暂无职位": "Get a promotion to earn a higher salary"
+	"暂无职位": "Get a promotion to earn a higher salary",
+	"一天": "One Day",
+	"七天": "Seven Days",
+	"一个月": "One Month",
+	"全部": "All"
 }
