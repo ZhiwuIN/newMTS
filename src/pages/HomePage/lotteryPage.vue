@@ -123,6 +123,11 @@
 				<view v-if="isWin != '0' && prizeType == 'coin'" class="text">
 					{{$t('convenience')}}
 				</view>
+				<view class="prize-show-box" v-if="prizeType != 'coin'">
+						<image style="width: 168rpx;min-width: 168rpx;height: 160rpx;"
+							:src="image ?? przieImage" mode=""></image>
+				</view>
+				<view v-else style="margin-top: 68rpx;"></view>
 				<view class="prizeName_img_box">
 					<view class="prizeName_box">
 						<image v-if="prizeType == 'coin'" style="width: 68rpx;min-width: 68rpx;height: 60rpx;"
@@ -159,6 +164,7 @@
 		// luckyRecordApi,
 		luckyCustomDrawResultApi
 	} from "@/common/api/home.js";
+	import przieImage from '@/static/lottery/money.png'
 	export default {
 		components: {
 			customnavbar
@@ -253,6 +259,7 @@
 						this.prizesIndex = this.prizes.findIndex(item => item.id == res.data.pid);
 						this.isWin = res.data.isWin;
 						this.backgroundImage = '/static/lottery/prizeBgi.png'
+						this.image = res.data.image
 						this.onDone(this.prizesIndex, res.data)
 						this.isLoading = 'reset'
 					}
@@ -572,7 +579,7 @@
 			display: flex;
 			flex-direction: column;
 			align-items: center;
-			padding-top: 204rpx;
+			padding-top: 120rpx;
 			width: 620rpx;
 			height: 984rpx;
 			background: url('/static/lottery/prizeBgi.png') top left/100% 100% no-repeat;
@@ -601,7 +608,7 @@
 				font-weight: 900;
 				font-size: 74rpx;
 				text-align: center;
-				margin-bottom: 30rpx;
+				margin-bottom: 10rpx;
 				transform: skewX(-6deg);
 				transform-origin: left center;
 			}
@@ -621,7 +628,6 @@
 				transform-origin: left center;
 				/* 外描边：黑色，宽度2rpx */
 				-webkit-text-stroke: 8rpx #000;
-				text-stroke: 8rpx #000;
 				color: transparent;
 				/* 阴影效果 */
 				text-shadow: 5rpx 7rpx 0px #307cfe;
@@ -660,15 +666,19 @@
 				text-align: center;
 				font-style: normal;
 				text-transform: none;
-				// margin-bottom: 84rpx;
 
 			}
-
+			.prize-show-box{
+				margin-top: 24rpx;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				box-sizing: border-box;
+			}
 			.prizeName_img_box {
 				position: relative;
-				top: 54rpx;
 				// #ifdef APP-PLUS
-				top: 74rpx;
+				top: 20rpx;
 				// #endif
 				width: 562rpx;
 				height: 140rpx;
@@ -695,8 +705,8 @@
 				line-height: 47.5rpx;
 				text-align: center;
 				text-transform: none;
+				font-style: italic;
 				gap: 40rpx;
-				transform: skewX(-12deg);
 				transform-origin: left center;
 				text-shadow: 0px 5rpx 0px #307cfe;
 

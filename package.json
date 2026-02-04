@@ -47,6 +47,7 @@
     "dev:h5:ssr": "uni --ssr",
     "build": "uni build --mode production",
     "build:h5": "uni build",
+    "build:test": "uni build --mode test",
     "build:h5:ssr": "uni build --ssr",
     "build:app": "uni build -p app --mode production",
     "uniapp": "uniapp"
