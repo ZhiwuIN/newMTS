@@ -18,7 +18,7 @@
 						</view>
 					</view>
 					<!-- 我的积分 -->
-					<!-- <view class="dataBox">
+					<view class="dataBox">
 						<view class="title">{{$t('myBonusPoints')}}</view>
 						<view class="row">
 							<view class="num">{{points}}</view>
@@ -27,7 +27,7 @@
 								&nbsp;▶
 							</view>
 						</view>
-					</view> -->
+					</view>
 					<view style="display: flex;justify-content: center;padding-top: 30rpx;">
 						<!-- :row="Math.ceil(this.prizes.length / 3)" -->
 						<sh-draw-card ref="drawCardRef" :list="prizes" :targetIndex="1" :gap="38"
@@ -456,7 +456,6 @@
 							font-family: PingFangSC, PingFang SC;
 							font-weight: 400;
 							font-size: 21rpx;
-							color: #333333;
 							border-radius: 26rpx;
 						}
 					}

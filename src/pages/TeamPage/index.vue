@@ -348,6 +348,7 @@ export default {
 .tab-section {
 	margin-top: 10rpx;
 	padding: 50rpx;
+	padding-bottom: 0;
 }
 
 .tab-header {

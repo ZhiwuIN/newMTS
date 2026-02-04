@@ -133,31 +133,29 @@
 				const userAgentInfo = window?.navigator.userAgent;
 				const Agents = ['Android', 'iPhone', 'SymbianOS', 'Windows Phone', 'iPad', 'iPod'];
 				const isInIframe = self.frameElement && self.frameElement.tagName === 'IFRAME';
-				// 结合屏幕宽度判断，更准确识别移动设备场景（包括F12模拟）
+				// 仅宽度<768px判定为移动设备（手机/手机模拟），≥768px（平板/电脑）走固定宽度逻辑
 				const isMobileWidth = window.innerWidth < 768;
-				// 检测是否为移动设备（包括UA和屏幕宽度）
+				// 双重判定：移动UA + 小屏幕，仅手机真机/模拟才判定为移动设备
 				const isMobileDevice = Agents.some(item =>
 					userAgentInfo.toLowerCase().includes(item.toLowerCase())
-				) || isMobileWidth;
+				) && isMobileWidth;
 
 				// 获取现有iframe
 				const ifrTag = document.getElementsByTagName('iframe')[0];
 
-				// 如果是移动设备或在iframe中，确保移除iframe
+				// 仅纯移动设备（手机）或在iframe中，才移除iframe展示原页面
 				if (isMobileDevice || isInIframe) {
 					if (ifrTag) {
 						ifrTag.remove();
 						// 恢复原页面内容（如果之前被清空）
 						if (document.body.innerHTML === '') {
-							// 这里可以根据实际情况恢复页面内容
-							// 或者重新加载页面（如果适合你的场景）
 							window.location.reload();
 						}
 					}
 					return;
 				}
 
-				// PC端处理逻辑
+				// 平板端+电脑端统一处理：固定480px宽度的iframe展示
 				if (!isInIframe) {
 					if (ifrTag) {
 						ifrTag.remove();
@@ -172,7 +170,7 @@
 						left: '50%',
 						transform: 'translateX(-50%)',
 						border: '1px solid #eee',
-						boxShadow: '0 0 20px rgba(0,0,0,0.1)'
+						boxShadow: '0 0 20px rgba(0,0,0,0.1)',
 					};
 					Object.entries(styleObj).forEach(([key, value]) => {
 						newIfr.style[key] = value;
@@ -187,6 +185,39 @@
 <style>
 	@import "common/font.css";
 
+	/* ========== APP-PLUS 平板端固定480px宽度（核心修复滚动） ========== */
+	/* #ifdef APP-PLUS */
+	/* 根容器：固定宽度+水平居中，仅隐藏横向滚动，释放纵向滚动，最小高度适配内容 */
+	uni-app, body, html {
+		width: 480px !important;
+		margin: 0 auto !important;
+		min-height: 100% !important; /* 修复：替换height为min-height，适配内容高度 */
+		overflow-x: hidden !important; /* 修复：仅禁止横向滚动，允许纵向滚动 */
+		position: relative !important;
+	}
+	/* 页面容器：继承宽度，允许纵向滚动，防止内容溢出 */
+	.page {
+		width: 100% !important;
+		max-width: 480px !important;
+		overflow-x: hidden !important;
+		overflow-y: auto !important; /* 显式允许纵向滚动 */
+		min-height: 100vh !important;
+	}
+	/* #endif */
+
+	/* ========== H5端：平板/电脑端样式（核心修复滚动） ========== */
+	/* #ifdef H5 */
+	html, body {
+		width: 100%;
+		min-height: 100%; /* 修复：替换height为min-height */
+		margin: 0;
+		padding: 0;
+		overflow-x: hidden !important; /* 修复：仅隐藏横向滚动 */
+		position: relative;
+	}
+	/* #endif */
+
+	/* ========== 通用样式：隐藏所有滚动条，多端兼容（不影响滚动功能） ========== */
 	::-webkit-scrollbar {
 		display: none;
 		width: 0 !important;
@@ -194,44 +225,37 @@
 		-webkit-appearance: none;
 		background: transparent;
 	}
-
 	/* 兼容 Firefox */
 	html {
 		scrollbar-width: none;
 	}
-
 	/* 兼容 IE */
 	* {
 		-ms-overflow-style: none;
 	}
 
+	/* ========== tabbar 样式重置，去除边框/阴影 ========== */
 	.uni-tabbar-border {
 		background-color: transparent !important;
 		height: 0px !important;
 		border: none !important;
 	}
-
-
 	uni-tabbar .uni-tabbar__border {
 		display: none !important;
 	}
-
-
 	.uni-tabbar.uni-tabbar--topselected {
 		border-top: none !important;
 	}
-
 	.uni-tabbar {
 		border-top-color: transparent !important;
 		border-top-width: 0px !important;
 		box-shadow: none !important;
 	}
-
-
 	.uni-tabbar__content {
 		background-image: none !important;
 	}
 
+	/* ========== 小红点样式调整 ========== */
 	.uni-tabbar__reddot {
 		top: 32rpx !important;
 		right: 8rpx !important;
@@ -239,16 +263,15 @@
 		height: 20rpx !important;
 	}
 
+	/* ========== 加载样式居中 ========== */
 	.t-loading {
 		justify-content: center;
 	}
 
+	/* ========== 输入框占位符不换行，显示省略号 ========== */
 	.uni-input-placeholder.input-placeholder {
 		white-space: nowrap;
-		/* 禁止换行 */
 		overflow: hidden;
-		/* 隐藏溢出内容 */
 		text-overflow: ellipsis;
-		/* 显示省略号 */
 	}
 </style>
