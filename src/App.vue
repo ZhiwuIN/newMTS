@@ -130,24 +130,40 @@
 
 		methods: {
 			handleDeviceDetection() {
-				const userAgentInfo = window?.navigator.userAgent;
+				// 空值兜底，避免 undefined 报错
+				const userAgentInfo = window?.navigator.userAgent || '';
+				const ua = userAgentInfo.toLowerCase(); // 统一转小写，消除大小写影响
 				const Agents = ['Android', 'iPhone', 'SymbianOS', 'Windows Phone', 'iPad', 'iPod'];
 				const isInIframe = self.frameElement && self.frameElement.tagName === 'IFRAME';
-				// 仅宽度<768px判定为移动设备（手机/手机模拟），≥768px（平板/电脑）走固定宽度逻辑
 				const isMobileWidth = window.innerWidth < 768;
-				// 双重判定：移动UA + 小屏幕，仅手机真机/模拟才判定为移动设备
+
+				// 原有手机判定逻辑（保持不变）
 				const isMobileDevice = Agents.some(item =>
-					userAgentInfo.toLowerCase().includes(item.toLowerCase())
+					ua.includes(item.toLowerCase())
 				) && isMobileWidth;
 
-				// 获取现有iframe
+				// 🔥 核心修复：重构平板判定，重点解决 iPad 识别问题
+				// 1. 苹果平板（iPad Mini/Air/Pro 全系列）：覆盖所有 iPad UA 格式
+				const isIpad =
+					ua.includes('ipad') || // 基础判定：含 ipad 关键词
+					(ua.includes('mac os x') && ua.includes('mobile') && !ua.includes(
+						'iphone')); // 适配 iPadOS 伪装 Mac OS 的情况
+				// 2. Android 平板：仅含 android，不含 mobile
+				const isAndroidTablet = ua.includes('android') && !ua.includes('mobile');
+				// 3. 谷歌智能屏：Nest Hub 系列
+				const isNestHub = ua.includes('nest hub');
+				// 4. Windows 平板：Surface Pro 系列
+				const isSurfaceTablet = ua.includes('surface pro');
+				// 最终平板判定：满足任一平板类型 + 非手机小屏幕（≥768px）
+				const isTabletDevice = (isIpad || isAndroidTablet || isNestHub || isSurfaceTablet) && !isMobileWidth;
+
+				// 获取现有 iframe
 				const ifrTag = document.getElementsByTagName('iframe')[0];
 
-				// 仅纯移动设备（手机）或在iframe中，才移除iframe展示原页面
+				// 手机端/iframe 内：移除 iframe，恢复原页面（保持不变）
 				if (isMobileDevice || isInIframe) {
 					if (ifrTag) {
 						ifrTag.remove();
-						// 恢复原页面内容（如果之前被清空）
 						if (document.body.innerHTML === '') {
 							window.location.reload();
 						}
@@ -155,7 +171,7 @@
 					return;
 				}
 
-				// 平板端+电脑端统一处理：固定480px宽度的iframe展示
+				// 平板/电脑端：创建 iframe，动态设置样式（保持不变）
 				if (!isInIframe) {
 					if (ifrTag) {
 						ifrTag.remove();
@@ -165,12 +181,18 @@
 					newIfr.setAttribute('src', window.location.href);
 					const styleObj = {
 						width: '480px',
-						height: '920px',
+						height: isTabletDevice ? '100vh' : '920px', // 平板100vh自适应，电脑920px固定
 						position: 'absolute',
 						left: '50%',
 						transform: 'translateX(-50%)',
 						border: '1px solid #eee',
 						boxShadow: '0 0 20px rgba(0,0,0,0.1)',
+						...(isTabletDevice && {
+							top: 0,
+							bottom: 0,
+							margin: 0,
+							border: 'none'
+						}) // 平板清除间距，全屏适配
 					};
 					Object.entries(styleObj).forEach(([key, value]) => {
 						newIfr.style[key] = value;
@@ -188,33 +210,44 @@
 	/* ========== APP-PLUS 平板端固定480px宽度（核心修复滚动） ========== */
 	/* #ifdef APP-PLUS */
 	/* 根容器：固定宽度+水平居中，仅隐藏横向滚动，释放纵向滚动，最小高度适配内容 */
-	uni-app, body, html {
+	uni-app,
+	body,
+	html {
 		width: 480px !important;
 		margin: 0 auto !important;
-		min-height: 100% !important; /* 修复：替换height为min-height，适配内容高度 */
-		overflow-x: hidden !important; /* 修复：仅禁止横向滚动，允许纵向滚动 */
+		min-height: 100% !important;
+		/* 修复：替换height为min-height，适配内容高度 */
+		overflow-x: hidden !important;
+		/* 修复：仅禁止横向滚动，允许纵向滚动 */
 		position: relative !important;
 	}
+
 	/* 页面容器：继承宽度，允许纵向滚动，防止内容溢出 */
 	.page {
 		width: 100% !important;
 		max-width: 480px !important;
 		overflow-x: hidden !important;
-		overflow-y: auto !important; /* 显式允许纵向滚动 */
+		overflow-y: auto !important;
+		/* 显式允许纵向滚动 */
 		min-height: 100vh !important;
 	}
+
 	/* #endif */
 
 	/* ========== H5端：平板/电脑端样式（核心修复滚动） ========== */
 	/* #ifdef H5 */
-	html, body {
+	html,
+	body {
 		width: 100%;
-		min-height: 100%; /* 修复：替换height为min-height */
+		min-height: 100%;
+		/* 修复：替换height为min-height */
 		margin: 0;
 		padding: 0;
-		overflow-x: hidden !important; /* 修复：仅隐藏横向滚动 */
+		overflow-x: hidden !important;
+		/* 修复：仅隐藏横向滚动 */
 		position: relative;
 	}
+
 	/* #endif */
 
 	/* ========== 通用样式：隐藏所有滚动条，多端兼容（不影响滚动功能） ========== */
@@ -225,10 +258,12 @@
 		-webkit-appearance: none;
 		background: transparent;
 	}
+
 	/* 兼容 Firefox */
 	html {
 		scrollbar-width: none;
 	}
+
 	/* 兼容 IE */
 	* {
 		-ms-overflow-style: none;
@@ -240,17 +275,21 @@
 		height: 0px !important;
 		border: none !important;
 	}
+
 	uni-tabbar .uni-tabbar__border {
 		display: none !important;
 	}
+
 	.uni-tabbar.uni-tabbar--topselected {
 		border-top: none !important;
 	}
+
 	.uni-tabbar {
 		border-top-color: transparent !important;
 		border-top-width: 0px !important;
 		box-shadow: none !important;
 	}
+
 	.uni-tabbar__content {
 		background-image: none !important;
 	}
