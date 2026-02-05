@@ -209,27 +209,42 @@
 
 	/* ========== APP-PLUS 平板端固定480px宽度（核心修复滚动） ========== */
 	/* #ifdef APP-PLUS */
-	/* 根容器：固定宽度+水平居中，仅隐藏横向滚动，释放纵向滚动，最小高度适配内容 */
+	/* 手机端：自适应100%宽度，恢复默认适配 */
 	uni-app,
 	body,
 	html {
-		width: 480px !important;
+		width: 100% !important;
+		/* 手机端关键：改480px为100% */
 		margin: 0 auto !important;
 		min-height: 100% !important;
-		/* 修复：替换height为min-height，适配内容高度 */
 		overflow-x: hidden !important;
-		/* 修复：仅禁止横向滚动，允许纵向滚动 */
 		position: relative !important;
 	}
 
-	/* 页面容器：继承宽度，允许纵向滚动，防止内容溢出 */
 	.page {
 		width: 100% !important;
-		max-width: 480px !important;
+		max-width: 100% !important;
+		/* 手机端关键：取消最大宽度限制 */
 		overflow-x: hidden !important;
 		overflow-y: auto !important;
-		/* 显式允许纵向滚动 */
 		min-height: 100vh !important;
+	}
+
+	/* 平板端：媒体查询精准匹配，仅平板应用480px固定宽度（继承原有需求） */
+	/* 匹配平板屏幕宽度 ≥ 768px（主流平板最小宽度，区分手机/平板的黄金阈值） */
+	@media screen and (min-width: 768px) {
+
+		uni-app,
+		body,
+		html {
+			width: 480px !important;
+			/* 平板保留480px固定宽度 */
+		}
+
+		.page {
+			max-width: 480px !important;
+			/* 平板保留最大宽度限制 */
+		}
 	}
 
 	/* #endif */

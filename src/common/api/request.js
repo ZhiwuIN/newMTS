@@ -22,7 +22,7 @@ const {
 let globalRequestFailedAlerted = false;
 
 const base_url = import.meta.env.VITE_API_URL ?? 'https://api.cwpc.cc';
-// const base_url = 'http://18.163.208.5:8881';
+// const base_url = 'https://api.cwpc.cc';
 
 // 请求超时设置
 const timeout = 30000;

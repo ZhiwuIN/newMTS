@@ -499,10 +499,10 @@
 			// flex: 1; // 让瀑布流容器占满剩余空间
 			width: 100%;
 			// #ifdef H5
-			transform: translateY(9%);
+			transform: translateY(120rpx);
 			// #endif
 			// #ifdef APP-PLUS
-			transform: translateY(18%);
+			transform: translateY(120rpx);
 			// #endif
 		}
 	}
