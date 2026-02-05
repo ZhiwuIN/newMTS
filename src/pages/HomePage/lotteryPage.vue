@@ -234,6 +234,7 @@
 				})
 			},
 			start() {
+				console.log(this.activeTab)
 				// 检查剩余抽奖次数
 				if (this.points < this.costs && this.activeTab == 0) {
 					this.$showMessage('warning', `${this.$t('积分不足')}:${this.points}`);
