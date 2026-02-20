@@ -36,16 +36,18 @@ export function productPayApi(data) {
 // 我进行中的产品
 export function productMyRunningApi(page) {
 	return request({
-		url: '/app/product/my/running?pageNum=' + page.pageNum,
+		url: '/app/product/my/running',
 		method: 'get',
+		data: page
 	})
 }
 
 // 我已完成的产品
 export function productMyCompleteApi(page) {
 	return request({
-		url: '/app/product/my/complete?pageNum=' + page.pageNum,
+		url: '/app/product/my/complete',
 		method: 'get',
+		data: page
 	})
 }
 

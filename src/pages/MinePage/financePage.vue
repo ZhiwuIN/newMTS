@@ -7,60 +7,64 @@
 					{{item}}
 				</view>
 			</view>
-			<view class="product-list">
-				<view class="product-item" v-for="(item, index) in productList" :key="index"
-					@click="toProduct(item.productId)">
-					<!-- 第一行 -->
-					<view class="header-row">
-						<view class="left_box">
-							<image class="product-image" :src=" item.image" mode="aspectFit"></image>
-							<view class="header-row_text">
-								<text class="product-name">{{item.productName}}</text>
-								<text class="product-status"
-									:class="currentTab == 0 ? 'themeColor' : 'gray'">{{item.status}}</text>
+			<scroll-view scroll-y :refresher-enabled="true" :refresher-triggered="isRefreshing"
+				@scrolltolower="onReachBottom" @refresherrefresh="onRefresh" :refresher-threshold="120"
+				class="scroll-view-box">
+				<view class="product-list">
+					<view class="product-item" v-for="(item, index) in productList" :key="index"
+						@click="toProduct(item.productId)">
+						<!-- 第一行 -->
+						<view class="header-row">
+							<view class="left_box">
+								<image class="product-image" :src=" item.image" mode="aspectFit"></image>
+								<view class="header-row_text">
+									<text class="product-name">{{item.productName}}</text>
+									<text class="product-status"
+										:class="currentTab == 0 ? 'themeColor' : 'gray'">{{item.status}}</text>
+								</view>
 							</view>
+							<image class="rigth_img" src="/static/back_icon.png" mode="aspectFit"></image>
 						</view>
-						<image class="rigth_img" src="/static/back_icon.png" mode="aspectFit"></image>
-					</view>
-					<view class="item_box_main">
-						<view class="item_box">
-							<view class="item_title">
-								{{$t('product.PurchaseAmount')}}
+						<view class="item_box_main">
+							<view class="item_box">
+								<view class="item_title">
+									{{$t('product.PurchaseAmount')}}
+								</view>
+								<view class="item_desc">
+									{{item.purchaseAmount}} {{ currency }}
+								</view>
 							</view>
-							<view class="item_desc">
-								{{item.purchaseAmount}} {{ currency }}
+							<view class="item_box">
+								<view class="item_title">
+									{{$t('product.ExpectedReturn')}}
+								</view>
+								<view class="item_desc">
+									{{item.expectedReturn}} {{ currency }}
+								</view>
 							</view>
-						</view>
-						<view class="item_box">
-							<view class="item_title">
-								{{$t('product.ExpectedReturn')}}
+							<view class="item_box">
+								<view class="item_title">
+									{{$t('product.PurchaseTime')}}
+								</view>
+								<view class="item_desc">
+									{{item.purchaseTime}}
+								</view>
 							</view>
-							<view class="item_desc">
-								{{item.expectedReturn}} {{ currency }}
+							<view class="item_box">
+								<view class="item_title">
+									{{$t('product.ExpirationTime')}}
+								</view>
+								<view class="item_desc">
+									{{item.expirationTime}}
+								</view>
 							</view>
-						</view>
-						<view class="item_box">
-							<view class="item_title">
-								{{$t('product.PurchaseTime')}}
-							</view>
-							<view class="item_desc">
-								{{item.purchaseTime}}
-							</view>
-						</view>
-						<view class="item_box">
-							<view class="item_title">
-								{{$t('product.ExpirationTime')}}
-							</view>
-							<view class="item_desc">
-								{{item.expirationTime}}
-							</view>
-						</view>
 
+						</view>
 					</view>
 				</view>
-			</view>
-			<listbottom :hasMore="hasMore" :loading="loading" :noData='nodata' image="/static/default/No order.png">
-			</listbottom>
+				<listbottom :hasMore="hasMore" :loading="loading" :noData='nodata' image="/static/default/No order.png">
+				</listbottom>
+			</scroll-view>
 		</view>
 	</customnavbar>
 </template>
@@ -87,14 +91,26 @@
 				loading: false,
 				page: {
 					pageNum: 1,
-					pageSize: 10
+					pageSize: 5
 				},
 				currentTab: 0,
 				tabs: [],
 				topStyle: 0,
+				isRefreshing: false
 			}
 		},
 		methods: {
+			onRefresh() {
+				this.isRefreshing = true;
+				this.page.pageNum = 1
+				this.nodata = false
+				this.hasMore = true
+				this.loading = false
+				this.getList()
+				setTimeout(() => {
+					this.isRefreshing = false
+				}, 500)
+			},
 			mtop(e) {
 				// #ifdef H5
 				this.topStyle = "padding-top:" + (e - 46) + `rpx;height:calc(100vh - ${e}rpx - 46rpx)`
@@ -105,6 +121,11 @@
 			},
 			switchTab(index) {
 				this.currentTab = index
+				this.page.pageNum = 1
+				this.nodata = false
+				this.hasMore = true
+				this.loading = false
+				this.productList = []
 				this.getList()
 			},
 			toProduct(id) {
@@ -118,8 +139,7 @@
 				api(this.page).then((res) => {
 					this.loading = false
 					if (this.page.pageNum == 1) this.productList = res.rows || []
-					else this.productList.concat(res.rows)
-					this.productList = res.rows || []
+					else this.productList.push(...res.rows)
 					this.nodata = res.total == 0
 					this.hasMore = this.productList.length != res.total
 
@@ -131,6 +151,13 @@
 					// 	icon: 'none'
 					// })
 				})
+			},
+			onReachBottom() {
+				console.log('到底了')
+				if (!this.loading && this.hasMore) {
+					this.page.pageNum += 1
+					this.getList()
+				}
 			}
 		},
 		onLoad(options) {
@@ -148,16 +175,22 @@
 		onShow() {
 			this.currency = uni.getStorageSync('settings').currency
 		},
-		onReachBottom() {
-			if (!this.loading && this.hasMore) {
-				this.page.pageNum += 1
-				this.productListApi()
-			}
-		}
+
 	}
 </script>
 
 <style scoped lang="scss">
+	.scroll-view-box {
+		flex: 1; // 自动填充剩余高度
+		overflow-y: auto; // 确保滚动生效
+	}
+
+	.list {
+		flex: 1;
+		height: 1px;
+		padding-top: 40rpx;
+	}
+
 	.themeColor {
 		color: $themeColor !important;
 	}
@@ -167,6 +200,8 @@
 	}
 
 	.product-container {
+		display: flex;
+		flex-direction: column;
 		padding-top: 24rpx;
 	}
 
