@@ -216,7 +216,8 @@
 					await this._delay(() => {
 						this.cardStyle = this.cardList.map(item => ({
 							...item.colseStyle,
-							transition: `all ${this.collectTime}s cubic-bezier(0.34, 1.56, 0.64, 1)`
+							transition: `all ${this.collectTime}s cubic-bezier(0.34, 1.56, 0.64, 1)`,
+							transform: `${item.colseStyle.transform} translateY(80rpx)` // 往下移动80rpx
 						}))
 					}, this.turnTime * 1000 + 200)
 

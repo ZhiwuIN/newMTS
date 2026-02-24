@@ -121,7 +121,7 @@ export default {
 			loading: false,
 			page: {
 				pageNum: 1,
-				pageSize: 5
+				pageSize: 10
 			},
 		}
 	},
