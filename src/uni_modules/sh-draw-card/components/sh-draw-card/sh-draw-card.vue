@@ -317,7 +317,7 @@
 					const selfRotateAngle = angle + 88
 					setTimeout(() => {
 						this.$music.play_shuffle()
-					}, 1000)
+					}, 800)
 					return {
 						transform: `translate(${translateX}px, ${translateY}px) rotateZ(${selfRotateAngle}deg)`,
 						opacity: 0.95,
