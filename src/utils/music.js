@@ -1,6 +1,6 @@
 var music = {
 	// 洗牌音效
-	play_shuffle: function() {
+	play_shuffle: function () {
 		const innerAudioContext = uni.createInnerAudioContext();
 		innerAudioContext.autoplay = true;
 		innerAudioContext.src = '/static/lottery/shuffle.mp3';
@@ -13,7 +13,7 @@ var music = {
 		});
 	},
 	// 中奖音效
-	play_winner: function() {
+	play_winner: function () {
 		const innerAudioContext = uni.createInnerAudioContext();
 		innerAudioContext.autoplay = true;
 		innerAudioContext.src = '/static/lottery/winner.mp3';
@@ -26,7 +26,7 @@ var music = {
 		});
 	},
 	// 翻卡音效
-	play_overturn: function() {
+	play_overturn: function () {
 		const innerAudioContext = uni.createInnerAudioContext();
 		innerAudioContext.autoplay = true;
 		innerAudioContext.src = '/static/lottery/overturn.mp3';

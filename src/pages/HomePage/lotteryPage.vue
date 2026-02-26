@@ -19,13 +19,15 @@
 					</view>
 					<!-- 我的积分 -->
 					<view class="dataBox">
-						<view class="title">{{ $t('myBonusPoints') }}</view>
-						<view class="row">
-							<view class="num">{{ points }}</view>
-							<view class="Mall" @click="toPage('/pages/HomePage/pointsMall')" v-if="mallSwitch == 1">
-								{{ $t('pointsMall') }}
-								&nbsp;▶
+						<view>
+							<view class="title">{{ $t('myBonusPoints') }}</view>
+							<view class="row">
+								<view class="num">{{ points }}</view>
 							</view>
+						</view>
+						<view class="Mall" @click="toPage('/pages/HomePage/pointsMall')" v-if="mallSwitch == 1">
+							<image class="pointsMallLogo" src="/static/lottery/pointsMallLogo.png" mode=""></image>
+							<view>{{ $t('pointsMall') }}</view>
 						</view>
 					</view>
 					<view style="display: flex;justify-content: center;">
@@ -436,8 +438,8 @@ export default {
 
 			.dataBox {
 				display: flex;
-				flex-direction: column;
-				align-items: center;
+				align-items: end;
+				justify-content: space-between;
 				padding: 0 23rpx;
 
 				.title {
@@ -463,15 +465,23 @@ export default {
 						text-transform: none;
 					}
 
-					.Mall {
-						padding: 12rpx 15rpx;
-						background: #1167D1;
-						// box-shadow: 2rpx 0rpx 2rpx 0rpx #FFFFFF;
-						color: #fff;
-						font-family: PingFangSC, PingFang SC;
-						font-weight: 400;
-						font-size: 21rpx;
-						border-radius: 26rpx;
+				}
+
+				.Mall {
+					display: flex;
+					align-items: center;
+					padding: 10rpx 24rpx;
+					background: #000;
+					// box-shadow: 2rpx 0rpx 2rpx 0rpx #FFFFFF;
+					color: #fff;
+					font-family: PingFangSC, PingFang SC;
+					font-weight: bold;
+					font-size: 30rpx;
+					border-radius: 18rpx;
+					.pointsMallLogo {
+						width: 64rpx;
+						height: 64rpx;
+						margin-right: 6rpx;
 					}
 				}
 			}
