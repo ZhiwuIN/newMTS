@@ -28,7 +28,7 @@
 										<view class="positionManage-info-title">{{ $t('positionManage.Payday') }}</view>
 										<view v-if="userInfo.compliance == 0" class="positionManage-info-value"
 											style="color: #FF0000;max-width: 320rpx;">
-											This week's assessment has not been met
+											Last week's assessment has not been met
 										</view>
 										<view v-else>
 											<view class="positionManage-info-value" v-if="info.payType == 'daily'">

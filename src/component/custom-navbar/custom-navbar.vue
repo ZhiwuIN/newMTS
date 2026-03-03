@@ -15,6 +15,9 @@
 			<image :lazy-load="true" src="/static/home/Record.png" class="right-icon isFinancePage" v-if="isFinancePage"
 				@click="toApplication('/pages/MinePage/financePage')">
 			</image>
+			<view class="right-text isLotteryRecord" v-if="isLotteryRecord" @click="toApplication('/pages/HomePage/tirageRecordPage')">
+				{{ $t('记录') }}
+			</view>
 			<!-- <view class="right-text" v-if="isPositionManage">申请记录</view> -->
 		</view>
 		<!-- <scroll-view class="page-content" scroll-y="true" :style="{'height':pageH+'rpx'}"
@@ -59,6 +62,10 @@
 				default: false
 			},
 			isFinancePage: {
+				type: Boolean,
+				default: false
+			},
+			isLotteryRecord: {
 				type: Boolean,
 				default: false
 			},
@@ -215,10 +222,10 @@
 	.right-text {
 		position: absolute;
 		right: 5%;
-		top: 80%;
+		top: 34%;
 		font-family: PingFangSC, PingFang SC;
 		font-weight: 400;
-		font-size: 20rpx;
+		font-size: 32rpx;
 		color: #FFFFFF;
 		line-height: 28rpx;
 		text-align: center;
