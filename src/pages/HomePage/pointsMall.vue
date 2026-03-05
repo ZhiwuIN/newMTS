@@ -28,6 +28,7 @@
 							<view class="commodityItem" v-for="item in produitList">
 								<image class="commodityImage" :src="item.imageUrl" mode=""></image>
 								<view class="commodityName">{{ item.productName || '--' }}</view>
+								<view class="Redeemed">{{ $t('已兑换') }}: {{ item.exchangeQuantity }}</view>
 								<view class="commodityPrice">
 									<view style="display: flex;align-items: end;gap: 10rpx;">
 										<image src="/static/lottery/intégration.png" mode=""
@@ -71,7 +72,7 @@
 				</view>
 			</uni-popup>
 			<!-- 抽奖记录按钮 -->
-			<view class="enregistrer" @click="toPage(`/pages/commonDetailsPage?title=Integral Rules&id=${pointRuleId}`)">
+			<view class="enregistrer" v-if="pointRuleId" @click="toPage(`/pages/commonDetailsPage?title=Integral Rules&id=${pointRuleId}`)">
 				{{ $t('积分规则') }}
 			</view>
 		</customnavbar>
@@ -155,6 +156,7 @@ export default {
 			});
 			pointPrizeExchangeApi(uni.getStorageSync('userInfo').userId, this.popup.id).then((res) => {
 				this.$refs.logout_popup2.open()
+				this.getPointPrizeListApi()
 				this.getLuckyCount()
 			}).catch((err) => {
 				console.log('request fail', err);
@@ -404,6 +406,11 @@ export default {
 					white-space: nowrap;
 					overflow: hidden;
 					text-overflow: ellipsis;
+				}
+
+				.Redeemed {
+					font-size: 24rpx;
+					color: #000;
 				}
 
 				.commodityPrice {

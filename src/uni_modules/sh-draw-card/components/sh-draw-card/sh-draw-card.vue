@@ -315,9 +315,9 @@
 
 					// 卡片自身旋转角度（与轨迹角度一致，视觉更协调）
 					const selfRotateAngle = angle + 88
-					setTimeout(() => {
-						this.$music.play_shuffle()
-					}, 800)
+					// setTimeout(() => {
+					// 	this.$music.play_shuffle()
+					// }, 900)
 					return {
 						transform: `translate(${translateX}px, ${translateY}px) rotateZ(${selfRotateAngle}deg)`,
 						opacity: 0.95,

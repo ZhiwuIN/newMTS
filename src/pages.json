@@ -347,13 +347,13 @@
 		{
 			"path": "pages/ActivityPage/pointsLottery",
 			"style": {
-				"navigationBarTitleText": ""
+				"navigationStyle": "custom"
 			}
 		},
 		{
 			"path": "pages/ActivityPage/luckyCards",
 			"style": {
-				"navigationBarTitleText": ""
+				"navigationStyle": "custom"
 			}
 		}
 	],
