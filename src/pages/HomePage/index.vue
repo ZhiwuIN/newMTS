@@ -40,8 +40,25 @@
 								<view class="account_balance_t">
 									{{ userInfo?.accountBalance || '--' }} {{ currency }}
 								</view>
-								<view class="withdrawal_btn" @click="toWithdrawal" v-if="userType != 'test'">
-									{{ $t('home.Withdrawal') }}
+								<view class="home_top_center_right_b">
+									<!-- 提现 -->
+									<view class="withdrawal_btn" @click="toWithdrawal" v-if="userType != 'test'">
+										{{ $t('home.Withdrawal') }}
+									</view>
+									<!-- 福袋 -->
+									<view class="bagbox" v-if="bagInfo.remainTimes && luckyBagSwitch"
+										@click="toPage3('/pages/luckyBagPage/index')">
+										x{{ bagInfo.remainTimes }}
+										<image class="bagbox_img shake" :src="bagInfo.image" mode="" :lazy-load="true">
+										</image>
+									</view>
+									<view class="bagbox bagbox2" v-else-if="luckyBagSwitch"
+										@click="toPage3('/pages/luckyBagPage/index')">
+										{{ $t('luckyBagTitle') }}
+										<image class="bagbox_img shake" src="/static/bigBag/1.png" mode=""
+											:lazy-load="true">
+										</image>
+									</view>
 								</view>
 							</view>
 						</view>
@@ -100,8 +117,12 @@
 				</view>
 
 				<!-- 活动中心 -->
-				<image v-if="activityCenter.activeSwitch" :lazy-load="true" @click="pushUrl2('/pages/HomePage/activityCenter')" :src="activityCenter.image"
-					class="activityCenter" mode="widthFix"></image>
+				<view class="activityCenter_box" v-if="activityCenter?.activeSwitch">
+					<image :lazy-load="true" @click="toPage3('/pages/HomePage/activityCenter')"
+						:src="activityCenter?.image" class="activityCenter" mode="widthFix"></image>
+					<view class="activityName">{{ activityCenter?.name }}</view>
+					<view class="go">{{ $t('活动页去') }}</view>
+				</view>
 
 				<view style="padding: 62rpx 50rpx 0 50rpx;">
 					<swiper :autoplay="true" @change="handleChange" style="height: 346rpx">
@@ -172,6 +193,20 @@
 			<image v-else class="xImage" src="/static/lottery/x.png" mode="" @click="closeBigGG" :lazy-load="true">
 			</image>
 		</view>
+
+		<!-- 福袋弹窗 -->
+		<t-overlay :visible="bigBag" v-if="bigBag" />
+		<view class="bigBag" v-if="bigBag">
+			<view class="bigBag_main">
+				<image class="bigBag_img" :src="bagInfo.image" mode="" :lazy-load="true">
+				</image>
+				<view class="bigBag_text">{{ $t('GX') }}</view>
+				<view class="bigBag_text">{{ $t('YHbag') }}</view>
+				<view class="getBtn" @click="toPage3('/pages/luckyBagPage/index')">{{ $t('gitit') }}</view>
+				<view @click="closeBigBag" class="not">{{ $t('NOTNOW') }}</view>
+			</view>
+		</view>
+
 	</view>
 </template>
 
@@ -200,6 +235,9 @@ import {
 	activityCenterApi
 } from '@/common/api/activity.js'
 import {
+	luckybagMaxApi,
+} from "@/common/api/bag.js";
+import {
 	formatRichText,
 	getFirstTextTagWithEllipsis,
 	showMessage,
@@ -213,6 +251,9 @@ export default {
 	},
 	data() {
 		return {
+			luckyBagSwitch: 0,
+			bagInfo: {},
+			bigBag: false,
 			activityCenter: {},
 			NoPayday: '',
 			popWindowContent: '',
@@ -258,6 +299,30 @@ export default {
 		}
 	},
 	methods: {
+		// 最大星级福袋
+		getluckybagMax() {
+			luckybagMaxApi().then(res => {
+				if (res.data?.starLevel) {
+					this.bagInfo = res.data
+					if (!uni.getStorageSync('bagShow')) {
+						uni.hideTabBar();
+						this.bigBag = true
+					} else {
+						// 隐藏遮罩层时显示 tabbar
+						uni.showTabBar();
+					}
+				} else {
+					this.bagInfo = {}
+					uni.showTabBar();
+				}
+			})
+		},
+		// 关闭福袋
+		closeBigBag() {
+			this.bigBag = false
+			uni.setStorageSync('bagShow', '1')
+			uni.showTabBar();
+		},
 		// 五秒倒计时
 		countdown(time) {
 			if (this.bigGGBtnNum > 0) {
@@ -282,8 +347,7 @@ export default {
 			this.bigGGIndex++
 			if (this.bigGGIndex > uni.getStorageSync('settings').popWindowContentList.length - 1) {
 				this.bigGG = false;
-				// 隐藏遮罩层时显示 tabbar
-				uni.showTabBar();
+				this.getluckybagMax()
 			} else {
 				this.popWindowContent = formatRichText(uni.getStorageSync('settings').popWindowContentList[this
 					.bigGGIndex])
@@ -494,6 +558,16 @@ export default {
 				url: targetValue
 			})
 		},
+		toPage3(path) {
+			if (path == '/pages/luckyBagPage/index') {
+				this.bigBag = false
+				uni.setStorageSync('bagShow', '1')
+				uni.showTabBar();
+			}
+			uni.navigateTo({
+				url: path
+			})
+		},
 		// 幸运转盘跳转
 		toPage2(path) {
 			let {
@@ -636,6 +710,8 @@ export default {
 				uni.hideTabBar();
 				this.countdown(5);
 				uni.setStorageSync('popWindowContentShow', '1')
+			} else {
+				this.getluckybagMax()
 			}
 		}).catch(err => {
 			console.log('request fail', err);
@@ -649,6 +725,7 @@ export default {
 		this.getUserInfo()
 		this.getSlideListApi()
 		this.noticeList = uni.getStorageSync('settings').noticeList
+		this.luckyBagSwitch = uni.getStorageSync('settings').luckyBagSwitch
 		this.getTadaySalary()
 		this.getMessageNoticeApi()
 	},
@@ -659,11 +736,82 @@ export default {
 		if (uni.getStorageSync('popWindowContentShow')) {
 			uni.removeStorageSync('popWindowContentShow')
 		}
+		if (uni.getStorageSync('bagShow')) {
+			uni.removeStorageSync('bagShow')
+		}
 	}
 }
 </script>
 
 <style lang="scss" scoped>
+// 福袋
+.bigBag {
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	z-index: 10001;
+
+
+	.bigBag_main {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		box-sizing: border-box;
+		width: 718rpx;
+		height: 918rpx;
+		border-radius: 12rpx;
+		background: url('/static/bigBag/bigBagBgi.png') top left/100% no-repeat;
+
+		.bigBag_img {
+			width: 468rpx;
+			height: 468rpx;
+		}
+
+		.bigBag_text {
+			font-size: 36rpx;
+			font-weight: bold;
+			color: #000;
+			width: 500rpx;
+			text-align: center;
+		}
+
+		.bigBag_text2 {
+			font-size: 28rpx;
+			font-weight: normal;
+			color: #000;
+			margin-top: 16rpx;
+		}
+
+		.getBtn {
+			// background: linear-gradient(90deg, $gradualColor4 0%, $gradualColor5 100%);
+			background: $themeColor;
+			border-radius: 44rpx;
+			box-shadow: 0rpx 8rpx 8rpx 0rpx rgba(129, 62, 0, 0.24);
+			padding: 20rpx 200rpx;
+			font-size: 36rpx;
+			font-weight: bold;
+			color: #fff;
+			text-align: center;
+			margin: 32rpx 0 32rpx;
+		}
+
+		.not {
+			font-size: 28rpx;
+			color: #404040;
+			text-decoration: underline;
+		}
+
+		.bigBag_img,
+		.bigBag_text,
+		.bigBag_text2,
+		.getBtn,
+		.not {
+			transform: translateY(-30rpx);
+		}
+	}
+}
+
 .bigGG {
 	position: fixed;
 	top: 50%;
@@ -870,11 +1018,33 @@ export default {
 </style>
 
 <style lang="scss" scoped>
-.activityCenter {
-	box-sizing: border-box;
-	padding: 0 50rpx;
-	width: 100%;
+.activityCenter_box {
+	position: relative;
+	font-size: 40rpx;
+	font-weight: 900;
+	color: #FFFFFF;
+	text-shadow: 0px 16px 16px #020C2B;
 	transform: translateY(44rpx);
+
+	.activityCenter {
+		box-sizing: border-box;
+		padding: 0 50rpx;
+		width: 100%;
+	}
+
+	.activityName {
+		position: absolute;
+		top: 26rpx;
+		left: 60rpx;
+	}
+
+	.go {
+		position: absolute;
+		font-size: 28rpx;
+		color: #fff;
+		top: 100rpx;
+		left: 60rpx;
+	}
 }
 
 .home_container {
@@ -1136,6 +1306,71 @@ export default {
 	margin-top: 24rpx;
 	margin-bottom: 20rpx;
 	margin-left: 8rpx;
+}
+
+.home_top_center_right_b {
+	display: flex;
+	align-items: center;
+
+	.bagbox {
+		position: relative;
+		height: 54rpx;
+		padding-left: 78rpx;
+		padding-right: 24rpx;
+		margin-left: 48rpx;
+		background: linear-gradient(90deg, $gradualColor1 0%, $gradualColor2 100%);
+		border-radius: 44rpx;
+		font-size: 30rpx;
+		font-weight: bold;
+		color: #fff;
+		line-height: 54rpx;
+
+		.bagbox_img {
+			position: absolute;
+			left: 14rpx;
+			bottom: 0;
+			width: 62rpx;
+			height: 62rpx;
+		}
+
+		.shake {
+			animation: shakeRotate 1.5s infinite ease-in-out;
+			transform-origin: center;
+		}
+
+		@keyframes shakeRotate {
+			0% {
+				transform: rotate(0deg);
+			}
+
+			8.3% {
+				transform: rotate(-4deg);
+			}
+
+			16.6% {
+				transform: rotate(0deg);
+			}
+
+			25% {
+				transform: rotate(4deg);
+			}
+
+			33.3% {
+				transform: rotate(0deg);
+			}
+
+			100% {
+				transform: rotate(0deg);
+			}
+		}
+	}
+
+	.bagbox2 {
+		font-size: 20rpx;
+		padding-left: 78rpx;
+		padding-right: 22rpx;
+		margin-left: 22rpx;
+	}
 }
 
 .withdrawal_btn {

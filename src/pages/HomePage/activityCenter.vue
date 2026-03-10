@@ -1,26 +1,30 @@
 <template>
-	<customnavbar :title="$t('活动中心')" @mtop="mtop" backgroundStr="#056aeb" :whiteTitle="true" :isLotteryRecord="true">
+	<customnavbar :title="$t('活动中心')" @mtop="mtop" backgroundStr="#1167d1" :whiteTitle="true">
+		<!-- :isLotteryRecord="true" -->
 		<view class="head" :style="topStyle">
-			<view class="box">
+			<view class="box" v-if="pointWheel">
 				<view class="title">
 					{{ $t('myBonusPoints') }}
 				</view>
 				<view class="number">
-					{{ info?.points }}
+					{{ info?.points || 0 }}
 				</view>
 				<view class="btn" :style="{ opacity: mallSwitch ? 1 : 0 }"
 					@click="toPage('/pages/HomePage/pointsMall')">
 					<image src="/static/lottery/pointsMallLogo.png" mode="" class="head_img"></image>
-					Go to use
+					{{ $t('去使用') }}
 				</view>
-				<image src="/static/lottery/store_img.png" mode="heightFix" class="store_img"></image>
+				<image src="https://upload.cbc-app.com/store_img.png" mode="heightFix" class="store_img"></image>
 			</view>
 		</view>
 		<view class="bill-record">
 			<view class="bill-record-content">
 				<view class="scroll-view-box list">
 					<view class="list_item" @click="toPage(item.url)" v-for="item in info?.list">
-						<image :src="item.image" mode="widthFix" class="item_img"></image>
+						<view class="item_img_box">
+							<image :src="item.image" mode="widthFix" class="item_img"></image>
+							<view class="img_productName">{{ item.name }}</view>
+						</view>
 						<view class="item_bottom">
 							<view class="item-productName">{{ item.name }}</view>
 							<image src="/static/lottery/arrows.png" mode="" class="arrows_img"></image>
@@ -28,6 +32,10 @@
 					</view>
 				</view>
 			</view>
+		</view>
+
+		<view class="enregistrer" @click="toPage('/pages/HomePage/tirageRecordPage')">
+			{{ $t('记录') }}
 		</view>
 	</customnavbar>
 </template>
@@ -43,6 +51,7 @@ export default {
 	},
 	data() {
 		return {
+			pointWheel: 0,
 			topStyle: '',
 			info: {},
 			page: {
@@ -85,15 +94,34 @@ export default {
 	onLoad() {
 		this.getList()
 		this.mallSwitch = uni.getStorageSync('settings').mallSwitch
+		this.pointWheel = uni.getStorageSync('settings').pointWheel
 	},
 }
 </script>
 
 <style lang="scss" scoped>
+.enregistrer {
+	position: fixed;
+	right: -6rpx;
+	top: 20%;
+	padding: 18rpx 12rpx;
+	// background: #2D81F5;
+	background: $themeColor;
+	// box-shadow: 10rpx 0rpx 21rpx 0rpx #50B4D9;
+	border-radius: 16rpx 0rpx 0rpx 16rpx;
+	border: 1rpx solid #FFFFFF;
+	font-family: DINPro, DINPro;
+	font-weight: 400;
+	font-size: 24rpx;
+	color: #FFFFFF;
+	// transform: rotate(90deg);
+	writing-mode: vertical-rl;
+}
+
 .head {
 	position: relative;
 	// padding: 80rpx 0 60rpx;
-	background: #056aeb;
+	background: $themeColor;
 	color: #FFFFFF;
 	padding-left: 32rpx;
 
@@ -130,6 +158,7 @@ export default {
 			height: 42rpx;
 		}
 	}
+
 	.store_img {
 		position: absolute;
 		right: 0;
@@ -183,9 +212,26 @@ export default {
 				margin-bottom: 26rpx;
 				overflow: hidden;
 
-				.item_img {
-					width: 100%;
-					background: #F5FAFF;
+				.item_img_box {
+					position: relative;
+
+					.item_img {
+						width: 100%;
+						background: #F5FAFF;
+					}
+
+					.img_productName {
+						position: absolute;
+						top: 50%;
+						left: 24rpx;
+						transform: translateY(-50%);
+						width: 320rpx;
+						font-family: Alfa Slab One;
+						font-size: 58rpx;
+						line-height: 68rpx;
+						color: #FFFFFF;
+						text-shadow: 0rpx 8rpx 10rpx rgba(0, 0, 0, 0.63);
+					}
 				}
 
 				.item_bottom {
