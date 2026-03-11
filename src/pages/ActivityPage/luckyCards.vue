@@ -113,7 +113,7 @@
 				<view v-if="isWin != '0' && prizeType == 'coin'" class="text">
 					{{ $t('convenience') }}
 				</view>
-				<view class="prize-show-box" style="margin-top: 80rpx;" v-if="prizeType == 'physical'">
+				<view class="prize-show-box" v-if="prizeType == 'physical'">
 					<image style="height: 200rpx;min-height: 200rpx;" :src="image ?? przieImage" mode="heightFix">
 					</image>
 				</view>
@@ -121,8 +121,8 @@
 					<image style="width: 168rpx;min-width: 168rpx;height: 160rpx;min-height: 160rpx;"
 						:src="image ?? przieImage" mode=""></image>
 				</view>
-				<view v-else style="margin-top: 68rpx;"></view>
-				<view class="prizeName_img_box" v-if="prizeType != 'physical'">
+				<!-- <view v-else style="margin-top: 68rpx;"></view> -->
+				<view class="prizeName_img_box">
 					<view class="prizeName_box">
 						<view>{{ content }}</view>
 					</view>
@@ -257,12 +257,16 @@ export default {
 			if (index != -1) {
 				const prize = this.prizes[index]
 				this.content = prize.prizeName
+				if(prize.prizeType == 'physical') {
+					this.content = this.$t('价值') + ': ' + prize.money + ' ' + uni.getStorageSync('settings').currency
+				}
 				console.log(prize)
 				this.backgroundImage = prize.winBackImage || '/static/lottery/prizeBgi.png'
 				this.image = prize.image ? prize.image : ''
 				this.prizeType = prize.prizeType
 				this.rankType = prize.rankType
 			} else {
+				// 未中奖
 				this.prizeType = ''
 				this.content = data.prizeName || this.$t('下次再试试吧')
 				this.image = data.image ? data.image : ''
@@ -571,7 +575,7 @@ export default {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		padding-top: 120rpx;
+		padding-top: 82rpx;
 		width: 620rpx;
 		height: 984rpx;
 		background: url('/static/lottery/prizeBgi.png') top left/100% 100% no-repeat;
