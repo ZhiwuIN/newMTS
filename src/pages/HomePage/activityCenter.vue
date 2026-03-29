@@ -14,7 +14,7 @@
 					<image src="/static/lottery/pointsMallLogo.png" mode="" class="head_img"></image>
 					{{ $t('去使用') }}
 				</view>
-				<image src="https://upload.cbc-app.com/store_img.png" mode="heightFix" class="store_img"></image>
+				<image src="https://upload.cbc-app.com/store_img_1.png" mode="heightFix" class="store_img"></image>
 			</view>
 		</view>
 		<view class="bill-record">
