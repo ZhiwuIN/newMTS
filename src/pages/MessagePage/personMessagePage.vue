@@ -134,46 +134,46 @@
 							src: res.tempFilePaths[0]
 						})
 						//创建图片消息
-						let message = this.$yeIM.getInstance().createImageMessage({
-							toId: this.conversationId, //接收者用户ID字符串
-							conversationType: this.$yeIMDefines.CONVERSATION_TYPE.PRIVATE, //会话类型：私聊
-							body: {
-								file: {
-									tempFilePath: res.tempFilePaths[0], //本地图片临时路径
-									width: imageInfo.width, //图片宽度
-									height: imageInfo.height //图片高度
-								}
-							},
-							extra: "这是拓展的自定义的内容",
-							onProgress: (progress) => {
-								// console.log('上传进度' + progress.progress);
-								// console.log('已经上传的数据长度' + progress.totalBytesSent);
-								// console.log('预期需要上传的数据总长度' + progress.totalBytesExpectedToSend);
-							}
-						});
+						// let message = this.$yeIM.getInstance().createImageMessage({
+						// 	toId: this.conversationId, //接收者用户ID字符串
+						// 	conversationType: this.$yeIMDefines.CONVERSATION_TYPE.PRIVATE, //会话类型：私聊
+						// 	body: {
+						// 		file: {
+						// 			tempFilePath: res.tempFilePaths[0], //本地图片临时路径
+						// 			width: imageInfo.width, //图片宽度
+						// 			height: imageInfo.height //图片高度
+						// 		}
+						// 	},
+						// 	extra: "这是拓展的自定义的内容",
+						// 	onProgress: (progress) => {
+						// 		// console.log('上传进度' + progress.progress);
+						// 		// console.log('已经上传的数据长度' + progress.totalBytesSent);
+						// 		// console.log('预期需要上传的数据总长度' + progress.totalBytesExpectedToSend);
+						// 	}
+						// });
 						//发送图片消息
-						this.$yeIM.getInstance().sendMessage({
-							message: message,
-							success: (res) => {
-								this.msgList.push({
-									direction: 'out',
-									body: res.data.body,
-									type: 'image',
-									fromUserInfo: {
-										avatarUrl: this.avatarUrl
-									}
-								});
-								this.$nextTick(() => {
-									this.scrollToBottom();
-								});
-								uni.hideLoading();
-							},
-							fail: (err) => {
-								console.log(err)
-								this.$showMessage('warning', this.$t('发送失败'));
-								uni.hideLoading();
-							}
-						});
+						// this.$yeIM.getInstance().sendMessage({
+						// 	message: message,
+						// 	success: (res) => {
+						// 		this.msgList.push({
+						// 			direction: 'out',
+						// 			body: res.data.body,
+						// 			type: 'image',
+						// 			fromUserInfo: {
+						// 				avatarUrl: this.avatarUrl
+						// 			}
+						// 		});
+						// 		this.$nextTick(() => {
+						// 			this.scrollToBottom();
+						// 		});
+						// 		uni.hideLoading();
+						// 	},
+						// 	fail: (err) => {
+						// 		console.log(err)
+						// 		this.$showMessage('warning', this.$t('发送失败'));
+						// 		uni.hideLoading();
+						// 	}
+						// });
 					}
 				});
 			},
@@ -209,50 +209,50 @@
 				} else {
 					this.isNewMsg = true
 				}
-				this.$yeIM.getInstance().clearConversationUnread(this.conversationId);
+				// this.$yeIM.getInstance().clearConversationUnread(this.conversationId);
 			},
 			// 发送消息
 			sendMessage() {
-				let message = this.$yeIM.getInstance().createTextMessage({
-					// toId: this.conversation.lastMessage.to,
-					toId: this.conversationId,
-					conversationType: this.$yeIMDefines.CONVERSATION_TYPE.PRIVATE,
-					body: {
-						text: this.message
-					}
-				});
+				// let message = this.$yeIM.getInstance().createTextMessage({
+				// 	// toId: this.conversation.lastMessage.to,
+				// 	toId: this.conversationId,
+				// 	conversationType: this.$yeIMDefines.CONVERSATION_TYPE.PRIVATE,
+				// 	body: {
+				// 		text: this.message
+				// 	}
+				// });
 				uni.showLoading({
 					title: this.$t('MessagePage.send.progress')
 				});
-				this.$yeIM.getInstance().sendMessage({
-					message: message,
-					success: () => {
-						// 本地先添加消息（模拟即时显示）
-						this.msgList.push({
-							direction: 'out',
-							body: {
-								text: this.message
-							},
-							fromUserInfo: {
-								avatarUrl: this.avatarUrl
-							}
-						});
-						console.log(this.msgList)
-						this.message = '';
-						this.$nextTick(() => {
-							this.scrollToBottom();
-						});
-						// 第一次创建会话
-						if (this.isForTheFirstTime) {
-							this.getMsgList()
-						}
-						uni.hideLoading();
-					},
-					fail: (err) => {
-						console.log(err);
-						uni.hideLoading();
-					}
-				});
+				// this.$yeIM.getInstance().sendMessage({
+				// 	message: message,
+				// 	success: () => {
+				// 		// 本地先添加消息（模拟即时显示）
+				// 		this.msgList.push({
+				// 			direction: 'out',
+				// 			body: {
+				// 				text: this.message
+				// 			},
+				// 			fromUserInfo: {
+				// 				avatarUrl: this.avatarUrl
+				// 			}
+				// 		});
+				// 		console.log(this.msgList)
+				// 		this.message = '';
+				// 		this.$nextTick(() => {
+				// 			this.scrollToBottom();
+				// 		});
+				// 		// 第一次创建会话
+				// 		if (this.isForTheFirstTime) {
+				// 			this.getMsgList()
+				// 		}
+				// 		uni.hideLoading();
+				// 	},
+				// 	fail: (err) => {
+				// 		console.log(err);
+				// 		uni.hideLoading();
+				// 	}
+				// });
 			},
 			// 加号按钮
 			searchMember() {
@@ -309,85 +309,85 @@
 			getMsgList() {
 				this.isForTheFirstTime = false // 重置第一次加载标志
 				this.more = true; // 重置更多消息标志
-				uni.showLoading({
-					title: this.$t('loading.btn')
-				});
-				this.$yeIM.getInstance().getHistoryMessageList({
-					// nextMessageId: "下一次续拉的消息ID，第一次拉取时不要传入",
-					conversationId: this.conversationId,
-					success: (res) => {
-						// console.log('第一次获取聊天记录', res)
-						const outItems = res.data.list.filter(item => item.direction == "out");
-						const lastOutItem = outItems.pop(); // 获取最后一个我的消息里面的头像信息
-						this.avatarUrl = lastOutItem ? lastOutItem.fromUserInfo.avatarUrl : '';
-						if (res.code == 200) {
-							this.msgList = res.data.list
-							console.log(this.msgList)
-							this.nextMessageId = res.data.nextMessageId
-							if (this.autoScroll) {
-								this.$nextTick(() => {
-									this.scrollToBottom();
-								});
-							}
-							this.$yeIM.getInstance().clearConversationUnread(this.conversationId)
-						} else {
-							this.$showMessage('warning', this.$t('获取聊天记录失败请重试'));
-						}
-						this.getConversationDetail()
-						uni.hideLoading();
-					},
-					fail: (err) => {
-						console.log(err)
-						uni.hideLoading();
-						if (err.code == 10003) {
-							this.$yeIM.getInstance().connect({
-								userId: this.userId,
-								token: this.imToken,
-								success: (response) => {
-									if (response.code == 200) {
-										this.getMsgList()
-									}
-								},
-								fail: (err) => {
-									console.log(err);
-								}
-							});
-						} else if (err.code == 10004) {
-							this.isForTheFirstTime = true; // 标记为第一次加载
-						}
-					}
-				});
+				// uni.showLoading({
+				// 	title: this.$t('loading.btn')
+				// });
+				// this.$yeIM.getInstance().getHistoryMessageList({
+				// 	// nextMessageId: "下一次续拉的消息ID，第一次拉取时不要传入",
+				// 	conversationId: this.conversationId,
+				// 	success: (res) => {
+				// 		// console.log('第一次获取聊天记录', res)
+				// 		const outItems = res.data.list.filter(item => item.direction == "out");
+				// 		const lastOutItem = outItems.pop(); // 获取最后一个我的消息里面的头像信息
+				// 		this.avatarUrl = lastOutItem ? lastOutItem.fromUserInfo.avatarUrl : '';
+				// 		if (res.code == 200) {
+				// 			this.msgList = res.data.list
+				// 			console.log(this.msgList)
+				// 			this.nextMessageId = res.data.nextMessageId
+				// 			if (this.autoScroll) {
+				// 				this.$nextTick(() => {
+				// 					this.scrollToBottom();
+				// 				});
+				// 			}
+				// 			this.$yeIM.getInstance().clearConversationUnread(this.conversationId)
+				// 		} else {
+				// 			this.$showMessage('warning', this.$t('获取聊天记录失败请重试'));
+				// 		}
+				// 		this.getConversationDetail()
+				// 		uni.hideLoading();
+				// 	},
+				// 	fail: (err) => {
+				// 		console.log(err)
+				// 		uni.hideLoading();
+				// 		if (err.code == 10003) {
+				// 			this.$yeIM.getInstance().connect({
+				// 				userId: this.userId,
+				// 				token: this.imToken,
+				// 				success: (response) => {
+				// 					if (response.code == 200) {
+				// 						this.getMsgList()
+				// 					}
+				// 				},
+				// 				fail: (err) => {
+				// 					console.log(err);
+				// 				}
+				// 			});
+				// 		} else if (err.code == 10004) {
+				// 			this.isForTheFirstTime = true; // 标记为第一次加载
+				// 		}
+				// 	}
+				// });
 			},
 			// 滚动上最上获取上一页
 			scrolltoupper() {
 				if (this.more) {
-					this.$yeIM.getInstance().getHistoryMessageList({
-						nextMessageId: this.nextMessageId,
-						conversationId: this.conversationId,
-						success: (res) => {
-							// console.log('上一页聊天记录', res)
-							if (res.code == 200) {
-								this.msgList.unshift(...res.data.list) // 将新消息添加到列表开头
-								this.nextMessageId = res.data.nextMessageId
-								if (!res.data.list.length) {
-									this.$showMessage('info', this.$t('MessagePage.noMoreMessages'));
-									this.more = false;
-								}
-							} else {
-								this.$showMessage('warning', this.$t('获取聊天记录失败请重试'));
-							}
-						},
-						fail: (err) => {
-							console.log(err)
-						}
-					});
+					// this.$yeIM.getInstance().getHistoryMessageList({
+					// 	nextMessageId: this.nextMessageId,
+					// 	conversationId: this.conversationId,
+					// 	success: (res) => {
+					// 		// console.log('上一页聊天记录', res)
+					// 		if (res.code == 200) {
+					// 			this.msgList.unshift(...res.data.list) // 将新消息添加到列表开头
+					// 			this.nextMessageId = res.data.nextMessageId
+					// 			if (!res.data.list.length) {
+					// 				this.$showMessage('info', this.$t('MessagePage.noMoreMessages'));
+					// 				this.more = false;
+					// 			}
+					// 		} else {
+					// 			this.$showMessage('warning', this.$t('获取聊天记录失败请重试'));
+					// 		}
+					// 	},
+					// 	fail: (err) => {
+					// 		console.log(err)
+					// 	}
+					// });
 				}
 
 			},
 			// 会话详情
 			async getConversationDetail() {
-				let result = await this.$yeIM.getInstance().getConversation(this.conversationId)
-				this.conversation = result.message
+				// let result = await this.$yeIM.getInstance().getConversation(this.conversationId)
+				// this.conversation = result.message
 				// console.log(this.conversation)
 			}
 		},
@@ -398,37 +398,37 @@
 			this.imToken = uni.getStorageSync('imToken')
 			this.getMsgList()
 			// 新消息
-			this.$yeIM.getInstance().addEventListener(this.$yeIMDefines.EVENT.MESSAGE_RECEIVED, (res) => {
-				this.onMessageReceived(res)
-			});
+			// this.$yeIM.getInstance().addEventListener(this.$yeIMDefines.EVENT.MESSAGE_RECEIVED, (res) => {
+			// 	this.onMessageReceived(res)
+			// });
 			// 撤回消息监听（修复后：跨端支持 App/小程序/浏览器）
-			this.$yeIM.getInstance().addEventListener(this.$yeIMDefines.EVENT.MESSAGE_REVOKED, (res) => {
-				try {
-					// 1. 使用 uni 跨端 API 获取所有存储键名（替代浏览器的 localStorage）
-					const storageInfo = uni.getStorageInfoSync();
-					const allKeys = storageInfo.keys; // 所有存储键的数组
+			// this.$yeIM.getInstance().addEventListener(this.$yeIMDefines.EVENT.MESSAGE_REVOKED, (res) => {
+			// 	try {
+			// 		// 1. 使用 uni 跨端 API 获取所有存储键名（替代浏览器的 localStorage）
+			// 		const storageInfo = uni.getStorageInfoSync();
+			// 		const allKeys = storageInfo.keys; // 所有存储键的数组
 
-					// 2. 遍历筛选出以 "yeim:messageList:" 开头的键
-					allKeys.forEach(key => {
-						if (key.startsWith('yeim:messageList:')) {
-							uni.removeStorageSync(key); // 3. 删除目标缓存（跨端方法）
-						}
-					});
+			// 		// 2. 遍历筛选出以 "yeim:messageList:" 开头的键
+			// 		allKeys.forEach(key => {
+			// 			if (key.startsWith('yeim:messageList:')) {
+			// 				uni.removeStorageSync(key); // 3. 删除目标缓存（跨端方法）
+			// 			}
+			// 		});
 
-					// 4. 延迟调用 getMsgList()，确保缓存删除完成（避免时机过短）
-					setTimeout(() => {
-						this.getMsgList();
-					}, 300);
-				} catch (err) {
-					// 捕获存储操作异常（如权限问题）
-					console.error('删除撤回消息缓存失败:', err);
-				}
-			});
+			// 		// 4. 延迟调用 getMsgList()，确保缓存删除完成（避免时机过短）
+			// 		setTimeout(() => {
+			// 			this.getMsgList();
+			// 		}, 300);
+			// 	} catch (err) {
+			// 		// 捕获存储操作异常（如权限问题）
+			// 		console.error('删除撤回消息缓存失败:', err);
+			// 	}
+			// });
 		},
 		onUnload() {
 			// console.log('离开页面')
-			this.$yeIM.getInstance().removeEventListener(this.$yeIMDefines.EVENT.MESSAGE_RECEIVED);
-			this.$yeIM.getInstance().removeEventListener(this.$yeIMDefines.EVENT.MESSAGE_REVOKED);
+			// this.$yeIM.getInstance().removeEventListener(this.$yeIMDefines.EVENT.MESSAGE_RECEIVED);
+			// this.$yeIM.getInstance().removeEventListener(this.$yeIMDefines.EVENT.MESSAGE_REVOKED);
 		},
 		onShow() {
 

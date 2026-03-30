@@ -71,10 +71,10 @@
 					uni.removeStorageSync('remember');
 					uni.removeStorageSync('phone')
 					uni.removeStorageSync('password')
-					if (uni.getStorageSync('imToken')) {
-						uni.removeStorageSync('imToken')
-						this.$yeIM.getInstance().disConnect();
-					}
+					// if (uni.getStorageSync('imToken')) {
+					// 	uni.removeStorageSync('imToken')
+					// 	this.$yeIM.getInstance().disConnect();
+					// }
 					uni.reLaunch({
 						url: '/pages/LoginPage/login'
 					})

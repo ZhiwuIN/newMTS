@@ -165,6 +165,7 @@ function requestWithAuth(params, resolve, reject, retried = false) {
 			}
 		},
 		fail(err) {
+			console.log(err);
 			const isTimeoutError =
 				(err.errMsg && err.errMsg.includes('timeout')) ||
 				(err.message && err.message.includes('timeout')) ||
@@ -205,7 +206,7 @@ function requestWithAuth(params, resolve, reject, retried = false) {
 				}
 			} else {
 				// 其他网络错误：保留原有网络错误提示（可根据需求调整）
-				// showMessage('warning', t('request.netError'));
+				showMessage('warning', t('request.systemMaintenance'));
 			}
 		},
 		complete() {

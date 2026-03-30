@@ -87,11 +87,11 @@ export default {
 	onShow: function () {
 		console.log('App onShow')
 		// #ifdef APP-PLUS
-		if (uni.$yeIM) {
-			uni.$yeIM.intoApp();
-		} else {
-			console.warn('yeIM 未初始化，跳过 intoApp 调用');
-		}
+		// if (uni.$yeIM) {
+		// 	uni.$yeIM.intoApp();
+		// } else {
+		// 	console.warn('yeIM 未初始化，跳过 intoApp 调用');
+		// }
 		// #endif
 		settingsApi().then((res) => {
 			uni.setStorageSync('settings', res.data)
@@ -109,7 +109,7 @@ export default {
 	onHide: function () {
 		console.log('App Hide')
 		// #ifdef APP-PLUS
-		uni.$yeIM.leaveApp();
+		// uni.$yeIM.leaveApp();
 		// #endif
 	},
 	mounted() {

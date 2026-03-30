@@ -97,30 +97,30 @@
 			// 设置聊天的头像
 			setImAvatar() {
 				console.log(this.avatar)
-				this.$yeIM.getInstance().updateUserInfo({
-					avatarUrl: this.avatar,
-					success: (response) => {
-						uni.hideLoading();
-					},
-					fail: (err) => {
-						if (err.code == 10003) {
-							let token = this.imToken || uni.getStorageSync('imToken')
-							this.$yeIM.getInstance().connect({
-								userId: this.userInfo.userId,
-								token,
-								success: (response) => {
-									if (response.code == 200) {
-										this.setImAvatar()
-									}
-								},
-								fail: (err) => {
-									this.$showMessage('warning', this.$t('同步聊天头像失败, 请尝试重新点击'));
-									uni.hideLoading();
-								}
-							});
-						}
-					}
-				});
+				// this.$yeIM.getInstance().updateUserInfo({
+				// 	avatarUrl: this.avatar,
+				// 	success: (response) => {
+				// 		uni.hideLoading();
+				// 	},
+				// 	fail: (err) => {
+				// 		if (err.code == 10003) {
+				// 			let token = this.imToken || uni.getStorageSync('imToken')
+				// 			this.$yeIM.getInstance().connect({
+				// 				userId: this.userInfo.userId,
+				// 				token,
+				// 				success: (response) => {
+				// 					if (response.code == 200) {
+				// 						this.setImAvatar()
+				// 					}
+				// 				},
+				// 				fail: (err) => {
+				// 					this.$showMessage('warning', this.$t('同步聊天头像失败, 请尝试重新点击'));
+				// 					uni.hideLoading();
+				// 				}
+				// 			});
+				// 		}
+				// 	}
+				// });
 			},
 			// 获取头像库
 			getAvatarList() {

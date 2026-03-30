@@ -101,41 +101,41 @@
 			}
 		},
 		onLoad() {
-			this.$yeIM.getInstance().addEventListener(this.$yeIMDefines.EVENT.CONVERSATION_LIST_CHANGED, (list) => {
-				setTimeout(() => {
-					this.getNotice()
-				}, 0)
-			});
+			// this.$yeIM.getInstance().addEventListener(this.$yeIMDefines.EVENT.CONVERSATION_LIST_CHANGED, (list) => {
+			// 	setTimeout(() => {
+			// 		this.getNotice()
+			// 	}, 0)
+			// });
 		},
 		onShow() {
 			this.getUserInfo()
 			// 撤回消息监听
-			this.$yeIM.getInstance().addEventListener(this.$yeIMDefines.EVENT.MESSAGE_REVOKED, (res) => {
-				this.$yeIM.getInstance().disConnect();
+			// this.$yeIM.getInstance().addEventListener(this.$yeIMDefines.EVENT.MESSAGE_REVOKED, (res) => {
+			// 	this.$yeIM.getInstance().disConnect();
 
-				setTimeout(() => {
-					try {
-						// 1. 使用 uni 跨端 API 获取所有存储键名（替代浏览器的 localStorage）
-						const storageInfo = uni.getStorageInfoSync();
-						const allKeys = storageInfo.keys; // 所有存储键的数组
+			// 	setTimeout(() => {
+			// 		try {
+			// 			// 1. 使用 uni 跨端 API 获取所有存储键名（替代浏览器的 localStorage）
+			// 			const storageInfo = uni.getStorageInfoSync();
+			// 			const allKeys = storageInfo.keys; // 所有存储键的数组
 
-						// 2. 遍历筛选出以 "yeim:messageList:" 开头的键
-						allKeys.forEach(key => {
-							if (key.startsWith('yeim:messageList:')) {
-								uni.removeStorageSync(key); // 3. 删除目标缓存（跨端方法）
-							}
-						});
+			// 			// 2. 遍历筛选出以 "yeim:messageList:" 开头的键
+			// 			allKeys.forEach(key => {
+			// 				if (key.startsWith('yeim:messageList:')) {
+			// 					uni.removeStorageSync(key); // 3. 删除目标缓存（跨端方法）
+			// 				}
+			// 			});
 
-						// 4. 延迟调用 getMsgList()，确保缓存删除完成（避免时机过短）
-						setTimeout(() => {
-							this.getNotice();
-						}, 300);
-					} catch (err) {
-						// 捕获存储操作异常（如权限问题）
-						console.error('删除撤回消息缓存失败:', err);
-					}
-				}, 100)
-			});
+			// 			// 4. 延迟调用 getMsgList()，确保缓存删除完成（避免时机过短）
+			// 			setTimeout(() => {
+			// 				this.getNotice();
+			// 			}, 300);
+			// 		} catch (err) {
+			// 			// 捕获存储操作异常（如权限问题）
+			// 			console.error('删除撤回消息缓存失败:', err);
+			// 		}
+			// 	}, 100)
+			// });
 		},
 		methods: {
 			// 下拉刷新
@@ -186,80 +186,80 @@
 				}
 			},
 			getNotice() {
-				this.$yeIM.getInstance().getConversationList({
-					page: 1, //页码
-					limit: 999, //每页数量
-					success: (res) => {
-						console.log(res, '会话列表')
-						if (res.code == 200) {
-							this.msgList = res.data;
-							if (this.msgList.length) {
-								this.friendList.map(item => {
-									this.msgList.forEach(i => {
-										if (item.userId == i.conversationId) {
-											item.lastMessage = i.lastMessage
-											item.unread = i.unread
-										}
-									})
-								})
-								// 提取 friendList 中的 userId 并转为字符串（确保类型匹配）
-								const friendUserIds = new Set(this.friendList.map(item => String(item
-									.userId)));
+				// this.$yeIM.getInstance().getConversationList({
+				// 	page: 1, //页码
+				// 	limit: 999, //每页数量
+				// 	success: (res) => {
+				// 		console.log(res, '会话列表')
+				// 		if (res.code == 200) {
+				// 			this.msgList = res.data;
+				// 			if (this.msgList.length) {
+				// 				this.friendList.map(item => {
+				// 					this.msgList.forEach(i => {
+				// 						if (item.userId == i.conversationId) {
+				// 							item.lastMessage = i.lastMessage
+				// 							item.unread = i.unread
+				// 						}
+				// 					})
+				// 				})
+				// 				// 提取 friendList 中的 userId 并转为字符串（确保类型匹配）
+				// 				const friendUserIds = new Set(this.friendList.map(item => String(item
+				// 					.userId)));
 
-								// 过滤 msgList，找出 conversationId 不在 friendUserIds 中的项
-								const newConversations = this.msgList.filter(msg => {
-									return !friendUserIds.has(msg.conversationId);
-								});
+				// 				// 过滤 msgList，找出 conversationId 不在 friendUserIds 中的项
+				// 				const newConversations = this.msgList.filter(msg => {
+				// 					return !friendUserIds.has(msg.conversationId);
+				// 				});
 
-								// console.log(newConversations)
+				// 				// console.log(newConversations)
 
-								// 合并
-								newConversations.forEach(item => {
-									this.friendList.push({
-										avatar: item.userInfo.avatarUrl,
-										userName: item.userInfo.nickname,
-										lastMessage: item.lastMessage,
-										unread: item.unread,
-										userType: 'direct',
-										userId: +item.conversationId
-									})
-								})
+				// 				// 合并
+				// 				newConversations.forEach(item => {
+				// 					this.friendList.push({
+				// 						avatar: item.userInfo.avatarUrl,
+				// 						userName: item.userInfo.nickname,
+				// 						lastMessage: item.lastMessage,
+				// 						unread: item.unread,
+				// 						userType: 'direct',
+				// 						userId: +item.conversationId
+				// 					})
+				// 				})
 
-								// 排序 friendList
-								this.friendList.sort((a, b) => {
-									const aTime = a.lastMessage?.time ? new Date(a.lastMessage?.time)
-										.getTime() : -Infinity;
-									const bTime = b.lastMessage?.time ? new Date(b.lastMessage?.time)
-										.getTime() : -Infinity;
-									return bTime - aTime;
-								});
-								uni.hideLoading();
-							}
-						} else {
-							this.$showMessage('warning', this.$t('获取聊天记录失败请重试'));
-							uni.hideLoading();
-						}
-					},
-					fail: (err) => {
-						console.log(err)
-						if (err.code == 10003) {
-							let token = this.imToken || uni.getStorageSync('imToken')
-							this.$yeIM.getInstance().connect({
-								userId: this.userInfo.userId,
-								token,
-								success: (response) => {
-									if (response.code == 200) {
-										this.getNotice()
-									}
-								},
-								fail: (err) => {
-									console.log(err);
-									uni.hideLoading();
-								}
-							});
-						}
-					}
-				});
+				// 				// 排序 friendList
+				// 				this.friendList.sort((a, b) => {
+				// 					const aTime = a.lastMessage?.time ? new Date(a.lastMessage?.time)
+				// 						.getTime() : -Infinity;
+				// 					const bTime = b.lastMessage?.time ? new Date(b.lastMessage?.time)
+				// 						.getTime() : -Infinity;
+				// 					return bTime - aTime;
+				// 				});
+				// 				uni.hideLoading();
+				// 			}
+				// 		} else {
+				// 			this.$showMessage('warning', this.$t('获取聊天记录失败请重试'));
+				// 			uni.hideLoading();
+				// 		}
+				// 	},
+				// 	fail: (err) => {
+				// 		console.log(err)
+				// 		if (err.code == 10003) {
+				// 			let token = this.imToken || uni.getStorageSync('imToken')
+				// 			this.$yeIM.getInstance().connect({
+				// 				userId: this.userInfo.userId,
+				// 				token,
+				// 				success: (response) => {
+				// 					if (response.code == 200) {
+				// 						this.getNotice()
+				// 					}
+				// 				},
+				// 				fail: (err) => {
+				// 					console.log(err);
+				// 					uni.hideLoading();
+				// 				}
+				// 			});
+				// 		}
+				// 	}
+				// });
 			},
 			async toDetails(url, id) {
 				if (id) {
