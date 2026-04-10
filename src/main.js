@@ -21,7 +21,7 @@ const messages = {
 }
 
 let i18nConfig = {
-	locale: uni.getLocale(), // 获取已设置的语言
+	locale: uni.getLocale() || 'en', // 获取已设置的语言
 	messages
 }
 // #ifndef VUE3

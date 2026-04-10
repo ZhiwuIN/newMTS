@@ -38,7 +38,17 @@
 							{{productDetails.expectedReturn}} {{ currency }}
 						</view>
 					</view>
-					<view class="item_box">
+					<!-- 进行中 -->
+					<view class="item_box" v-if="productDetails.status === 'In Progress'">
+						<view class="item_title">
+							{{$t('product.ExpectedEarnings')}}
+						</view>
+						<view class="item_desc">
+							{{productDetails.expectedEarnings || 0}} {{ currency }}
+						</view>
+					</view>
+					<!-- 已结束 -->
+					<view class="item_box" v-else>
 						<view class="item_title">
 							{{$t('product.CurrentEarnings')}}
 						</view>

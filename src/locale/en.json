@@ -88,6 +88,7 @@
 	"product.TotalRevenue": "Total Revenue",
 	"product.PurchaseAmount": "Purchase Amount:",
 	"product.ExpectedReturn": "Expected Return:",
+	"product.ExpectedEarnings": "Expected Earnings:",
 	"product.CurrentEarnings": "Current Earnings:",
 	"product.PurchaseTime": "Purchase Time:",
 	"product.ExpirationTime": "Expiration Time:",
