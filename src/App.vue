@@ -86,17 +86,10 @@ export default {
 	},
 	onShow: function () {
 		console.log('App onShow')
-		// #ifdef APP-PLUS
-		// if (uni.$yeIM) {
-		// 	uni.$yeIM.intoApp();
-		// } else {
-		// 	console.warn('yeIM 未初始化，跳过 intoApp 调用');
-		// }
-		// #endif
 		settingsApi().then((res) => {
 			uni.setStorageSync('settings', res.data)
-			uni.setLocale('en');
-			this.$i18n.locale = 'en';
+			uni.setLocale(res.data.defaultLanguage);
+			this.$i18n.locale = res.data.defaultLanguage;
 		}).catch(err => {
 			console.log('request fail', err);
 			if (err.data?.code == 403) {
@@ -106,11 +99,14 @@ export default {
 			}
 		})
 	},
+	// onLaunch() {
+	// 	// 延迟发送，确保消息页已加载
+	// 	setTimeout(() => {
+	// 		uni.$emit('updateMessageBadge', true);
+	// 	}, 1000);
+	// },
 	onHide: function () {
 		console.log('App Hide')
-		// #ifdef APP-PLUS
-		// uni.$yeIM.leaveApp();
-		// #endif
 	},
 	mounted() {
 		// #ifdef H5
@@ -207,74 +203,6 @@ export default {
 <style lang="scss">
 @import "common/font.css";
 
-.Big_bgi {
-	position: fixed;
-	left: 0;
-	top: 0;
-	z-index: -1;
-	width: 100%;
-	background: $themeColor;
-}
-
-/* ========== APP-PLUS 平板端固定480px宽度（核心修复滚动） ========== */
-/* #ifdef APP-PLUS */
-/* 手机端：自适应100%宽度，恢复默认适配 */
-uni-app,
-body,
-html {
-	width: 100% !important;
-	/* 手机端关键：改480px为100% */
-	margin: 0 auto !important;
-	min-height: 100% !important;
-	overflow-x: hidden !important;
-	position: relative !important;
-}
-
-.page {
-	width: 100% !important;
-	max-width: 100% !important;
-	/* 手机端关键：取消最大宽度限制 */
-	overflow-x: hidden !important;
-	overflow-y: auto !important;
-	min-height: 100vh !important;
-}
-
-/* 平板端：媒体查询精准匹配，仅平板应用480px固定宽度（继承原有需求） */
-/* 匹配平板屏幕宽度 ≥ 768px（主流平板最小宽度，区分手机/平板的黄金阈值） */
-@media screen and (min-width: 768px) {
-
-	uni-app,
-	body,
-	html {
-		width: 480px !important;
-		/* 平板保留480px固定宽度 */
-	}
-
-	.page {
-		max-width: 480px !important;
-		/* 平板保留最大宽度限制 */
-	}
-}
-
-/* #endif */
-
-/* ========== H5端：平板/电脑端样式（核心修复滚动） ========== */
-/* #ifdef H5 */
-html,
-body {
-	width: 100%;
-	min-height: 100%;
-	/* 修复：替换height为min-height */
-	margin: 0;
-	padding: 0;
-	overflow-x: hidden !important;
-	/* 修复：仅隐藏横向滚动 */
-	position: relative;
-}
-
-/* #endif */
-
-/* ========== 通用样式：隐藏所有滚动条，多端兼容（不影响滚动功能） ========== */
 ::-webkit-scrollbar {
 	display: none;
 	width: 0 !important;
@@ -293,16 +221,17 @@ html {
 	-ms-overflow-style: none;
 }
 
-/* ========== tabbar 样式重置，去除边框/阴影 ========== */
 .uni-tabbar-border {
 	background-color: transparent !important;
 	height: 0px !important;
 	border: none !important;
 }
 
+
 uni-tabbar .uni-tabbar__border {
 	display: none !important;
 }
+
 
 .uni-tabbar.uni-tabbar--topselected {
 	border-top: none !important;
@@ -314,11 +243,11 @@ uni-tabbar .uni-tabbar__border {
 	box-shadow: none !important;
 }
 
+
 .uni-tabbar__content {
 	background-image: none !important;
 }
 
-/* ========== 小红点样式调整 ========== */
 .uni-tabbar__reddot {
 	top: 32rpx !important;
 	right: 8rpx !important;
@@ -326,15 +255,25 @@ uni-tabbar .uni-tabbar__border {
 	height: 20rpx !important;
 }
 
-/* ========== 加载样式居中 ========== */
 .t-loading {
 	justify-content: center;
 }
 
-/* ========== 输入框占位符不换行，显示省略号 ========== */
 .uni-input-placeholder.input-placeholder {
 	white-space: nowrap;
+	/* 禁止换行 */
 	overflow: hidden;
+	/* 隐藏溢出内容 */
 	text-overflow: ellipsis;
+	/* 显示省略号 */
+}
+
+.Big_bgi {
+	position: fixed;
+	left: 0;
+	top: 0;
+	z-index: -1;
+	width: 100%;
+	background: $themeColor;
 }
 </style>

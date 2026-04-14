@@ -53,7 +53,7 @@
 					if (this.page.pageNum == 1) this.privacyPolicyInfo = res.rows || []
 					else this.privacyPolicyInfo.push(...res.rows)
 					this.nodata = res.total == 0
-					if (this.privacyPolicyInfo.length == res.count) this.hasMore = false
+					if (this.privacyPolicyInfo.length == res.total) this.hasMore = false
 				}).catch((err) => {
 					console.log('request fail', err);
 					this.$showMessage('warning', err.msg);

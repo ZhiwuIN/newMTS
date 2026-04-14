@@ -8,7 +8,7 @@
 					<view class="common-list-info">{{ item.title }}</view>
 				</view>
 			</view>
-			<listbottom :hasMore="hasMore" :loading="loading" :noData='nodata' image="/static/default/No content.png">
+			<listbottom :hasMore="hasMore" :loading="loading" :noData='nodata' image="/static/default/NoContent.png">
 			</listbottom>
 		</scroll-view>
 	</customnavbar>
@@ -54,7 +54,7 @@
 					if (this.page.pageNum == 1) this.list = res.rows
 					else this.list.push(...res.rows)
 					this.nodata = res.total == 0
-					if (this.list.length == res.count) this.hasMore = false
+					if (this.list.length == res.total) this.hasMore = false
 				}).catch((err) => {
 					console.log('request fail', err);
 					this.$showMessage('warning', err.msg);
@@ -62,14 +62,11 @@
 			},
 		},
 		onLoad(options) {
-			// console.log(uni.getStorageSync('pageTitle'))
 			if (uni.getStorageSync('pageTitle')) {
 				this.pageTitle = uni.getStorageSync('pageTitle')
 			} else {
 				this.pageTitle = options.title
 			}
-			// console.log(this.pageTitle)
-
 			this.groupId = options.groupId
 		},
 		onShow() {
