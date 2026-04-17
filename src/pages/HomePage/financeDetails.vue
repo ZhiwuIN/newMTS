@@ -69,6 +69,14 @@
 							{{ productDetails.purchaseConditions.creditValue }}
 						</view>
 					</view>
+					<view class="details_item_box" style="border-bottom: none;" v-if="productDetails.buytimes">
+						<view class="details_item_title">
+							{{ $t('product.buytimes') }}
+						</view>
+						<view class="details_item_desc">
+							{{ productDetails.buytimes }}
+						</view>
+					</view>
 				</view>
 				<view class="details_box" v-if="productDetails.description">
 					<!-- <view class="details_t">{{$t('product.Exemple')}}</view>
@@ -295,6 +303,9 @@
 					return
 				} else if (this.buyPurchase > this.productBuyDetails.amountBalance) {
 					this.$showMessage('warning', this.$t('product.PurchaseAmountCannotBeLessThanStartingAmount'));
+					return
+				}else if (this.productBuyDetails.buytimes && this.productBuyDetails.buytimes <=0) {
+					this.$showMessage('warning', this.$t('product.Itisnolongeravailable'));
 					return
 				} else {
 					this.isPayLoading = true
