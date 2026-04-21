@@ -4,7 +4,7 @@
 			<view class="product_container">
 				<view class="product_detaile_box">
 					<view class="details_item_img_box">
-						<image :src=" productDetails.image" class="product_details_item_img">
+						<image :src="productDetails.image" class="product_details_item_img">
 						</image>
 					</view>
 
@@ -61,7 +61,7 @@
 							{{ productDetails.purchaseConditions.level }}
 						</view>
 					</view>
-					<view class="details_item_box" style="border-bottom: none;">
+					<view class="details_item_box bg_gray" style="border-bottom: none;">
 						<view class="details_item_title">
 							{{ $t('product.CreditValue') }}
 						</view>
@@ -199,544 +199,548 @@
 </template>
 
 <script>
-	import customnavbar from '@/component/custom-navbar/custom-navbar.vue'
-	import {
-		productDetailsApi,
-		productBuyApi,
-		productPayApi
-	} from '@/common/api/product.js'
+import customnavbar from '@/component/custom-navbar/custom-navbar.vue'
+import {
+	productDetailsApi,
+	productBuyApi,
+	productPayApi
+} from '@/common/api/product.js'
 
-	import {
-		formatRichText
-	} from "@/utils/utils.js"
-	export default {
-		components: {
-			customnavbar
-		},
-		data() {
-			return {
-				url: 'http://13.245.95.135:8888',
-				// url: 'http://192.168.2.35:8080',
-				password: '',
-				isFocus: false,
-				productId: '',
-				productDetails: {
-					purchaseConditions: {
-						level: '',
-						creditValue: ''
-					},
-
+import {
+	formatRichText
+} from "@/utils/utils.js"
+export default {
+	components: {
+		customnavbar
+	},
+	data() {
+		return {
+			url: 'http://13.245.95.135:8888',
+			// url: 'http://192.168.2.35:8080',
+			password: '',
+			isFocus: false,
+			productId: '',
+			productDetails: {
+				purchaseConditions: {
+					level: '',
+					creditValue: ''
 				},
-				productBuyDetails: {},
-				paymentAmount: 0,
-				buyPurchase: 0,
-				currency: '',
-				isPayLoading: false
+
+			},
+			productBuyDetails: {},
+			paymentAmount: 0,
+			buyPurchase: 0,
+			currency: '',
+			isPayLoading: false
+		}
+	},
+	onLoad(options) {
+		this.productId = options.productId
+		this.currency = uni.getStorageSync('settings').currency
+	},
+	onShow() {
+		this.getProductDetails()
+	},
+	watch: {
+		buyPurchase(newVal) {
+			// 可以在这里做一些额外操作
+			// console.log("buyPurchase 更新:", newVal);
+			// 如果需要，可以手动更新 UI 或调用其他方法
+		},
+	},
+	methods: {
+		// 大概收益
+		approximateEarnings() {
+			const {
+				totalRateOfReturn
+			} = this.productBuyDetails;
+			// console.log(this.productDetails)
+			const currentPrice = this.buyPurchase; // 当前价格
+			const dailyRate = totalRateOfReturn / 100; // 收益率
+			const totalEarnings = currentPrice * dailyRate;
+			return totalEarnings.toFixed(4);
+		},
+		// 时间差计算
+		timeDifference(endDate) {
+			// 将 endDate 转换为 Date 对象
+			const endDateObj = new Date(endDate);
+			// 获取当前日期
+			const currentDate = new Date();
+			// 计算时间差（以毫秒为单位）
+			const timeDifference = endDateObj - currentDate;
+			// 将时间差转换为天数
+			return Math.ceil(timeDifference / (1000 * 60 * 60 * 24));
+		},
+		getProductDetails() {
+			productDetailsApi(this.productId).then((res) => {
+				this.productDetails = res.data
+				if (this.productDetails.description) this.productDetails.description = formatRichText(this
+					.productDetails.description)
+			}).catch((err) => {
+				this.$showMessage('warning', err.msg);
+			})
+		},
+		buyNow() {
+			productBuyApi(this.productId).then((res) => {
+				this.productBuyDetails = res.data
+				this.$refs.popup.open()
+			}).catch((err) => {
+				console.log('request fail', err);
+				this.$showMessage('warning', err.msg);
+			})
+		},
+		confirm() {
+			// this.$refs.paypopup.open()
+			// this.isFocus = true
+			if (this.buyPurchase == 0) {
+				this.$showMessage('warning', this.$t('product.PleaseEnterPurchaseAmount'));
+				return
+			} else if (this.buyPurchase > this.productBuyDetails.max) {
+				this.$showMessage('warning', this.$t('product.MaximumPurchase') + ':' + this.productBuyDetails.max);
+				return
+			} else if (this.buyPurchase < this.productBuyDetails.min) {
+				this.$showMessage('warning', this.$t('product.MinimumPurchase') + ':' + this.productBuyDetails.min);
+				return
+			} else if (this.buyPurchase > this.productBuyDetails.amountBalance) {
+				this.$showMessage('warning', this.$t('product.PurchaseAmountCannotBeLessThanStartingAmount'));
+				return
+			} else if (this.productBuyDetails.buytimes && this.productBuyDetails.buytimes <= 0) {
+				this.$showMessage('warning', this.$t('product.Itisnolongeravailable'));
+				return
+			} else {
+				this.isPayLoading = true
+				this.payConfirm()
 			}
 		},
-		onLoad(options) {
-			this.productId = options.productId
-			this.currency = uni.getStorageSync('settings').currency
-		},
-		onShow() {
-			this.getProductDetails()
-		},
-		watch: {
-			buyPurchase(newVal) {
-				// 可以在这里做一些额外操作
-				// console.log("buyPurchase 更新:", newVal);
-				// 如果需要，可以手动更新 UI 或调用其他方法
-			},
-		},
-		methods: {
-			// 大概收益
-			approximateEarnings() {
-				const {
-					totalRateOfReturn
-				} = this.productBuyDetails;
-				// console.log(this.productDetails)
-				const currentPrice = this.buyPurchase; // 当前价格
-				const dailyRate = totalRateOfReturn / 100; // 收益率
-				const totalEarnings = currentPrice * dailyRate;
-				return totalEarnings.toFixed(4);
-			},
-			// 时间差计算
-			timeDifference(endDate) {
-				// 将 endDate 转换为 Date 对象
-				const endDateObj = new Date(endDate);
-				// 获取当前日期
-				const currentDate = new Date();
-				// 计算时间差（以毫秒为单位）
-				const timeDifference = endDateObj - currentDate;
-				// 将时间差转换为天数
-				return Math.ceil(timeDifference / (1000 * 60 * 60 * 24));
-			},
-			getProductDetails() {
-				productDetailsApi(this.productId).then((res) => {
-					this.productDetails = res.data
-					if (this.productDetails.description) this.productDetails.description = formatRichText(this
-						.productDetails.description)
-				}).catch((err) => {
-					this.$showMessage('warning', err.msg);
-				})
-			},
-			buyNow() {
-				productBuyApi(this.productId).then((res) => {
-					this.productBuyDetails = res.data
-					this.$refs.popup.open()
-				}).catch((err) => {
-					console.log('request fail', err);
-					this.$showMessage('warning', err.msg);
-				})
-			},
-			confirm() {
-				// this.$refs.paypopup.open()
-				// this.isFocus = true
-				if (this.buyPurchase == 0) {
-					this.$showMessage('warning', this.$t('product.PleaseEnterPurchaseAmount'));
-					return
-				} else if (this.buyPurchase > this.productBuyDetails.max) {
-					this.$showMessage('warning', this.$t('product.MaximumPurchase') + ':' + this.productBuyDetails.max);
-					return
-				} else if (this.buyPurchase < this.productBuyDetails.min) {
-					this.$showMessage('warning', this.$t('product.MinimumPurchase') + ':' + this.productBuyDetails.min);
-					return
-				} else if (this.buyPurchase > this.productBuyDetails.amountBalance) {
-					this.$showMessage('warning', this.$t('product.PurchaseAmountCannotBeLessThanStartingAmount'));
-					return
-				}else if (this.productBuyDetails.buytimes && this.productBuyDetails.buytimes <=0) {
-					this.$showMessage('warning', this.$t('product.Itisnolongeravailable'));
-					return
-				} else {
-					this.isPayLoading = true
-					this.payConfirm()
-				}
-			},
-			handleInput(e) {
-				if (this.password.length >= 6) {
-					// 密码输入完成，这里处理密码提交逻辑
-					this.$emit('complete', this.password)
-				}
-			},
-			focusInput() {
-				this.isFocus = true
-			},
-			onBlur() {
-				this.isFocus = false
-			},
-			payConfirm() {
-				let params = {
-					"paymentAmount": this.buyPurchase.toFixed(4),
-					"productId": this.productId
-				}
-				productPayApi(params).then((res) => {
-					//支付结果
-					this.$showMessage('success', this.$t('product.purchase'));
-
-
-					setTimeout(() => {
-						uni.redirectTo({
-							url: '/pages/MinePage/financePage'
-						})
-					}, 30)
-				}).catch((err) => {
-					this.$showMessage('warning', err.msg);
-					// uni.showToast({
-					// 	title: err.msg,
-					// 	icon: 'none'
-					// })
-				}).finally(() => {
-					this.isPayLoading = false
-				})
-
-				//支付失败
-				// this.$refs.payerrorpopup.open()
-				//支付成功
-			},
-			payerror_cancel() {
-				this.$refs.payerrorpopup.close()
-			},
-			payerror_confirm() {
-				this.$refs.payerrorpopup.close()
-				this.$refs.paypopup.open()
-				this.password = []
-			},
-			inputAll() {
-				this.buyPurchase = this.productBuyDetails.amountBalance > this.productBuyDetails.max ? this
-					.productBuyDetails.max : this.productBuyDetails.amountBalance
+		handleInput(e) {
+			if (this.password.length >= 6) {
+				// 密码输入完成，这里处理密码提交逻辑
+				this.$emit('complete', this.password)
 			}
+		},
+		focusInput() {
+			this.isFocus = true
+		},
+		onBlur() {
+			this.isFocus = false
+		},
+		payConfirm() {
+			let params = {
+				"paymentAmount": this.buyPurchase.toFixed(4),
+				"productId": this.productId
+			}
+			productPayApi(params).then((res) => {
+				//支付结果
+				this.$showMessage('success', this.$t('product.purchase'));
+
+
+				setTimeout(() => {
+					uni.redirectTo({
+						url: '/pages/MinePage/financePage'
+					})
+				}, 30)
+			}).catch((err) => {
+				this.$showMessage('warning', err.msg);
+				// uni.showToast({
+				// 	title: err.msg,
+				// 	icon: 'none'
+				// })
+			}).finally(() => {
+				this.isPayLoading = false
+			})
+
+			//支付失败
+			// this.$refs.payerrorpopup.open()
+			//支付成功
+		},
+		payerror_cancel() {
+			this.$refs.payerrorpopup.close()
+		},
+		payerror_confirm() {
+			this.$refs.payerrorpopup.close()
+			this.$refs.paypopup.open()
+			this.password = []
+		},
+		inputAll() {
+			this.buyPurchase = this.productBuyDetails.amountBalance > this.productBuyDetails.max ? this
+				.productBuyDetails.max : this.productBuyDetails.amountBalance
 		}
 	}
+}
 </script>
 
 <style lang="scss" scoped>
-	.product_container {
-		padding: 40rpx;
-		padding: 40rpx;
-	}
+.product_container {
+	padding: 40rpx;
+	padding: 40rpx;
+}
 
-	.details_item_img_box {
-		display: flex;
-		justify-content: center;
-		margin-top: 44rpx;
-		margin-bottom: 42rpx;
-	}
+.details_item_img_box {
+	display: flex;
+	justify-content: center;
+	margin-top: 44rpx;
+	margin-bottom: 42rpx;
+}
 
-	.product_details_item_img {
-		width: 200rpx;
-		height: 200rpx;
-		border-radius: 10rpx;
-		overflow: hidden;
-	}
+.product_details_item_img {
+	width: 200rpx;
+	height: 200rpx;
+	border-radius: 10rpx;
+	overflow: hidden;
+}
 
-	.title {
-		display: flex;
-		justify-content: center;
-		margin-top: 40rpx;
-		font-size: 36rpx;
-		font-weight: 600;
-	}
+.title {
+	display: flex;
+	justify-content: center;
+	margin-top: 40rpx;
+	font-size: 36rpx;
+	font-weight: 600;
+}
 
 
-	.details_item_box {
-		padding: 32rpx 40rpx 28rpx 40rpx;
-		display: flex;
-		justify-content: space-between;
-		align-items: flex-end;
-	}
+.details_item_box {
+	padding: 32rpx 40rpx 28rpx 40rpx;
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-end;
+}
 
-	.details_item_title {
-		font-family: "DINPro-Regular", sans-serif;
-		font-weight: 400;
-		font-size: 26rpx;
-		color: #1C2D57;
-		line-height: 34rpx;
-		text-align: left;
-		font-style: normal;
-	}
+.details_item_title {
+	font-family: "DINPro-Regular", sans-serif;
+	font-weight: 400;
+	font-size: 26rpx;
+	color: #1C2D57;
+	line-height: 34rpx;
+	text-align: left;
+	font-style: normal;
+}
 
-	.details_item_desc {
-		font-family: "DINPro-Medium", sans-serif;
-		font-weight: 500;
-		font-size: 26rpx;
-		color: #000000;
-		line-height: 36rpx;
-		text-align: left;
-		font-style: normal;
-	}
+.details_item_desc {
+	font-family: "DINPro-Medium", sans-serif;
+	font-weight: 500;
+	font-size: 26rpx;
+	color: #000000;
+	line-height: 36rpx;
+	text-align: left;
+	font-style: normal;
+	white-space: normal;
+	word-break: break-all;
+	text-align: right;
+	flex-shrink: 1;
+}
 
-	.details_t {
-		font-family: "DINPro-Medium", sans-serif;
-		font-weight: 500;
-		font-size: 28rpx;
-		color: #1C2D57;
-		line-height: 36rpx;
-		text-align: left;
-		font-style: normal;
-		margin-bottom: 30rpx;
+.details_t {
+	font-family: "DINPro-Medium", sans-serif;
+	font-weight: 500;
+	font-size: 28rpx;
+	color: #1C2D57;
+	line-height: 36rpx;
+	text-align: left;
+	font-style: normal;
+	margin-bottom: 30rpx;
 
-	}
+}
 
-	.content_t {
-		font-family: "DINPro-Regular", sans-serif;
-		font-weight: 400;
-		font-size: 26rpx;
-		color: #1C2D57;
-		line-height: 34rpx;
-		text-align: left;
-		font-style: normal;
-	}
+.content_t {
+	font-family: "DINPro-Regular", sans-serif;
+	font-weight: 400;
+	font-size: 26rpx;
+	color: #1C2D57;
+	line-height: 34rpx;
+	text-align: left;
+	font-style: normal;
+}
 
-	.buynow_btn {
-		width: 650rpx;
-		margin: 40rpx 0;
-		text-align: center;
-		height: 96rpx;
-		background: linear-gradient(180deg, $gradualColor2 0%, $gradualColor1 100%);
-		border-radius: 24rpx;
-		font-family: "DINPro-Bold", sans-serif;
-		font-weight: bold;
-		font-size: 36rpx;
-		color: #FFFFFF;
-		line-height: 96rpx;
-		font-style: normal;
-		text-transform: none;
-	}
+.buynow_btn {
+	width: 650rpx;
+	margin: 40rpx 0;
+	text-align: center;
+	height: 96rpx;
+	background: linear-gradient(180deg, $gradualColor2 0%, $gradualColor1 100%);
+	border-radius: 24rpx;
+	font-family: "DINPro-Bold", sans-serif;
+	font-weight: bold;
+	font-size: 36rpx;
+	color: #FFFFFF;
+	line-height: 96rpx;
+	font-style: normal;
+	text-transform: none;
+}
 
-	.financeDetails_pop_page {
-		background-color: #fff;
-		border-radius: 20rpx 20rpx 0 0;
-	}
+.financeDetails_pop_page {
+	background-color: #fff;
+	border-radius: 20rpx 20rpx 0 0;
+}
 
-	.financeDetails_pop_top {
-		font-family: "DINPro-Bold", sans-serif;
-		font-weight: bold;
-		font-size: 32rpx;
-		color: #000000;
-		line-height: 42rpx;
-		text-align: center;
-		font-style: normal;
-		padding-top: 40rpx;
-	}
+.financeDetails_pop_top {
+	font-family: "DINPro-Bold", sans-serif;
+	font-weight: bold;
+	font-size: 32rpx;
+	color: #000000;
+	line-height: 42rpx;
+	text-align: center;
+	font-style: normal;
+	padding-top: 40rpx;
+}
 
-	.financeDetails_pop_content {
-		padding: 0 40rpx;
-	}
+.financeDetails_pop_content {
+	padding: 0 40rpx;
+}
 
-	.pop_content_item {
-		display: flex;
-		justify-content: space-between;
-		padding: 30rpx 0;
-	}
+.pop_content_item {
+	display: flex;
+	justify-content: space-between;
+	padding: 30rpx 0;
+}
 
-	.pop_content_details_item_title {
-		font-family: "DINPro-Regular", sans-serif;
-		font-weight: 400;
-		font-size: 26rpx;
-		color: #1C2D57;
-		line-height: 34rpx;
-		text-align: left;
-		font-style: normal;
-	}
+.pop_content_details_item_title {
+	font-family: "DINPro-Regular", sans-serif;
+	font-weight: 400;
+	font-size: 26rpx;
+	color: #1C2D57;
+	line-height: 34rpx;
+	text-align: left;
+	font-style: normal;
+}
 
-	.pop_content_details_item_desc {
-		font-family: "DINPro-Medium", sans-serif;
-		font-weight: 500;
-		font-size: 26rpx;
-		color: #000000;
-		line-height: 34rpx;
-		text-align: right;
-		font-style: normal;
-	}
+.pop_content_details_item_desc {
+	font-family: "DINPro-Medium", sans-serif;
+	font-weight: 500;
+	font-size: 26rpx;
+	color: #000000;
+	line-height: 34rpx;
+	text-align: right;
+	font-style: normal;
+}
 
-	.pop_content_details_item_bottom_border {
-		border-bottom: 2rpx solid #F4F4F4;
-	}
+.pop_content_details_item_bottom_border {
+	border-bottom: 2rpx solid #F4F4F4;
+}
 
-	.max_tips {
-		font-family: "DINPro-Regular", sans-serif;
-		font-weight: 400;
-		font-size: 22rpx;
-		color: #000000;
-		line-height: 28rpx;
-		text-align: center;
-		font-style: normal;
-		padding-bottom: 30rpx;
-	}
+.max_tips {
+	font-family: "DINPro-Regular", sans-serif;
+	font-weight: 400;
+	font-size: 22rpx;
+	color: #000000;
+	line-height: 28rpx;
+	text-align: center;
+	font-style: normal;
+	padding-bottom: 30rpx;
+}
 
-	.pop_content_details_item_all {
-		width: 74rpx;
-		height: 36rpx;
-		border-radius: 18rpx;
-		border: 2rpx solid $themeColor;
-		font-family: "DINPro-Regular", sans-serif;
-		font-weight: 400;
-		font-size: 22rpx;
-		color: $themeColor;
-		line-height: 36rpx;
-		text-align: center;
-		font-style: normal;
-		margin-left: 16rpx;
-	}
+.pop_content_details_item_all {
+	width: 74rpx;
+	height: 36rpx;
+	border-radius: 18rpx;
+	border: 2rpx solid $themeColor;
+	font-family: "DINPro-Regular", sans-serif;
+	font-weight: 400;
+	font-size: 22rpx;
+	color: $themeColor;
+	line-height: 36rpx;
+	text-align: center;
+	font-style: normal;
+	margin-left: 16rpx;
+}
 
-	.pop_content_details_item_total {
-		font-family: "DINPro-Medium", sans-serif;
-		font-weight: 500;
-		font-size: 32rpx;
-		color: #FF0000;
-		line-height: 42rpx;
-		text-align: justify;
-		font-style: normal;
-	}
+.pop_content_details_item_total {
+	font-family: "DINPro-Medium", sans-serif;
+	font-weight: 500;
+	font-size: 32rpx;
+	color: #FF0000;
+	line-height: 42rpx;
+	text-align: justify;
+	font-style: normal;
+}
 
-	.financeDetails_pop_bottom {
-		display: flex;
-		justify-content: center;
-		padding: 44rpx 40rpx 46rpx 40rpx;
-	}
+.financeDetails_pop_bottom {
+	display: flex;
+	justify-content: center;
+	padding: 44rpx 40rpx 46rpx 40rpx;
+}
 
-	.financeDetails_pop_bottom_btn {
-		width: 100%;
-		height: 96rpx;
-		background: linear-gradient(180deg, $gradualColor2 0%, $gradualColor1 100%);
-		border-radius: 24rpx;
-		font-family: "DINPro-Bold", sans-serif;
-		font-weight: bold;
-		font-size: 36rpx;
-		color: #FFFFFF;
-		line-height: 96rpx;
-		text-align: center;
-		font-style: normal;
-		text-transform: none;
-	}
+.financeDetails_pop_bottom_btn {
+	width: 100%;
+	height: 96rpx;
+	background: linear-gradient(180deg, $gradualColor2 0%, $gradualColor1 100%);
+	border-radius: 24rpx;
+	font-family: "DINPro-Bold", sans-serif;
+	font-weight: bold;
+	font-size: 36rpx;
+	color: #FFFFFF;
+	line-height: 96rpx;
+	text-align: center;
+	font-style: normal;
+	text-transform: none;
+}
 
-	.pay_pop_page {
-		background-color: #fff;
-		border-radius: 32rpx;
-		width: 574rpx;
-		padding: 28rpx 32rpx 56rpx 32rpx;
-	}
+.pay_pop_page {
+	background-color: #fff;
+	border-radius: 32rpx;
+	width: 574rpx;
+	padding: 28rpx 32rpx 56rpx 32rpx;
+}
 
-	.pay_pop_top {
-		font-family: "DINPro-Medium", sans-serif;
-		font-weight: 500;
-		font-size: 32rpx;
-		color: #000000;
-		line-height: 42rpx;
-		text-align: center;
-		font-style: normal;
-	}
+.pay_pop_top {
+	font-family: "DINPro-Medium", sans-serif;
+	font-weight: 500;
+	font-size: 32rpx;
+	color: #000000;
+	line-height: 42rpx;
+	text-align: center;
+	font-style: normal;
+}
 
-	.pay_pop_no {
-		font-family: "DINPro-Bold", sans-serif;
-		font-weight: bold;
-		font-size: 64rpx;
-		color: #000000;
-		line-height: 82rpx;
-		text-align: center;
-		font-style: normal;
-		margin-top: 42rpx;
-	}
+.pay_pop_no {
+	font-family: "DINPro-Bold", sans-serif;
+	font-weight: bold;
+	font-size: 64rpx;
+	color: #000000;
+	line-height: 82rpx;
+	text-align: center;
+	font-style: normal;
+	margin-top: 42rpx;
+}
 
-	.pay_pop_content {
-		font-family: "DINPro-Medium", sans-serif;
-		font-weight: 500;
-		font-size: 24rpx;
-		color: #000000;
-		line-height: 30rpx;
-		text-align: justify;
-		font-style: normal;
-		margin-top: 42rpx;
-	}
+.pay_pop_content {
+	font-family: "DINPro-Medium", sans-serif;
+	font-weight: 500;
+	font-size: 24rpx;
+	color: #000000;
+	line-height: 30rpx;
+	text-align: justify;
+	font-style: normal;
+	margin-top: 42rpx;
+}
 
-	.password-box {
-		display: flex;
-		justify-content: space-between;
-		padding-top: 20rpx;
+.password-box {
+	display: flex;
+	justify-content: space-between;
+	padding-top: 20rpx;
 
-		.input-box {
-			width: 72rpx;
-			height: 72rpx;
-			background: #ECECEC;
-			border-radius: 8rpx;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-		}
-	}
-
-	.hidden-input {
-		position: absolute;
-		top: -999px;
-		left: -999px;
-		width: 1px;
-		height: 1px;
-		opacity: 0;
-	}
-
-	.pay_confirm_btn {
-		height: 96rpx;
-		background: linear-gradient(180deg, $gradualColor2 0%, $gradualColor1 100%);
-		border-radius: 24rpx;
-		margin-top: 44rpx;
-		font-family: "DINPro-Bold", sans-serif;
-		font-weight: bold;
-		font-size: 36rpx;
-		color: #FFFFFF;
-		line-height: 96rpx;
-		text-align: center;
-		font-style: normal;
-		text-transform: none;
-	}
-
-	.payerror_pop_taps {
-		font-family: "DINPro-Regular", sans-serif;
-		font-weight: 400;
-		font-size: 28rpx;
-		color: #1C2D57;
-		line-height: 36rpx;
-		text-align: center;
-		font-style: normal;
-		margin-top: 56rpx;
-		margin-bottom: 48rpx;
-		width: 80%;
-	}
-
-	.payerror_pop_bottom {
-		display: flex;
-	}
-
-	.payerror_cancel_btn {
-		width: 212rpx;
+	.input-box {
+		width: 72rpx;
 		height: 72rpx;
-		background: #EBEBEB;
-		border-radius: 16rpx;
-		font-family: "DINPro-Medium", sans-serif;
-		font-weight: 500;
-		font-size: 32rpx;
-		color: #000000;
-		line-height: 72rpx;
-		text-align: center;
-		font-style: normal;
-	}
-
-	.payerror_confirm_btn {
-		width: 212rpx;
-		height: 72rpx;
-		background: $themeColor;
-		box-shadow: 0rpx 4rpx 16rpx 0rpx #B2C8FB;
-		border-radius: 16rpx;
-		font-family: "DINPro-Medium", sans-serif;
-		font-weight: 500;
-		font-size: 32rpx;
-		color: #FFFFFF;
-		line-height: 72rpx;
-		text-align: center;
-		font-style: normal;
-	}
-
-	.bg_gray {
-		background: #F5F8FF;
-	}
-
-	.border_bottom {
-		border-bottom: 2rpx solid #F4F4F4;
-	}
-
-	.product_detaile_box {
-		background: #FFFFFF;
-		box-shadow: 0rpx 22rpx 28rpx -6rpx #E9F3FF;
-		border-radius: 18rpx;
-		border: 2rpx solid #F8F8F8;
-	}
-
-	.details_box {
-		background: #FFFFFF;
-		box-shadow: 0rpx 22rpx 28rpx -6rpx #E9F3FF;
-		border-radius: 18rpx;
-		border: 2rpx solid #F8F8F8;
-		margin-top: 40rpx;
-		padding: 54rpx 40rpx 54rpx 42rpx;
-	}
-
-	.mt30 {
-		margin-top: 30rpx;
-	}
-
-	.flex-center {
-		display: flex;
-		justify-content: center;
-	}
-
-	::v-deep .uni-numbox {
-		height: 84rpx;
-		background: #F5F8FF;
-		border-radius: 12rpx;
-		color: #000;
+		background: #ECECEC;
+		border-radius: 8rpx;
 		display: flex;
 		align-items: center;
-		font-family: "DINPro-Regular", sans-serif;
-		font-weight: 400;
-		font-size: 36rpx;
+		justify-content: center;
 	}
+}
+
+.hidden-input {
+	position: absolute;
+	top: -999px;
+	left: -999px;
+	width: 1px;
+	height: 1px;
+	opacity: 0;
+}
+
+.pay_confirm_btn {
+	height: 96rpx;
+	background: linear-gradient(180deg, $gradualColor2 0%, $gradualColor1 100%);
+	border-radius: 24rpx;
+	margin-top: 44rpx;
+	font-family: "DINPro-Bold", sans-serif;
+	font-weight: bold;
+	font-size: 36rpx;
+	color: #FFFFFF;
+	line-height: 96rpx;
+	text-align: center;
+	font-style: normal;
+	text-transform: none;
+}
+
+.payerror_pop_taps {
+	font-family: "DINPro-Regular", sans-serif;
+	font-weight: 400;
+	font-size: 28rpx;
+	color: #1C2D57;
+	line-height: 36rpx;
+	text-align: center;
+	font-style: normal;
+	margin-top: 56rpx;
+	margin-bottom: 48rpx;
+	width: 80%;
+}
+
+.payerror_pop_bottom {
+	display: flex;
+}
+
+.payerror_cancel_btn {
+	width: 212rpx;
+	height: 72rpx;
+	background: #EBEBEB;
+	border-radius: 16rpx;
+	font-family: "DINPro-Medium", sans-serif;
+	font-weight: 500;
+	font-size: 32rpx;
+	color: #000000;
+	line-height: 72rpx;
+	text-align: center;
+	font-style: normal;
+}
+
+.payerror_confirm_btn {
+	width: 212rpx;
+	height: 72rpx;
+	background: $themeColor;
+	box-shadow: 0rpx 4rpx 16rpx 0rpx #B2C8FB;
+	border-radius: 16rpx;
+	font-family: "DINPro-Medium", sans-serif;
+	font-weight: 500;
+	font-size: 32rpx;
+	color: #FFFFFF;
+	line-height: 72rpx;
+	text-align: center;
+	font-style: normal;
+}
+
+.bg_gray {
+	background: #F5F8FF;
+}
+
+.border_bottom {
+	border-bottom: 2rpx solid #F4F4F4;
+}
+
+.product_detaile_box {
+	background: #FFFFFF;
+	box-shadow: 0rpx 22rpx 28rpx -6rpx #E9F3FF;
+	border-radius: 18rpx;
+	border: 2rpx solid #F8F8F8;
+}
+
+.details_box {
+	background: #FFFFFF;
+	box-shadow: 0rpx 22rpx 28rpx -6rpx #E9F3FF;
+	border-radius: 18rpx;
+	border: 2rpx solid #F8F8F8;
+	margin-top: 40rpx;
+	padding: 54rpx 40rpx 54rpx 42rpx;
+}
+
+.mt30 {
+	margin-top: 30rpx;
+}
+
+.flex-center {
+	display: flex;
+	justify-content: center;
+}
+
+::v-deep .uni-numbox {
+	height: 84rpx;
+	background: #F5F8FF;
+	border-radius: 12rpx;
+	color: #000;
+	display: flex;
+	align-items: center;
+	font-family: "DINPro-Regular", sans-serif;
+	font-weight: 400;
+	font-size: 36rpx;
+}
 </style>
