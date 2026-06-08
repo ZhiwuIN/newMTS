@@ -33,7 +33,7 @@
 				<view class="identity_set_t1" style="margin-top: 90rpx;">{{$t('Account.CellPhoneNumber')}}</view>
 				<view class="identity_set_input">
 					<input v-model="formData.phone" type="number" :placeholder="$t('register.phonePlaceHolder')"
-						placeholder-style="color: #E4E4E4;font-size: 28rpx;font-weight: 500;" maxlength="10" />
+						placeholder-style="color: #E4E4E4;font-size: 28rpx;font-weight: 500;" />
 				</view>
 
 				<view class="identity_set_t1" style="margin-top: 50rpx;">{{$t('identity.Nationality')}}</view>
@@ -190,11 +190,11 @@
 				const cleanedPhone = this.formData.phone
 
 				// 加纳手机号正则表达式
-				const ghanaPhoneRegex = /^0\d{9}$/;
+			//	const ghanaPhoneRegex = /^0\d{9}$/;
 
-				if (!ghanaPhoneRegex.test(cleanedPhone)) {
-					return false;
-				}
+			//	if (!ghanaPhoneRegex.test(cleanedPhone)) {
+				//	return false;
+				//}
 
 				return true;
 			},

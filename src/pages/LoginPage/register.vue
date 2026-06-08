@@ -23,7 +23,7 @@
 								<uni-icons type="down" size="16" style="margin-left: 10rpx;"></uni-icons>
 							</picker>
 							<input type="number" v-model="phone" :placeholder="$t('register.phonePlaceHolder')"
-								maxlength="10" @focus="inputfocus(0)" />
+							 @focus="inputfocus(0)" />
 						</view>
 					</view>
 				</view>
@@ -128,11 +128,11 @@
 				}
 
 				// 加纳手机号正则表达式
-				const ghanaPhoneRegex = /^0\d{9}$/;
+				//const ghanaPhoneRegex = /^0\d{9}$/;
 
-				if (!ghanaPhoneRegex.test(cleanedPhone)) {
-					return false;
-				}
+				//if (!ghanaPhoneRegex.test(cleanedPhone)) {
+				//	return false;
+			//	}
 
 				return true;
 			},

@@ -24,7 +24,7 @@
 								<!-- <text>+{{selectedAreaCode}}</text> -->
 								<!-- <uni-icons type="down" size="16" style="margin-left: 10rpx;"></uni-icons> -->
 							</picker>
-							<input type="text" v-model="phone" :placeholder="$t('请输入账号')" maxlength="10"
+							<input type="text" v-model="phone" :placeholder="$t('请输入账号')"
 								@focus="inputfocus(0)" />
 						</view>
 					</view>
@@ -116,11 +116,11 @@
 				}
 
 				// 加纳手机号正则表达式
-				const ghanaPhoneRegex = /^0\d{9}$/;
+				//const ghanaPhoneRegex = /^0\d{9}$/;
 
-				if (!ghanaPhoneRegex.test(cleanedPhone)) {
-					return false;
-				}
+				//if (!ghanaPhoneRegex.test(cleanedPhone)) {
+				//	return false;
+			//	}
 
 				return true;
 			},
