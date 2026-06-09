@@ -18,6 +18,9 @@
 			<image :lazy-load="true" src="/static/home/Record.png" class="right-icon isFinancePage" v-if="isFinancePage"
 				@click="toApplication('/pages/MinePage/financePage')">
 			</image>
+			<image :lazy-load="true" style="width: 48rpx;height: 48rpx;" src="/static/BlackStars/explain.png" class="right-icon isFinancePage"
+				v-if="isBlackStars" @click="toApplication('/pages/BlackStarsPage/explain')">
+			</image>
 			<view class="right-text isLotteryRecord" v-if="isLotteryRecord"
 				@click="toApplication('/pages/HomePage/tirageRecordPage')">
 				{{ $t('记录') }}
@@ -69,6 +72,10 @@ export default {
 			default: false
 		},
 		isFinancePage: {
+			type: Boolean,
+			default: false
+		},
+		isBlackStars: {
 			type: Boolean,
 			default: false
 		},

@@ -5,7 +5,8 @@
 			"style": {
 				"navigationStyle": "custom"
 			}
-		}, {
+		},
+		{
 			"path": "pages/HomePage/index",
 			"style": {
 				"navigationStyle": "custom"
@@ -373,6 +374,18 @@
 			"style": {
 				"navigationStyle": "custom"
 			}
+		},
+		{
+			"path": "pages/BlackStarsPage/index",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/BlackStarsPage/explain",
+			"style": {
+				"navigationStyle": "custom"
+			}
 		}
 	],
 	"tabBar": {
@@ -387,7 +400,8 @@
 		"height": "88px",
 		"fontSize": "12px",
 		"iconWidth": "31px",
-		"list": [{
+		"list": [
+			{
 				"pagePath": "pages/HomePage/index",
 				"iconPath": "/static/tab/home.png",
 				"selectedIconPath": "/static/tab/home_a.png",
@@ -416,7 +430,8 @@
 				"iconPath": "/static/tab/level.png",
 				"selectedIconPath": "/static/tab/level_a.png",
 				"text": "%pages.level%"
-			}, {
+			},
+			{
 				"pagePath": "pages/MinePage/index",
 				"iconPath": "/static/tab/mine.png",
 				"selectedIconPath": "/static/tab/mine_a.png",
