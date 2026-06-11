@@ -109,7 +109,7 @@
                         sessions, charity events, and offline activities.</view>
                 </view>
 
-                <view class="block-title leaderboard-title">Team Leaderboard</view>
+                <!-- <view class="block-title leaderboard-title">Team Leaderboard</view>
                 <view class="card leaderboard-card">
                     <view class="leader-top">
                         <view class="leader-podium" v-for="item in topThreeRankList" :key="item.rank"
@@ -138,7 +138,7 @@
                             <view class="row-score">{{ myRankInfo.empty ? 'Waiting' : myRankInfo.teamCount }}</view>
                         </view>
                     </view>
-                </view>
+                </view> -->
             </view>
         </view>
         <view class="reward-modal-mask" v-if="rewardModal.visible" @click="closeRewardModal">
@@ -188,8 +188,8 @@ export default {
             rewards: [
                 { members: 500, price: '23000GHS', name: 'Honda Motorcycle', image: '/static/BlackStars/car1.png' },
                 { members: 1000, price: '150000GHS', name: 'Toyota Hilux Pickup', image: '/static/BlackStars/car2.png' },
-                { members: 2000, price: '23000GHS', name: 'Mercedes-Benz GLB SUV', image: '/static/BlackStars/car3.png' },
-                { members: 3500, price: '23000GHS', name: 'Mercedes-Benz GLE SUV', image: '/static/BlackStars/car4.png' }
+                { members: 2000, price: '588000GHS', name: 'Mercedes-Benz GLB SUV', image: '/static/BlackStars/car3.png' },
+                { members: 3500, price: '1200000GHS', name: 'Mercedes-Benz GLE SUV', image: '/static/BlackStars/car4.png' }
             ]
         }
     },
