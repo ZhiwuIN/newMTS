@@ -122,9 +122,23 @@
  	font-style: normal;
  }
 
-  @font-face {
+ @font-face {
  	font-family: 'Abril Fatface';
  	src: url('/static/fonts/AbrilFatface-Regular.ttf') format('truetype');
+ 	font-weight: normal;
+ 	font-style: normal;
+ }
+
+ @font-face {
+ 	font-family: 'MiSans';
+ 	src: url('/static/fonts/MiSans-Regular.otf') format('truetype');
+ 	font-weight: normal;
+ 	font-style: normal;
+ }
+
+  @font-face {
+ 	font-family: DingTalk JinBuTi;
+ 	src: url('/static/fonts/DingTalk JinBuTi.ttf') format('truetype');
  	font-weight: normal;
  	font-style: normal;
  }

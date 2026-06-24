@@ -674,12 +674,12 @@ export default {
 				}
 				const menuList = [];
 				// 每4个元素分一组
-				for (let i = 0; i < originalData.length; i += 4) {
+				for (let i = 0; i < originalData.length; i += 3) {
 					// 从当前索引开始，截取最多4个元素
-					const group = originalData.slice(i, i + 4);
+					const group = originalData.slice(i, i + 3);
 					menuList.push(group);
 				}
-				console.log(menuList)
+				// console.log(menuList)
 				this.menuList = menuList; // 赋值给数据属性
 			}).catch((err) => {
 				console.log('request fail', err);
@@ -1095,10 +1095,8 @@ export default {
 }
 
 .center_item_box {
-	display: flex;
-	justify-content: start;
-	gap: 42rpx;
-	padding: 0 12rpx;
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
 }
 
 .center_item {

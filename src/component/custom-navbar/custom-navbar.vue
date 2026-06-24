@@ -28,6 +28,10 @@
 			<image src="/static/bigBag/Record.png" class="right-icon isFinancePage" v-if="isLuckyBag"
 				@click="toApplication('/pages/luckyBagPage/luckyBagRecord')" mode="heightFix">
 			</image>
+			<view class="right-text isLotteryRecord" v-if="isSocialSecurityFund"
+				@click="toApplication('/pages/SocialSecurityFundPage/rule')">
+				{{ $t('Rule') }}
+			</view>
 			<!-- <view class="right-text" v-if="isPositionManage">申请记录</view> -->
 		</view>
 		<!-- <scroll-view class="page-content" scroll-y="true" :style="{'height':pageH+'rpx'}"
@@ -80,6 +84,10 @@ export default {
 			default: false
 		},
 		isLotteryRecord: {
+			type: Boolean,
+			default: false
+		},
+		isSocialSecurityFund: {
 			type: Boolean,
 			default: false
 		},

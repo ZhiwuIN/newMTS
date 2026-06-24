@@ -189,7 +189,7 @@ export default {
                 { members: 500, price: '23000GHS', name: 'Honda Motorcycle', image: '/static/BlackStars/car1.png' },
                 { members: 1000, price: '150000GHS', name: 'Toyota Hilux Pickup', image: '/static/BlackStars/car2.png' },
                 { members: 2000, price: '588000GHS', name: 'Mercedes-Benz GLB SUV', image: '/static/BlackStars/car3.png' },
-                { members: 3500, price: '1200000GHS', name: 'Mercedes-Benz GLE SUV', image: '/static/BlackStars/car4.png' }
+                { members: 3500, price: '1200000GHS', name: 'Mercedes-Benz GLE SUV', image: '/static/BlackStars/car4.png' },
             ]
         }
     },
