@@ -557,5 +557,6 @@
     "bagExplain": "Bag Description",
 	"活动页去": "Go now →",
 	"价值": "Value",
-	"Rule": "Rule"
+	"Rule": "Rule",
+	"show7Days":"Only display data from the past 7 days"
 }
