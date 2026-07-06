@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite'
+﻿import { defineConfig } from 'vite'
 import uni from '@dcloudio/vite-plugin-uni'
 import path from 'path'
 
@@ -6,6 +6,7 @@ export default defineConfig({
   plugins: [uni()],
   server: {
     host: '0.0.0.0',
+    allowedHosts: true,
   },
    resolve: {
       alias: {
@@ -15,3 +16,4 @@ export default defineConfig({
       },
     },
 })
+
