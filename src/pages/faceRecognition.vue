@@ -55,7 +55,8 @@
 				passCount: 0,
 				frameTimer: null,
 				canvasContext: null,
-				isCompleted: false
+				isCompleted: false,
+				cameraTimer: null
 			}
 		},
 		computed: {
@@ -65,7 +66,8 @@
 		},
 		methods: {
 			createNativeVideo() {
-				if (this.videoEl || !this.$refs.videoHost) return
+				// H5 下使用原生 video 承载摄像头流。
+				if (this.videoEl || !this.$refs.videoHost || typeof document === 'undefined') return
 
 				const video = document.createElement('video')
 				video.setAttribute('autoplay', 'autoplay')
@@ -84,21 +86,34 @@
 				this.statusText = '正在打开摄像头...'
 				this.createNativeVideo()
 
+				if (typeof window === 'undefined' || typeof navigator === 'undefined') {
+					this.cameraError = '当前环境不支持网页摄像头'
+					this.statusText = '摄像头能力不可用'
+					return
+				}
+
 				if (!window.isSecureContext && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
-					this.cameraError = '手机浏览器必须使用HTTPS地址才能打开摄像头，HTTP地址会被系统禁止'
-					this.statusText = '请使用HTTPS访问'
+					this.cameraError = '手机浏览器必须使用 HTTPS 地址才能打开摄像头，HTTP 地址会被系统禁止'
+					this.statusText = '请使用 HTTPS 访问'
 					return
 				}
 
 				const mediaDevices = navigator.mediaDevices
 				if (!mediaDevices || !mediaDevices.getUserMedia) {
-					this.cameraError = '当前浏览器不支持网页摄像头能力，请换Safari/Chrome，或在App内打开'
+					this.cameraError = '当前浏览器不支持网页摄像头能力，请换 Safari/Chrome，或在 App 内打开'
 					this.statusText = '摄像头能力不可用'
 					return
 				}
 
+				this.cameraTimer = setTimeout(() => {
+					if (!this.stream) {
+						this.cameraError = '摄像头请求没有响应。请检查浏览器是否已禁止相机权限，或尝试点击浏览器地址栏左侧的权限设置重新允许'
+						this.statusText = '摄像头打开超时'
+					}
+				}, 10000)
+
 				try {
-					this.stream = await mediaDevices.getUserMedia({
+					const stream = await mediaDevices.getUserMedia({
 						audio: false,
 						video: {
 							facingMode: 'user',
@@ -107,19 +122,37 @@
 						}
 					})
 
-					this.videoEl.srcObject = this.stream
-					this.videoEl.onloadedmetadata = () => {
-						this.videoEl.play()
-						this.detecting = true
-						this.statusText = '按提示完成动作'
-						this.prepareCanvas()
-						this.startDetectLoop()
-					}
+					clearTimeout(this.cameraTimer)
+					this.cameraTimer = null
+					this.stream = stream
+					this.videoEl.srcObject = stream
+					await this.waitVideoReady()
+					await this.videoEl.play()
+					this.detecting = true
+					this.statusText = '按提示完成动作'
+					this.prepareCanvas()
+					this.startDetectLoop()
 				} catch (error) {
+					clearTimeout(this.cameraTimer)
+					this.cameraTimer = null
 					console.log('camera error', error)
+					this.stopCamera()
 					this.cameraError = this.getCameraErrorText(error)
 					this.statusText = '摄像头不可用'
 				}
+			},
+			waitVideoReady() {
+				if (this.videoEl.readyState >= 1) return Promise.resolve()
+
+				return new Promise((resolve) => {
+					const done = () => {
+						clearTimeout(timer)
+						this.videoEl.removeEventListener('loadedmetadata', done)
+						resolve()
+					}
+					const timer = setTimeout(done, 3000)
+					this.videoEl.addEventListener('loadedmetadata', done, { once: true })
+				})
 			},
 			getCameraErrorText(error) {
 				const name = error && error.name
@@ -132,7 +165,10 @@
 				if (name === 'NotReadableError' || name === 'TrackStartError') {
 					return '摄像头被其他应用占用，请关闭后重试'
 				}
-				return '无法打开摄像头，请确认使用HTTPS并允许相机权限'
+				if (name === 'OverconstrainedError' || name === 'ConstraintNotSatisfiedError') {
+					return '当前摄像头不支持要求的参数，请换设备或浏览器重试'
+				}
+				return '无法打开摄像头，请确认使用 HTTPS 并允许相机权限'
 			},
 			prepareCanvas() {
 				const canvas = this.$refs.canvas
@@ -175,7 +211,7 @@
 
 				if (passed) {
 					this.passCount += 1
-					this.statusText = '动作已识别，请保持一下'
+					this.statusText = '动作已识别，请保持一会儿'
 				} else {
 					this.passCount = Math.max(0, this.passCount - 1)
 					this.statusText = '按提示完成动作'
@@ -204,7 +240,7 @@
 				return this.getDiffScore(frame, this.stableFrame, this.getRegion(region))
 			},
 			getDiffScore(frame, target, region) {
-				if (!target) return 0
+				if (!target || !region) return 0
 
 				let total = 0
 				let count = 0
@@ -262,6 +298,10 @@
 			stopCamera() {
 				this.stopDetectLoop()
 				this.detecting = false
+				if (this.cameraTimer) {
+					clearTimeout(this.cameraTimer)
+					this.cameraTimer = null
+				}
 				if (this.stream) {
 					this.stream.getTracks().forEach(track => track.stop())
 					this.stream = null
