@@ -1,458 +1,500 @@
 <template>
-	<customnavbar title="Face verification">
-		<view class="face-page">
-			<view class="tip-title">{{ currentAction.title }}</view>
-			<view class="tip-subtitle">{{ statusText }}</view>
-
-			<view class="camera-wrap">
-				<view ref="videoHost" class="camera-video-host"></view>
-				<view class="face-mask"></view>
-				<view class="scan-ring" :class="{ active: detecting }"></view>
+	<customnavbar title="Face Liveness">
+		<view class="page">
+			<view class="hero">
+				<view class="hero-title">{{ currentStep.title }}</view>
+				<view class="hero-desc">{{ currentStep.desc }}</view>
 			</view>
 
-			<view class="progress-row">
-				<view
-					v-for="(item, index) in actions"
-					:key="item.type"
-					class="progress-dot"
-					:class="{ done: index < actionIndex, current: index === actionIndex }"
-				></view>
+			<!-- #ifdef H5 || APP-PLUS -->
+			<view class="camera-shell">
+				<video
+					ref="videoRef"
+					class="camera-video"
+					autoplay
+					playsinline
+					muted
+				></video>
+				<canvas ref="canvasRef" class="camera-overlay"></canvas>
+				<view class="scan-ring"></view>
 			</view>
 
-			<view v-if="cameraError" class="error-box">{{ cameraError }}</view>
+			<view class="progress-card">
+				<view class="progress-row" v-for="(step, index) in steps" :key="step.key">
+					<view class="progress-index" :class="{ done: step.done, active: activeStepIndex === index }">
+						{{ index + 1 }}
+					</view>
+					<view class="progress-text">
+						<view class="progress-title">{{ step.title }}</view>
+						<view class="progress-desc">{{ step.done ? '已完成' : '等待执行' }}</view>
+					</view>
+				</view>
+			</view>
 
-			<button v-if="!stream" class="start-btn" @click="restartCamera">
-				{{ cameraError ? '重新打开摄像头' : '开始检测' }}
-			</button>
+			<view class="tips-card">
+				<view class="tips-title">状态</view>
+				<view class="status-text">{{ statusText }}</view>
+				<view class="permission-text">首次进入会申请摄像头权限，仅用于本地活体动作检测。</view>
+			</view>
 
-			<canvas ref="canvas" canvas-id="faceCanvas" class="hidden-canvas"></canvas>
+			<view class="action-bar">
+				<button class="primary-btn" @click="startDetection" :disabled="isStarting">
+					{{ started ? '重新开始' : '开始检测' }}
+				</button>
+			</view>
+			<!-- #endif -->
+
+			<!-- #ifndef H5 || APP-PLUS -->
+			<view class="tips-card">
+				<view class="tips-title">当前平台暂未接入</view>
+				<view class="status-text">这个基础版只先接入 H5 和 Android App WebView 场景。</view>
+			</view>
+			<!-- #endif -->
 		</view>
 	</customnavbar>
 </template>
 
 <script>
-	import customnavbar from '@/component/custom-navbar/custom-navbar.vue'
+import customnavbar from '@/component/custom-navbar/custom-navbar.vue'
 
-	export default {
-		components: {
-			customnavbar
-		},
-		data() {
-			return {
-				actions: [
-					{ type: 'blink', title: '请眨眼', region: 'eyes', threshold: 18, hold: 2 },
-					{ type: 'turnRight', title: '向右缓慢转头', region: 'side', threshold: 12, hold: 5 },
-					{ type: 'openMouth', title: '请张嘴', region: 'mouth', threshold: 16, hold: 3 }
-				],
-				actionIndex: 0,
-				videoEl: null,
-				stream: null,
-				detecting: false,
-				cameraError: '',
-				statusText: '请点击开始并允许相机权限',
-				lastFrame: null,
-				stableFrame: null,
-				passCount: 0,
-				frameTimer: null,
-				canvasContext: null,
-				isCompleted: false,
-				cameraTimer: null
-			}
-		},
-		computed: {
-			currentAction() {
-				return this.actions[this.actionIndex] || { title: '验证完成' }
-			}
-		},
-		methods: {
-			createNativeVideo() {
-				// H5 下使用原生 video 承载摄像头流。
-				if (this.videoEl || !this.$refs.videoHost || typeof document === 'undefined') return
+const MODEL_ASSET_ROOT = 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/wasm'
+const MODEL_PATH = 'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task'
 
-				const video = document.createElement('video')
-				video.setAttribute('autoplay', 'autoplay')
-				video.setAttribute('muted', 'muted')
-				video.setAttribute('playsinline', 'true')
-				video.setAttribute('webkit-playsinline', 'true')
-				video.muted = true
-				video.autoplay = true
-				video.playsInline = true
-				video.className = 'camera-video'
-				this.$refs.videoHost.appendChild(video)
-				this.videoEl = video
-			},
-			async startCamera() {
-				this.cameraError = ''
-				this.statusText = '正在打开摄像头...'
-				this.createNativeVideo()
+function createSteps() {
+	return [
+		{ key: 'blink', title: '请眨眼', desc: '自然眨眼 1 次', done: false },
+		{ key: 'mouth', title: '请张嘴', desc: '嘴巴张开后再闭合', done: false },
+		{ key: 'turnRight', title: '请向右转头', desc: '头部缓慢转向右侧', done: false }
+	]
+}
 
-				if (typeof window === 'undefined' || typeof navigator === 'undefined') {
-					this.cameraError = '当前环境不支持网页摄像头'
-					this.statusText = '摄像头能力不可用'
-					return
-				}
-
-				if (!window.isSecureContext && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
-					this.cameraError = '手机浏览器必须使用 HTTPS 地址才能打开摄像头，HTTP 地址会被系统禁止'
-					this.statusText = '请使用 HTTPS 访问'
-					return
-				}
-
-				const mediaDevices = navigator.mediaDevices
-				if (!mediaDevices || !mediaDevices.getUserMedia) {
-					this.cameraError = '当前浏览器不支持网页摄像头能力，请换 Safari/Chrome，或在 App 内打开'
-					this.statusText = '摄像头能力不可用'
-					return
-				}
-
-				this.cameraTimer = setTimeout(() => {
-					if (!this.stream) {
-						this.cameraError = '摄像头请求没有响应。请检查浏览器是否已禁止相机权限，或尝试点击浏览器地址栏左侧的权限设置重新允许'
-						this.statusText = '摄像头打开超时'
-					}
-				}, 10000)
-
-				try {
-					const stream = await mediaDevices.getUserMedia({
-						audio: false,
-						video: {
-							facingMode: 'user',
-							width: { ideal: 640 },
-							height: { ideal: 640 }
-						}
-					})
-
-					clearTimeout(this.cameraTimer)
-					this.cameraTimer = null
-					this.stream = stream
-					this.videoEl.srcObject = stream
-					await this.waitVideoReady()
-					await this.videoEl.play()
-					this.detecting = true
-					this.statusText = '按提示完成动作'
-					this.prepareCanvas()
-					this.startDetectLoop()
-				} catch (error) {
-					clearTimeout(this.cameraTimer)
-					this.cameraTimer = null
-					console.log('camera error', error)
-					this.stopCamera()
-					this.cameraError = this.getCameraErrorText(error)
-					this.statusText = '摄像头不可用'
-				}
-			},
-			waitVideoReady() {
-				if (this.videoEl.readyState >= 1) return Promise.resolve()
-
-				return new Promise((resolve) => {
-					const done = () => {
-						clearTimeout(timer)
-						this.videoEl.removeEventListener('loadedmetadata', done)
-						resolve()
-					}
-					const timer = setTimeout(done, 3000)
-					this.videoEl.addEventListener('loadedmetadata', done, { once: true })
-				})
-			},
-			getCameraErrorText(error) {
-				const name = error && error.name
-				if (name === 'NotAllowedError' || name === 'PermissionDeniedError') {
-					return '相机权限被拒绝，请在浏览器设置中允许相机权限后重试'
-				}
-				if (name === 'NotFoundError' || name === 'DevicesNotFoundError') {
-					return '没有找到可用摄像头'
-				}
-				if (name === 'NotReadableError' || name === 'TrackStartError') {
-					return '摄像头被其他应用占用，请关闭后重试'
-				}
-				if (name === 'OverconstrainedError' || name === 'ConstraintNotSatisfiedError') {
-					return '当前摄像头不支持要求的参数，请换设备或浏览器重试'
-				}
-				return '无法打开摄像头，请确认使用 HTTPS 并允许相机权限'
-			},
-			prepareCanvas() {
-				const canvas = this.$refs.canvas
-				canvas.width = 160
-				canvas.height = 160
-				this.canvasContext = canvas.getContext('2d', { willReadFrequently: true })
-			},
-			startDetectLoop() {
-				this.stopDetectLoop()
-				this.frameTimer = setInterval(() => {
-					this.detectAction()
-				}, 120)
-			},
-			stopDetectLoop() {
-				if (this.frameTimer) {
-					clearInterval(this.frameTimer)
-					this.frameTimer = null
-				}
-			},
-			detectAction() {
-				if (!this.detecting || this.isCompleted || !this.canvasContext) return
-				if (!this.videoEl || this.videoEl.readyState < 2) return
-
-				const ctx = this.canvasContext
-				ctx.save()
-				ctx.scale(-1, 1)
-				ctx.drawImage(this.videoEl, -160, 0, 160, 160)
-				ctx.restore()
-
-				const frame = ctx.getImageData(0, 0, 160, 160).data
-				if (!this.lastFrame) {
-					this.lastFrame = new Uint8ClampedArray(frame)
-					this.stableFrame = new Uint8ClampedArray(frame)
-					return
-				}
-
-				const score = this.getMotionScore(frame, this.currentAction.region)
-				const stableScore = this.getStableScore(frame, this.currentAction.region)
-				const passed = this.isActionPassed(score, stableScore)
-
-				if (passed) {
-					this.passCount += 1
-					this.statusText = '动作已识别，请保持一会儿'
-				} else {
-					this.passCount = Math.max(0, this.passCount - 1)
-					this.statusText = '按提示完成动作'
-				}
-
-				if (this.passCount >= this.currentAction.hold) {
-					this.nextAction()
-				}
-
-				this.lastFrame = new Uint8ClampedArray(frame)
-				if (stableScore < 6) {
-					this.stableFrame = new Uint8ClampedArray(frame)
-				}
-			},
-			isActionPassed(score, stableScore) {
-				const action = this.currentAction
-				if (action.type === 'turnRight') {
-					return stableScore > action.threshold
-				}
-				return score > action.threshold || stableScore > action.threshold + 8
-			},
-			getMotionScore(frame, region) {
-				return this.getDiffScore(frame, this.lastFrame, this.getRegion(region))
-			},
-			getStableScore(frame, region) {
-				return this.getDiffScore(frame, this.stableFrame, this.getRegion(region))
-			},
-			getDiffScore(frame, target, region) {
-				if (!target || !region) return 0
-
-				let total = 0
-				let count = 0
-				for (let y = region.y; y < region.y + region.h; y += 4) {
-					for (let x = region.x; x < region.x + region.w; x += 4) {
-						const index = (y * 160 + x) * 4
-						const light = (frame[index] + frame[index + 1] + frame[index + 2]) / 3
-						const lastLight = (target[index] + target[index + 1] + target[index + 2]) / 3
-						total += Math.abs(light - lastLight)
-						count += 1
-					}
-				}
-				return count ? total / count : 0
-			},
-			getRegion(region) {
-				const regions = {
-					eyes: { x: 38, y: 50, w: 84, h: 32 },
-					mouth: { x: 50, y: 98, w: 60, h: 34 },
-					side: { x: 18, y: 42, w: 124, h: 82 }
-				}
-				return regions[region]
-			},
-			nextAction() {
-				this.passCount = 0
-				this.lastFrame = null
-				this.stableFrame = null
-
-				if (this.actionIndex < this.actions.length - 1) {
-					this.actionIndex += 1
-					this.statusText = '很好，继续下一个动作'
-					return
-				}
-
-				this.isCompleted = true
-				this.detecting = false
-				this.statusText = '验证完成'
-				this.stopCamera()
-				this.onLivenessComplete()
-			},
-			onLivenessComplete() {
-				this.$showMessage && this.$showMessage('success', '活体检测完成')
-				console.log('liveness complete')
-			},
-			restartCamera() {
-				this.stopCamera()
-				this.actionIndex = 0
-				this.passCount = 0
-				this.lastFrame = null
-				this.stableFrame = null
-				this.isCompleted = false
-				this.$nextTick(() => {
-					this.startCamera()
-				})
-			},
-			stopCamera() {
-				this.stopDetectLoop()
-				this.detecting = false
-				if (this.cameraTimer) {
-					clearTimeout(this.cameraTimer)
-					this.cameraTimer = null
-				}
-				if (this.stream) {
-					this.stream.getTracks().forEach(track => track.stop())
-					this.stream = null
-				}
-				if (this.videoEl) {
-					this.videoEl.srcObject = null
-				}
-			}
-		},
-		mounted() {
-			this.createNativeVideo()
-		},
-		onUnload() {
-			this.stopCamera()
-		},
-		beforeUnmount() {
-			this.stopCamera()
+export default {
+	components: {
+		customnavbar
+	},
+	data() {
+		return {
+			started: false,
+			isStarting: false,
+			statusText: '点击开始检测后，将申请摄像头权限。',
+			steps: createSteps(),
+			activeStepIndex: 0,
+			stream: null,
+			faceLandmarker: null,
+			filesetResolver: null,
+			animationFrameId: null,
+			lastVideoTime: -1,
+			blinkPrimed: false,
+			mouthPrimed: false,
+			headTurnFrames: 0
 		}
+	},
+	computed: {
+		currentStep() {
+			return this.steps[this.activeStepIndex] || {
+				title: '检测完成',
+				desc: '活体动作已通过'
+			}
+		}
+	},
+	methods: {
+		async startDetection() {
+			if (this.isStarting) {
+				return
+			}
+			this.resetState()
+			this.isStarting = true
+			this.statusText = '正在初始化摄像头和模型...'
+			try {
+				await this.prepareModel()
+				await this.openCamera()
+				this.started = true
+				this.statusText = '请保持正脸在取景框内，准备开始。'
+				this.startLoop()
+			} catch (error) {
+				console.error('face liveness start failed', error)
+				this.statusText = error && error.message ? error.message : '启动失败，请检查权限或 HTTPS 配置。'
+				this.stopCamera()
+			} finally {
+				this.isStarting = false
+			}
+		},
+		resetState() {
+			this.stopLoop()
+			this.stopCamera()
+			this.steps = createSteps()
+			this.activeStepIndex = 0
+			this.blinkPrimed = false
+			this.mouthPrimed = false
+			this.headTurnFrames = 0
+			this.lastVideoTime = -1
+		},
+		async prepareModel() {
+			if (this.faceLandmarker) {
+				return
+			}
+			if (typeof window === 'undefined') {
+				throw new Error('当前环境不支持浏览器摄像头能力。')
+			}
+
+			const vision = await import('@mediapipe/tasks-vision')
+			const { FilesetResolver, FaceLandmarker } = vision
+			this.filesetResolver = await FilesetResolver.forVisionTasks(MODEL_ASSET_ROOT)
+			this.faceLandmarker = await FaceLandmarker.createFromOptions(this.filesetResolver, {
+				baseOptions: {
+					modelAssetPath: MODEL_PATH
+				},
+				outputFaceBlendshapes: true,
+				outputFacialTransformationMatrixes: true,
+				runningMode: 'VIDEO',
+				numFaces: 1
+			})
+		},
+		async openCamera() {
+			if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+				throw new Error('当前浏览器不支持摄像头采集。')
+			}
+
+			const video = this.$refs.videoRef
+			if (!video) {
+				throw new Error('视频容器初始化失败。')
+			}
+
+			const stream = await navigator.mediaDevices.getUserMedia({
+				audio: false,
+				video: {
+					facingMode: 'user',
+					width: { ideal: 720 },
+					height: { ideal: 1280 }
+				}
+			})
+
+			video.srcObject = stream
+			this.stream = stream
+
+			await new Promise((resolve, reject) => {
+				video.onloadedmetadata = async () => {
+					try {
+						await video.play()
+						this.syncCanvasSize()
+						resolve()
+					} catch (error) {
+						reject(error)
+					}
+				}
+			})
+		},
+		syncCanvasSize() {
+			const video = this.$refs.videoRef
+			const canvas = this.$refs.canvasRef
+			if (!video || !canvas) {
+				return
+			}
+			canvas.width = video.videoWidth || 720
+			canvas.height = video.videoHeight || 1280
+		},
+		startLoop() {
+			this.stopLoop()
+			const tick = () => {
+				this.detectFrame()
+				this.animationFrameId = requestAnimationFrame(tick)
+			}
+			tick()
+		},
+		stopLoop() {
+			if (this.animationFrameId) {
+				cancelAnimationFrame(this.animationFrameId)
+				this.animationFrameId = null
+			}
+		},
+		detectFrame() {
+			const video = this.$refs.videoRef
+			const canvas = this.$refs.canvasRef
+			if (!video || !canvas || !this.faceLandmarker || video.readyState < 2) {
+				return
+			}
+			if (video.currentTime === this.lastVideoTime) {
+				return
+			}
+			this.lastVideoTime = video.currentTime
+
+			const result = this.faceLandmarker.detectForVideo(video, performance.now())
+			const context = canvas.getContext('2d')
+			context.clearRect(0, 0, canvas.width, canvas.height)
+
+			if (!result.faceLandmarks || !result.faceLandmarks.length) {
+				this.statusText = '未检测到人脸，请把脸放到取景框中央。'
+				return
+			}
+
+			const landmarks = result.faceLandmarks[0]
+			const blendShapeList = result.faceBlendshapes && result.faceBlendshapes[0] ? result.faceBlendshapes[0].categories : []
+			this.drawOutline(context, landmarks, canvas.width, canvas.height)
+			this.handleStep(landmarks, blendShapeList)
+		},
+		handleStep(landmarks, blendShapeList) {
+			const step = this.steps[this.activeStepIndex]
+			if (!step) {
+				this.statusText = '活体检测已完成。'
+				return
+			}
+
+			if (step.key === 'blink') {
+				const blinkScore = Math.max(this.getBlendshapeScore(blendShapeList, 'eyeBlinkLeft'), this.getBlendshapeScore(blendShapeList, 'eyeBlinkRight'))
+				this.statusText = `请眨眼，当前眨眼强度 ${blinkScore.toFixed(2)}`
+				if (blinkScore > 0.55) {
+					this.blinkPrimed = true
+				}
+				if (this.blinkPrimed && blinkScore < 0.2) {
+					this.completeCurrentStep('眨眼完成，请继续张嘴。')
+				}
+				return
+			}
+
+			if (step.key === 'mouth') {
+				const jawOpen = this.getBlendshapeScore(blendShapeList, 'jawOpen')
+				this.statusText = `请张嘴，当前张嘴强度 ${jawOpen.toFixed(2)}`
+				if (jawOpen > 0.3) {
+					this.mouthPrimed = true
+				}
+				if (this.mouthPrimed && jawOpen < 0.1) {
+					this.completeCurrentStep('张嘴完成，请向右转头。')
+				}
+				return
+			}
+
+			if (step.key === 'turnRight') {
+				const turnRatio = this.getTurnRatio(landmarks)
+				this.statusText = `请向右转头，当前转头值 ${turnRatio.toFixed(2)}`
+				if (turnRatio > 0.12) {
+					this.headTurnFrames += 1
+				} else {
+					this.headTurnFrames = 0
+				}
+				if (this.headTurnFrames >= 6) {
+					this.completeCurrentStep('已完成全部活体动作。')
+				}
+			}
+		},
+		getBlendshapeScore(blendShapeList, categoryName) {
+			const matched = blendShapeList.find(item => item.categoryName === categoryName)
+			return matched ? matched.score : 0
+		},
+		getTurnRatio(landmarks) {
+			const nose = landmarks[1]
+			const leftFace = landmarks[234]
+			const rightFace = landmarks[454]
+			const faceCenter = (leftFace.x + rightFace.x) / 2
+			const faceWidth = Math.max(rightFace.x - leftFace.x, 0.0001)
+			return (faceCenter - nose.x) / faceWidth
+		},
+		completeCurrentStep(message) {
+			if (!this.steps[this.activeStepIndex]) {
+				return
+			}
+			this.steps[this.activeStepIndex].done = true
+			this.activeStepIndex += 1
+			this.blinkPrimed = false
+			this.mouthPrimed = false
+			this.headTurnFrames = 0
+			this.statusText = message
+
+			if (this.activeStepIndex >= this.steps.length) {
+				this.stopLoop()
+				this.statusText = '活体检测通过，可以进入下一步业务流程。'
+			}
+		},
+		drawOutline(context, landmarks, width, height) {
+			context.save()
+			context.strokeStyle = 'rgba(130, 98, 255, 0.95)'
+			context.lineWidth = 2
+			context.beginPath()
+			landmarks.forEach((point, index) => {
+				const x = point.x * width
+				const y = point.y * height
+				if (index === 0) {
+					context.moveTo(x, y)
+				} else {
+					context.lineTo(x, y)
+				}
+			})
+			context.stroke()
+			context.restore()
+		},
+		stopCamera() {
+			if (this.stream) {
+				this.stream.getTracks().forEach(track => track.stop())
+				this.stream = null
+			}
+			const video = this.$refs.videoRef
+			if (video) {
+				video.srcObject = null
+			}
+		}
+	},
+	beforeUnmount() {
+		this.stopLoop()
+		this.stopCamera()
+	},
+	onHide() {
+		this.stopLoop()
+		this.stopCamera()
+	},
+	onUnload() {
+		this.stopLoop()
+		this.stopCamera()
 	}
+}
 </script>
 
 <style scoped lang="scss">
-	.face-page {
-		min-height: calc(100vh - 88rpx);
-		background: #ffffff;
-		padding: 28rpx 36rpx 60rpx;
-		box-sizing: border-box;
-		text-align: center;
-	}
+.page {
+	min-height: 100vh;
+	padding: 32rpx 28rpx 56rpx;
+	background:
+		radial-gradient(circle at top, rgba(133, 118, 255, 0.14), transparent 34%),
+		linear-gradient(180deg, #fbfbff 0%, #f3f5ff 100%);
+}
 
-	.tip-title {
-		font-weight: 700;
-		font-size: 38rpx;
-		color: #6b55b6;
-		line-height: 54rpx;
-		margin-top: 20rpx;
-	}
+.hero {
+	padding: 36rpx 12rpx 28rpx;
+	text-align: center;
+}
 
-	.tip-subtitle {
-		font-size: 26rpx;
-		color: #777777;
-		line-height: 38rpx;
-		margin-top: 12rpx;
-		min-height: 38rpx;
-	}
+.hero-title {
+	color: #6356c8;
+	font-size: 40rpx;
+	font-weight: 600;
+}
 
-	.camera-wrap {
-		position: relative;
-		width: 520rpx;
-		height: 520rpx;
-		margin: 110rpx auto 0;
-		border-radius: 50%;
-		overflow: hidden;
-		background: #f4f4f4;
-	}
+.hero-desc {
+	margin-top: 12rpx;
+	color: #7d7f91;
+	font-size: 26rpx;
+}
 
-	.camera-video-host {
-		width: 100%;
-		height: 100%;
-	}
+.camera-shell {
+	position: relative;
+	width: 560rpx;
+	height: 560rpx;
+	margin: 0 auto;
+	border-radius: 50%;
+	overflow: hidden;
+	background: #111;
+	box-shadow: 0 28rpx 80rpx rgba(79, 71, 153, 0.18);
+}
 
-	.camera-video-host ::v-deep .camera-video {
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-		transform: scaleX(-1);
-	}
+.camera-video,
+.camera-overlay,
+.scan-ring {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+}
 
-	.face-mask {
-		position: absolute;
-		inset: 0;
-		border-radius: 50%;
-		box-shadow: inset 0 0 0 8rpx rgba(255, 255, 255, 0.92);
-		pointer-events: none;
-	}
+.camera-video {
+	object-fit: cover;
+	transform: scaleX(-1);
+}
 
-	.scan-ring {
-		position: absolute;
-		inset: 4rpx;
-		border-radius: 50%;
-		border: 4rpx dashed #777777;
-		pointer-events: none;
-	}
+.camera-overlay {
+	pointer-events: none;
+}
 
-	.scan-ring.active {
-		animation: rotateRing 5s linear infinite;
-	}
+.scan-ring {
+	border: 4rpx solid rgba(255, 255, 255, 0.9);
+	border-radius: 50%;
+	box-sizing: border-box;
+	box-shadow: inset 0 0 0 18rpx rgba(255, 255, 255, 0.18);
+	pointer-events: none;
+}
 
-	.progress-row {
-		display: flex;
-		justify-content: center;
-		gap: 18rpx;
-		margin-top: 64rpx;
-	}
+.progress-card,
+.tips-card {
+	margin-top: 36rpx;
+	padding: 28rpx;
+	border-radius: 28rpx;
+	background: rgba(255, 255, 255, 0.82);
+	box-shadow: 0 20rpx 60rpx rgba(83, 87, 126, 0.08);
+	backdrop-filter: blur(10px);
+}
 
-	.progress-dot {
-		width: 18rpx;
-		height: 18rpx;
-		border-radius: 50%;
-		background: #d8d8d8;
-	}
+.progress-row {
+	display: flex;
+	align-items: center;
+}
 
-	.progress-dot.current {
-		background: #6b55b6;
-		transform: scale(1.22);
-	}
+.progress-row + .progress-row {
+	margin-top: 22rpx;
+}
 
-	.progress-dot.done {
-		background: #2dbb73;
-	}
+.progress-index {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 56rpx;
+	height: 56rpx;
+	border-radius: 50%;
+	background: #ece8ff;
+	color: #776dcf;
+	font-size: 26rpx;
+	font-weight: 600;
+}
 
-	.error-box {
-		width: 620rpx;
-		margin: 58rpx auto 0;
-		padding: 24rpx;
-		box-sizing: border-box;
-		border-radius: 16rpx;
-		background: #fff3f0;
-		color: #c65343;
-		font-size: 28rpx;
-		line-height: 40rpx;
-	}
+.progress-index.active {
+	background: #776dcf;
+	color: #fff;
+}
 
-	.start-btn {
-		width: 360rpx;
-		height: 82rpx;
-		line-height: 82rpx;
-		margin-top: 36rpx;
-		border-radius: 41rpx;
-		background: #6b55b6;
-		color: #ffffff;
-		font-size: 30rpx;
-	}
+.progress-index.done {
+	background: #1fa971;
+	color: #fff;
+}
 
-	.hidden-canvas {
-		position: fixed;
-		left: -9999px;
-		top: -9999px;
-		width: 160px;
-		height: 160px;
-		opacity: 0;
-		pointer-events: none;
-	}
+.progress-text {
+	margin-left: 20rpx;
+}
 
-	@keyframes rotateRing {
-		from {
-			transform: rotate(0deg);
-		}
+.progress-title,
+.tips-title {
+	color: #2a2d3a;
+	font-size: 28rpx;
+	font-weight: 600;
+}
 
-		to {
-			transform: rotate(360deg);
-		}
-	}
+.progress-desc,
+.permission-text {
+	margin-top: 8rpx;
+	color: #8c8f9e;
+	font-size: 24rpx;
+	line-height: 1.6;
+}
+
+.status-text {
+	margin-top: 12rpx;
+	color: #4c4f61;
+	font-size: 26rpx;
+	line-height: 1.7;
+}
+
+.action-bar {
+	margin-top: 44rpx;
+}
+
+.primary-btn {
+	height: 92rpx;
+	line-height: 92rpx;
+	border: none;
+	border-radius: 999rpx;
+	background: linear-gradient(135deg, #7a6bff 0%, #6154d8 100%);
+	color: #fff;
+	font-size: 30rpx;
+	font-weight: 600;
+	box-shadow: 0 18rpx 50rpx rgba(100, 84, 216, 0.24);
+}
+
+.primary-btn[disabled] {
+	opacity: 0.7;
+}
 </style>
