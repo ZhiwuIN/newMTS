@@ -146,6 +146,8 @@ export default {
 			// 显示筛选弹窗
 		},
 		getList() {
+			this.$showMessage('warning', 'Too many users are querying, please try again later');
+			return
 			// 根据currentTab获取对应列表数据
 			let type = ''
 			switch (this.currentTab) {
