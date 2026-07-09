@@ -5,7 +5,7 @@
         <view class="title_box" :style="topStyle">
             <image src="/static/LaborDeposit/title_bgi.png" class="title_bgi" mode="widthFix"></image>
             <view class="title_text_box">
-                <view class="title">Zero Work Deposit</view>
+                <view class="title">Zero Deposit Work Plan</view>
                 <view class="desc">Claim after VIP upgrade</view>
             </view>
         </view>
@@ -27,11 +27,11 @@
                             <view class="deposit_left">
                                 <view class="deposit_name">{{ item.vipLevelName }}</view>
 
-                                <view class="progress_box">
+                                <!-- <view class="progress_box">
                                     <view class="progress_bar">
                                         <view class="progress_fill" :style="{ width: getProgressWidth(item) }"></view>
                                     </view>
-                                </view>
+                                </view> -->
                             </view>
 
                             <view class="claim_btn" v-if="item.claimStatus == 'canClaim'" @click="unApplyApi">Claim
