@@ -1,4 +1,4 @@
-import App from './App'
+import App from './App.vue'
 import en from './locale/en.json'
 import ru from './locale/ru.json'
 import es from './locale/es.json'
