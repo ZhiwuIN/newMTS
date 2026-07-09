@@ -116,10 +116,17 @@
 						:text="noticeList" />
 				</view>
 
+				<!-- 会员押金 -->
+				<view class="activityCenter_box" style="padding: 0 50rpx;" v-if="workDepositInfo?.activitySwitch" @click="toPage3('/pages/LaborDepositPage/index')">
+					<image :lazy-load="true" style="border-radius: 12rpx;padding: 0;"
+						:src="workDepositInfo?.image" class="activityCenter" mode="widthFix"></image>
+				</view>
+
 				<!-- 活动中心 -->
-				<view class="activityCenter_box" v-if="activityCenter?.activeSwitch">
-					<image :lazy-load="true" @click="toPage3('/pages/HomePage/activityCenter')"
-						:src="activityCenter?.image" class="activityCenter" mode="widthFix"></image>
+				<view class="activityCenter_box" v-if="activityCenter?.activeSwitch"
+					@click="toPage3('/pages/HomePage/activityCenter')">
+					<image :lazy-load="true" :src="activityCenter?.image" class="activityCenter" mode="widthFix">
+					</image>
 					<view class="activityName">{{ activityCenter?.name }}</view>
 					<view class="go">{{ $t('活动页去') }}</view>
 				</view>
@@ -243,6 +250,9 @@ import {
 	showMessage,
 	htmlToPlainText
 } from "@/utils/utils.js"
+import {
+	workDepositApi
+} from '@/common/api/LaborDepositPage.js'
 export default {
 	components: {
 		customnavbar,
@@ -251,6 +261,7 @@ export default {
 	},
 	data() {
 		return {
+			workDepositInfo: {}, // 会员押金
 			luckyBagSwitch: 0,
 			bagInfo: {},
 			bigBag: false,
@@ -685,12 +696,19 @@ export default {
 				console.log('request fail', err);
 				this.$showMessage('warning', err.msg);
 			})
+		},
+		// 活动信息
+		getWorkDeposit() {
+			workDepositApi().then(res => {
+				this.workDepositInfo = res.data
+			})
 		}
 	},
 	onShow() {
 		activityCenterApi().then(res => {
 			this.activityCenter = res.data
 		})
+		this.getWorkDeposit()
 		settingsApi().then((res) => {
 			uni.setStorageSync('settings', res.data)
 			// 是否有滚动消息
@@ -739,6 +757,7 @@ export default {
 		if (uni.getStorageSync('bagShow')) {
 			uni.removeStorageSync('bagShow')
 		}
+
 	}
 }
 </script>

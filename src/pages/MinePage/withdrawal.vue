@@ -10,7 +10,7 @@
 						</view>
 						<view>{{ $t('Withdrawal.Ratio:') }}
 							{{ usdtRateOut }}{{ withdrawalInfo.currency }}≈{{ (1 - (1 /
-								withdrawalInfo.fee)).toFixed(4)}}{{ actualCurrency }}
+								withdrawalInfo.fee)).toFixed(4) }}{{ actualCurrency }}
 							<br />
 							{{ $t('withdrawalRules.feeMessageA') + (withdrawalInfo.fee ||
 								'-') + $t('withdrawalRules.feeMessageB') + (withdrawalInfo.dailyTimes ||
@@ -31,12 +31,13 @@
 						<text class="clear" @tap="clearWithdrawAmount" v-if="withdrawAmount">×</text>
 					</view>
 					<view class="step2-t2" v-if="!customizedAmountList.length">
-						{{ $t('Deposit.min') }}: {{ minAmount }}{{ withdrawalInfo.currency }} {{ $t('Deposit.max') }}:
-						{{ maxAmount }}{{ withdrawalInfo.currency }}
+						{{ $t('Deposit.min') }}: {{ withdrawalInfo.minWithdrawAmount || minAmount }}{{
+							withdrawalInfo.currency }} {{ $t('Deposit.max') }}:
+						{{ withdrawalInfo.maxWithdrawAmount || maxAmount }}{{ withdrawalInfo.currency }}
 						<br />
 						{{ $t('Deposit.balance') }}{{ withdrawalInfo.balance }}{{ withdrawalInfo.currency }}
 					</view>
-					<view class="quick-amount">
+					<view class="quick-amount" v-if="!withdrawalInfo.maxWithdrawAmount">
 						<view class="amount-item" v-for="(item, index) in customizedAmountList" :key="index"
 							@tap="selectQuickAmount(item)" :class="{ 'active': withdrawAmount == item }">
 							{{ item }}
@@ -308,13 +309,19 @@ export default {
 				this.$showMessage('warning', this.$t('Deposit.placeholder2'));
 				return
 			}
-			if ((this.withdrawAmount < this.minAmount && !this.customizedAmountList.length) || (this.withdrawAmount >
-				this.maxAmount && !this.customizedAmountList.length)) {
-				this.$showMessage('warning', this.$t('withdrawal.amountRangeA') + this.minAmount + this.withdrawalInfo
-					.currency + this.$t('withdrawal.amountRangeB') + this.maxAmount + this.withdrawalInfo
-						.currency + this.$t('withdrawal.amountRangeC'));
-				return;
+			if (!this.customizedAmountList.length) {
+				const hasCustomRange = this.withdrawalInfo.minWithdrawAmount && this.withdrawalInfo.maxWithdrawAmount
+				const minWithdrawAmount = hasCustomRange ? this.withdrawalInfo.minWithdrawAmount : this.minAmount
+				const maxWithdrawAmount = hasCustomRange ? this.withdrawalInfo.maxWithdrawAmount : this.maxAmount
+
+				if (this.withdrawAmount < minWithdrawAmount || this.withdrawAmount > maxWithdrawAmount) {
+					this.$showMessage('warning', this.$t('withdrawal.amountRangeA') + minWithdrawAmount + this.withdrawalInfo
+						.currency + this.$t('withdrawal.amountRangeB') + maxWithdrawAmount + this.withdrawalInfo
+							.currency + this.$t('withdrawal.amountRangeC'));
+					return;
+				}
 			}
+
 
 			// 余额不足
 			if (this.withdrawAmount > this.withdrawalInfo.balance) {

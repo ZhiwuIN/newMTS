@@ -136,7 +136,14 @@
  	font-style: normal;
  }
 
-  @font-face {
+ @font-face {
+ 	font-family: 'Alimama PuHeiTi';
+ 	src: url('/static/fonts/AlibabaPuHuiTi-3-85-Bold.ttf') format('truetype');
+ 	font-weight: normal;
+ 	font-style: normal;
+ }
+
+ @font-face {
  	font-family: DingTalk JinBuTi;
  	src: url('/static/fonts/DingTalk JinBuTi.ttf') format('truetype');
  	font-weight: normal;
