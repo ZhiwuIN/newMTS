@@ -169,6 +169,7 @@ export default {
 					break
 			}
 			this.loading = true
+			this.billsList = []
 			uni.showLoading({
 				title: this.$t('loading.btn')
 			});
