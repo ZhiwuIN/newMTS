@@ -6,7 +6,7 @@
             <image src="/static/LaborDeposit/title_bgi.png" class="title_bgi" mode="widthFix"></image>
             <view class="title_text_box">
                 <view class="title">Zero Deposit Work Plan</view>
-                <view class="desc">Claim after VIP upgrade</view>
+                <view class="desc">Claim after Account upgrade</view>
             </view>
         </view>
 
@@ -14,7 +14,8 @@
             <!-- <view class="section_title">Choose a deposit</view> -->
             <view class="title_card">
                 <view class="desc">Application Instructions</view>
-                <view>After the VIP upgrade is completed, you can click to claim the corresponding level's work deposit.
+                <view>After the Account upgrade is completed, you can click to claim the corresponding level's work
+                    deposit.
                     After clicking to claim, the work deposit will be automatically refunded to your CWPC work account
                     balance.</view>
             </view>
@@ -44,9 +45,9 @@
 
                         <view class="deposit_bottom">
                             <!-- {{ (item.totalQuota - item.remainingQuota) || 0 }}/ -->
-                            <view class="progress_text">{{
+                            <view class="progress_text">Gross: {{
                                 item.totalQuota }}</view>
-                            <view class="spots_text">{{ item.remainingQuota }} spots left</view>
+                            <view class="spots_text">{{ item.remainingQuota }} Spots Left</view>
                         </view>
                     </view>
                 </view>
