@@ -44,10 +44,10 @@
                         </view>
 
                         <view class="deposit_bottom">
-                            <!-- {{ (item.totalQuota - item.remainingQuota) || 0 }}/ -->
+                            <!-- {{ (item.totalQuota - item.lockedQuota) || 0 }}/ -->
                             <view class="progress_text">Gross: {{
                                 item.totalQuota }}</view>
-                            <view class="spots_text">{{ item.remainingQuota }} Spots Left</view>
+                            <view class="spots_text">{{ item.lockedQuota }} Spots Left</view>
                         </view>
                     </view>
                 </view>
@@ -111,7 +111,7 @@ export default {
                 },
                 {
                     icon: '/static/LaborDeposit/rule_img2.png',
-                    title: 'Upgrade VIP'
+                    title: 'Upgrade Account'
                 },
                 {
                     icon: '/static/LaborDeposit/rule_img3.png',
@@ -177,14 +177,14 @@ export default {
             // #endif
         },
         getProgressWidth(item) {
-            const remainingQuota = Number(String(item.remainingQuota).replace(/,/g, ''))
+            const lockedQuota = Number(String(item.lockedQuota).replace(/,/g, ''))
             const totalQuota = Number(String(item.totalQuota).replace(/,/g, ''))
 
-            if (!totalQuota || Number.isNaN(remainingQuota) || Number.isNaN(totalQuota)) {
+            if (!totalQuota || Number.isNaN(lockedQuota) || Number.isNaN(totalQuota)) {
                 return '0%'
             }
 
-            const percent = Math.min(Math.max((remainingQuota / totalQuota) * 100, 0), 100)
+            const percent = Math.min(Math.max((lockedQuota / totalQuota) * 100, 0), 100)
             return `${percent.toFixed(2)}%`
         }
     },
