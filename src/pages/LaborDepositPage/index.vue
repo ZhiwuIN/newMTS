@@ -14,8 +14,7 @@
             <!-- <view class="section_title">Choose a deposit</view> -->
             <view class="title_card">
                 <view class="desc">Application Instructions</view>
-                <view>After the Account upgrade is completed, you can click to claim the corresponding level's work
-                    deposit.
+                <view>After the Account upgrade is completed, you can click to claim the corresponding level's work deposit.
                     After clicking to claim, the work deposit will be automatically refunded to your CWPC work account
                     balance.</view>
             </view>
@@ -44,10 +43,9 @@
                         </view>
 
                         <view class="deposit_bottom">
-                            <!-- {{ (item.totalQuota - item.remainingQuota) || 0 }}/ -->
-                            <view class="progress_text">Gross: {{
+                            <view class="progress_text">{{ (item.remainingQuota) || 0 }}/{{
                                 item.totalQuota }}</view>
-                            <view class="spots_text">{{ item.remainingQuota }} Spots Left</view>
+                            <view class="spots_text">{{ item.remainingQuota }} spots left</view>
                         </view>
                     </view>
                 </view>
