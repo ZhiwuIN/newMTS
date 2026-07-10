@@ -20,6 +20,27 @@ const {
 
 // 防止请求失败时重复弹窗
 let globalRequestFailedAlerted = false;
+const tooManyRequestsMessage = 'Too many users are querying, please try again later';
+
+function showGlobalRequestMessage(theme, content) {
+	if (!globalRequestFailedAlerted) {
+		globalRequestFailedAlerted = true;
+		showMessage(theme, content);
+
+		setTimeout(() => {
+			globalRequestFailedAlerted = false;
+		}, 3000);
+	}
+}
+
+function buildHandledError(error, msg) {
+	return {
+		...(error || {}),
+		msg,
+		message: msg,
+		_messageShown: true
+	};
+}
 
 const base_url = import.meta.env.VITE_API_URL ?? 'https://api.cwpc.cc';
 // const base_url = 'https://api.cwpc.cc';
@@ -117,6 +138,9 @@ function requestWithAuth(params, resolve, reject, retried = false) {
 				}
 			} else if (statusCode == 401) {
 				handle401();
+			} else if (statusCode == 429) {
+				showGlobalRequestMessage('warning', tooManyRequestsMessage);
+				reject(buildHandledError(response, tooManyRequestsMessage));
 			} else {
 				reject(response);
 			}
@@ -180,6 +204,14 @@ function requestWithAuth(params, resolve, reject, retried = false) {
 				(err.msg && err.msg.includes('502')) ||
 				(err.message && err.message.includes('502')) ||
 				(err.errMsg && err.errMsg.includes('502'));
+			// 判定是否为 429 错误（适配不同的 err 格式，覆盖常见场景）
+			const is429Error =
+				// 场景1：err 里有 statusCode 字段（如 axios/uni.request 等）
+				err.statusCode === 429 ||
+				// 场景2：err.msg/err.message 包含 429 关键词（如自定义错误信息）
+				(err.msg && err.msg.includes('429')) ||
+				(err.message && err.message.includes('429')) ||
+				(err.errMsg && err.errMsg.includes('429'));
 
 			// 超时错误处理
 			if (isTimeoutError) {
@@ -193,8 +225,19 @@ function requestWithAuth(params, resolve, reject, retried = false) {
 					}, 3000);
 				}
 			}
-			// 502 错误处理
-			else if (is502Error) {
+			// 429 错误处理
+			else if (is429Error) {
+				if (!globalRequestFailedAlerted) {
+					globalRequestFailedAlerted = true;
+					showMessage('warning', tooManyRequestsMessage);
+
+					// 3秒内禁止重复弹窗
+					setTimeout(() => {
+						globalRequestFailedAlerted = false;
+					}, 1500);
+				}
+				// 502 错误处理
+			} else if (is502Error) {
 				if (!globalRequestFailedAlerted) {
 					globalRequestFailedAlerted = true;
 					showMessage('warning', t('request.systemMaintenance'));

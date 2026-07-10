@@ -129,6 +129,8 @@ function formatImgSrc(url) {
 }
 
 export function showMessage(theme, content, duration = 1500) {
+	if (!content) return;
+
 	uni.showToast({
 		title: content,
 		icon: 'none',

@@ -219,7 +219,7 @@ export default {
         }
     },
     onShow() {
-        this.getUserInfo()
+        // this.getUserInfo()
     }
 }
 </script>

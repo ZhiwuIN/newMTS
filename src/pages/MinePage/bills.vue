@@ -182,7 +182,9 @@ export default {
 			}).catch((err) => {
 				console.log('request fail', err);
 				this.loading = false
-				this.$showMessage('warning', err.msg);
+				if (!err._messageShown && err.msg) {
+					this.$showMessage('warning', err.msg);
+				}
 			}).finally(() => {
 				uni.hideLoading();
 			})
