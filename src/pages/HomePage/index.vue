@@ -117,9 +117,10 @@
 				</view>
 
 				<!-- 会员押金 -->
-				<view class="activityCenter_box" style="padding: 0 50rpx;" v-if="workDepositInfo?.activitySwitch" @click="toPage3('/pages/LaborDepositPage/index')">
-					<image :lazy-load="true" style="border-radius: 12rpx;padding: 0;"
-						:src="workDepositInfo?.image" class="activityCenter" mode="widthFix"></image>
+				<view class="activityCenter_box" style="padding: 0 50rpx;" v-if="workDepositInfo?.activitySwitch"
+					@click="toPage3('/pages/LaborDepositPage/index')">
+					<image :lazy-load="true" style="border-radius: 12rpx;padding: 0;" :src="workDepositInfo?.image"
+						class="activityCenter" mode="widthFix"></image>
 				</view>
 
 				<!-- 活动中心 -->
@@ -757,7 +758,6 @@ export default {
 		if (uni.getStorageSync('bagShow')) {
 			uni.removeStorageSync('bagShow')
 		}
-
 	}
 }
 </script>

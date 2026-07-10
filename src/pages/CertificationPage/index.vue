@@ -300,7 +300,7 @@ export default {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     align-items: center;
-    padding: 0 32rpx;
+    padding: 32rpx;
 }
 
 .summary-item {
@@ -316,21 +316,21 @@ export default {
 }
 
 .summary-title {
-    font-size: 30rpx;
+    font-size: 26rpx;
     line-height: 36rpx;
     font-weight: 900;
 }
 
 .summary-desc {
-    margin-top: 16rpx;
-    font-size: 25rpx;
-    line-height: 34rpx;
+    margin-top: 12rpx;
+    font-size: 24rpx;
+    line-height: normal;
     font-weight: 400;
 }
 
 .panel {
     margin-top: 24rpx;
-    padding: 32rpx 32rpx 36rpx;
+    padding: 32rpx;
     border-radius: 14rpx;
     background: #ffffff;
 }
@@ -342,24 +342,24 @@ export default {
 }
 
 .panel-title {
+    font-family: DingTalk JinBuTi;
     font-size: 32rpx;
     line-height: 40rpx;
-    font-weight: 900;
-    font-style: italic;
     color: #050505;
 }
 
 .progress-count {
+    font-family: DingTalk JinBuTi;
     font-size: 32rpx;
     line-height: 40rpx;
-    font-weight: 900;
-    font-style: italic;
+    // font-weight: 900;
+    // font-style: italic;
     color: #2377ff;
 }
 
 .panel-desc {
     margin-top: 12rpx;
-    font-size: 25rpx;
+    font-size: 24rpx;
     line-height: 32rpx;
     color: #202020;
 }
@@ -398,7 +398,7 @@ export default {
     flex-shrink: 0;
     width: 2rpx;
     height: 50rpx;
-    margin: 0 16rpx;
+    margin: 0 14rpx;
     background: #d5eefb;
 }
 
@@ -410,7 +410,7 @@ export default {
 
 .step-title,
 .benefit-title {
-    font-size: 29rpx;
+    font-size: 28rpx;
     line-height: 36rpx;
     font-weight: 900;
     color: #000000;
@@ -419,7 +419,7 @@ export default {
 .step-desc,
 .benefit-desc {
     margin-top: 2rpx;
-    font-size: 25rpx;
+    font-size: 24rpx;
     line-height: 31rpx;
     color: #242424;
 }
@@ -430,11 +430,10 @@ export default {
     height: 50rpx;
     padding: 0 18rpx;
     border-radius: 16rpx;
+    font-family: DingTalk JinBuTi;
     text-align: center;
-    font-size: 31rpx;
+    font-size: 32rpx;
     line-height: 50rpx;
-    font-weight: 900;
-    font-style: italic;
 }
 
 .step-action.done {
@@ -452,14 +451,14 @@ export default {
 }
 
 .benefit-list {
-    margin-top: 26rpx;
+    margin-top: 24rpx;
 }
 
 .benefit-item {
     display: flex;
     align-items: center;
-    min-height: 118rpx;
-    margin-top: 26rpx;
+    min-height: 110rpx;
+    margin-top: 24rpx;
 }
 
 .benefit-item:first-child {
@@ -468,8 +467,8 @@ export default {
 
 .benefit-icon {
     flex-shrink: 0;
-    width: 56rpx;
-    height: 56rpx;
+    width: 48rpx;
+    height: 48rpx;
 }
 
 .benefit-copy {
@@ -492,18 +491,28 @@ export default {
 }
 
 .submit-btn {
-    height: 108rpx;
+    height: 110rpx;
     border-radius: 14rpx;
-    background: linear-gradient(90deg, #202020 0%, #676767 100%);
+    background: linear-gradient(90deg, #212121 0%, #606060 100%);
     color: #ffffff;
     text-align: center;
-    font-size: 30rpx;
-    line-height: 108rpx;
-    font-weight: 900;
+    font-size: 28rpx;
+    line-height: 110rpx;
+    font-weight: 600;
     pointer-events: auto;
 }
 
-.submit-btn.finished {
-    background: linear-gradient(90deg, #2377ff 0%, #24c86b 100%);
+.submit-btn.GoToApply {
+    background: linear-gradient(90deg, #062886 0%, #0035c7 100%);
+}
+
+.submit-btn.UnderReview {
+    background: #B7CAFF;
+    border: 2rpx solid #052A8E;
+}
+
+.submit-btn.Unlocked {
+    background: #E7FFED;
+    border: 2rpx solid #058E3C;
 }
 </style>

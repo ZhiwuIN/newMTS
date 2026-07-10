@@ -474,7 +474,7 @@
 				await this.getUserInfo();
 			}
 		},
-		onShow() {
+		onLoad() {
 			settingsApi().then((res) => {
 				uni.setStorageSync('settings', res.data)
 			}).catch(err => {

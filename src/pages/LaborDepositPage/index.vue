@@ -43,7 +43,8 @@
                         </view>
 
                         <view class="deposit_bottom">
-                            <view class="progress_text">{{ (item.totalQuota - item.remainingQuota) || 0 }}/{{
+                            <!-- {{ (item.totalQuota - item.remainingQuota) || 0 }}/ -->
+                            <view class="progress_text">{{
                                 item.totalQuota }}</view>
                             <view class="spots_text">{{ item.remainingQuota }} spots left</view>
                         </view>
