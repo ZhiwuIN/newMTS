@@ -111,7 +111,7 @@ export default {
                 },
                 {
                     icon: '/static/LaborDeposit/rule_img2.png',
-                    title: 'Upgrade VIP'
+                    title: 'Upgrade Account'
                 },
                 {
                     icon: '/static/LaborDeposit/rule_img3.png',
