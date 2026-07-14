@@ -1,5 +1,5 @@
 <template>
-    <customnavbar :title="'K certification'" @mtop="mtop"
+    <customnavbar :title="'Kay certification'" @mtop="mtop"
         backgroundStr="url('/static/Certification/title_bgi.png') top left/100% no-repeat">
         <view class="certification-page" :style="topStyle2">
             <view class="hero" :style="topStyle">
@@ -102,7 +102,7 @@ export default {
                 {
                     no: 1,
                     title: 'Become a full member',
-                    desc: 'Upgrade your account before applying for K Verification.',
+                    desc: 'Upgrade your account before applying for Kay Verification.',
                     path: '/pages/LevelPage/index',
                     isTab: true,
                     check: 'member'
@@ -199,7 +199,7 @@ export default {
         },
         handleSubmit() {
             if (this.isFinished) {
-                this.$showMessage('success', 'K certification has been completed');
+                this.$showMessage('success', 'Kay certification has been completed');
                 return
             }
             const nextStep = this.steps.find(item => !item.done)
