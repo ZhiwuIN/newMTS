@@ -131,11 +131,19 @@
 					</view>
 				</view>
 
+				<!-- k认证 -->
+				<view class="shebaoFund_box" v-if="kAuthInfo.activitySwitch">
+					<image @click="toPageUrl(kAuthInfo.targetUrl)"
+						:src="kAuthInfo.image || '/static/Certification/kAuthImg.png'"
+						class="shebaoFund_img" mode="widthFix">
+					</image>
+				</view>
+
 				<!-- 社保基金 -->
 				<view class="shebaoFund_box" v-if="showShebaoFund">
 					<image @click="toPageUrl('/pages/SocialSecurityFundPage/index')"
-						:src="shebaoFundImage || '/static/SocialSecurityFund/shebaoFundImage.png'" class="shebaoFund_img"
-						mode="widthFix">
+						:src="shebaoFundImage || '/static/SocialSecurityFund/shebaoFundImage.png'"
+						class="shebaoFund_img" mode="widthFix">
 					</image>
 				</view>
 
@@ -190,6 +198,9 @@
 <script>
 import customnavbar from '@/component/custom-navbar/custom-navbar.vue'
 import {
+	kAuthInfoApi
+} from '@/common/api/Certification.js'
+import {
 	userInfoApi,
 	logoutApi,
 	settingsApi
@@ -212,6 +223,7 @@ export default {
 	},
 	data() {
 		return {
+			kAuthInfo: {},
 			menuList: [],
 			topStyle: 0,
 			userInfo: {},
@@ -260,6 +272,9 @@ export default {
 			this.$showMessage('warning', err.msg);
 		})
 		this.getShebaoFundOverview()
+		kAuthInfoApi().then(res => {
+			this.kAuthInfo = res.data
+		})
 	},
 	computed: {
 		firstFourItems() {

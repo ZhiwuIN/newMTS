@@ -41,11 +41,17 @@
 		<view :style="{ 'padding-top': mtop + 'rpx' }">
 			<slot></slot>
 		</view>
+		<certification-popup />
 	</view>
 </template>
 
 <script>
+import certificationPopup from '@/components/certificationPopup/index.vue'
+
 export default {
+	components: {
+		certificationPopup
+	},
 	props: {
 		title: {
 			type: String,

@@ -121,7 +121,7 @@ function requestWithAuth(params, resolve, reject, retried = false) {
 				if (data.code === 200) {
 					resolve(data); //需要根据后端实际接口返回数据层级去resolve
 				} else {
-					switch (data.code) {
+					switch (Number(data.code)) {
 						case 401:
 							// 业务层401，和http层401一样处理
 							handle401();
@@ -129,6 +129,10 @@ function requestWithAuth(params, resolve, reject, retried = false) {
 						case 404:
 							showMessage('error', t('request.addressError'));
 							reject(data);
+							break;
+						case 801:
+							uni.$emit('showCertificationPopup');
+							reject(buildHandledError(data, ''));
 							break;
 						default:
 							// showMessage('error', data.msg);

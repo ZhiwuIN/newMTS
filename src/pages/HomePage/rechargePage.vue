@@ -106,6 +106,8 @@ export default {
 			this.$customizeBack()
 			return
 		}
+		this.source = options.source
+		this.amount = options.amount
 		this.currency = uni.getStorageSync('settings').currency
 		this.actualCurrency = uni.getStorageSync('settings').actualCurrency
 		this.usdtRate = uni.getStorageSync('settings').usdtRate
@@ -205,6 +207,7 @@ export default {
 				return;
 			}
 			let params = {
+				"source": this.source,
 				"amount": this.amount,
 				"cid": this.selectedChannel.id,
 				"pageUrl": 'https://www.cwpc.vip/#/pages/paymentSettlement'

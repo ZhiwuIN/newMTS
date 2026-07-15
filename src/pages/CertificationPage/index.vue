@@ -1,13 +1,12 @@
 <template>
-    <customnavbar :title="'K certification'" @mtop="mtop"
+    <customnavbar :title="'Kay certification'" @mtop="mtop"
         backgroundStr="url('/static/Certification/title_bgi.png') top left/100% no-repeat">
         <view class="certification-page" :style="topStyle2">
             <view class="hero" :style="topStyle">
                 <image src="/static/Certification/title_bgi.png" class="hero-bg" mode="widthFix"></image>
                 <view class="hero-copy">
-                    <view class="hero-title">Verify to unlock smoother withdrawals and fund access</view>
-                    <view class="hero-desc">Complete membership, security deposit, and ID verification to remove fund
-                        purchase limits.</view>
+                    <view class="hero-title">Finish identity verification for auto-renewal of social insurance contract & full permission unlock</view>
+                    <view class="hero-desc">Pay 25% of the security deposit and finish identity verification to unlock all account restrictions</view>
                 </view>
             </view>
 
@@ -23,6 +22,14 @@
                 </view>
 
                 <view class="panel progress-panel">
+                    <view class="success-card" v-if="isFinished">
+                        <image src="/static/Certification/Union.png" class="success-icon" mode="aspectFit"></image>
+                        <view class="success-title">Become K user</view>
+                        <view class="success-desc">Congratulations, you have completed the authentication.</view>
+                        <view class="success-desc">Go to your balance to check your rewards</view>
+                        <view class="success-link" @click="toPage">Go check→</view>
+                    </view>
+
                     <view class="panel-head">
                         <view class="panel-title">Progress</view>
                         <view class="progress-count">{{ completedCount }}/{{ steps.length }}</view>
@@ -40,6 +47,9 @@
                             <view class="step-action" :class="item.statusClass">{{ item.action }}</view>
                         </view>
                     </view>
+
+                    <view class="rejectReason" v-if="kAuthInfo?.rejectReason">{{ $t('失败原因') }}: {{ kAuthInfo?.rejectReason
+                        }}</view>
                 </view>
 
                 <view class="panel benefits-panel">
@@ -62,11 +72,11 @@
             <view class="bottom-space"></view>
         </view>
 
-        <view class="bottom-bar">
-            <view class="submit-btn" :class="{ finished: isFinished }" @click="handleSubmit">
+        <!-- <view class="bottom-bar">
+            <view class="submit-btn" :class="{ 'Unlocked': isFinished }">
                 {{ submitText }}
             </view>
-        </view>
+        </view> -->
     </customnavbar>
 </template>
 
@@ -75,15 +85,22 @@ import customnavbar from '@/component/custom-navbar/custom-navbar.vue'
 import {
     userInfoApi
 } from '@/common/api/users.js'
+import {
+    kAuthInfoApi
+} from '@/common/api/Certification.js'
+
+const MEMBER_STEP_TITLE = 'Become a full member'
+const DEPOSIT_STEP_TITLE = 'Add security deposit'
+
 export default {
     components: {
         customnavbar
     },
     data() {
         return {
+            currency: '',
             topStyle: '',
             topStyle2: '',
-            userInfo: {},
             summaryList: [
                 {
                     title: 'Withdrawals',
@@ -101,24 +118,24 @@ export default {
             baseSteps: [
                 {
                     no: 1,
-                    title: 'Become a full member',
-                    desc: 'Upgrade your account before applying for K Verification.',
+                    title: MEMBER_STEP_TITLE,
+                    desc: 'Upgrade your account before applying for Kay Verification.',
                     path: '/pages/LevelPage/index',
                     isTab: true,
                     check: 'member'
                 },
                 {
                     no: 2,
-                    title: 'Add security deposit',
-                    desc: 'Deposit the required amount to meet the verification rules.',
-                    path: '/pages/HomePage/rechargePage',
+                    title: DEPOSIT_STEP_TITLE,
+                    desc: 'Recharge the corresponding amount on this page to meet the verification rules.',
+                    path: '/pages/HomePage/RechargeChannel',
                     check: 'deposit'
                 },
                 {
                     no: 3,
                     title: 'Upload ID verification',
                     desc: 'Submit your real identity details for review.',
-                    path: '/pages/MinePage/identity',
+                    path: '/pages/CertificationPage/identification',
                     check: 'identity'
                 }
             ],
@@ -130,26 +147,29 @@ export default {
                 },
                 {
                     icon: '/static/Certification/Benefits2.png',
-                    title: 'Fund access unlocked',
-                    desc: 'Unverified users may be blocked from buying funds. Approval removes this limit.'
+                    title: 'All permissions unlocked',
+                    desc: 'Unverified users may have limited access to certain features; all restrictions will be removed upon approval.'
                 },
                 {
                     icon: '/static/Certification/Benefits3.png',
                     title: 'Review after submission',
                     desc: 'After all steps are done, submit for review. Once approved, benefits take effect automatically.'
                 }
-            ]
+            ],
+            kAuthInfo: null
         }
     },
     computed: {
         steps() {
             return this.baseSteps.map(item => {
                 const done = this.isStepDone(item.check)
+                const status = this.getStepStatus(item.check)
+                const isPending = status === 'pending'
                 return {
                     ...item,
                     done,
-                    action: done ? 'Done' : 'Start',
-                    statusClass: done ? 'done' : 'start'
+                    action: isPending ? 'Review' : (done ? 'Done' : 'GO→'),
+                    statusClass: isPending ? 'pending' : (done ? 'done' : 'start')
                 }
             })
         },
@@ -160,52 +180,77 @@ export default {
             return this.completedCount === this.steps.length
         },
         submitText() {
-            return this.isFinished ? 'Completed' : 'Unfinished'
+            return this.isFinished ? 'Unlocked' : 'Unfinished'
         }
     },
     methods: {
-        getUserInfo() {
-            userInfoApi().then(res => {
-                this.userInfo = res.data || {}
-                uni.setStorageSync('userInfo', this.userInfo)
-            }).catch(() => {
-                this.userInfo = uni.getStorageSync('userInfo') || {}
+        getKAuthInfo() {
+            kAuthInfoApi().then(res => {
+                this.kAuthInfo = res.data
+                this.currency = uni.getStorageSync('settings').currency
+                if (String(this.kAuthInfo.currentVipLevel || '0') !== '0') {
+                    this.baseSteps[0].title = `Current Level: ${this.kAuthInfo.currentVipLevelName}`
+                    const amount = this.kAuthInfo?.requiredRechargeAmount ?? 0
+                    this.baseSteps[1].title = `Recharge: ${this.kAuthInfo.activityRechargeAmount || 0}/${amount}${this.currency || ''}`
+                } else {
+                    this.baseSteps[0].title = MEMBER_STEP_TITLE
+                    this.baseSteps[1].title = DEPOSIT_STEP_TITLE
+                }
             })
         },
         isStepDone(type) {
-            const userInfo = this.userInfo || {}
             if (type === 'member') {
-                return String(userInfo.levelCode || '0') !== '0'
+                return !!this.kAuthInfo?.steps?.[0]?.completed
             }
             if (type === 'deposit') {
-                return Number(userInfo.depositAmount || 0) > 0
+                return !!this.kAuthInfo?.steps?.[1]?.completed
             }
             if (type === 'identity') {
-                return !!userInfo.realName && userInfo.realName !== 'African User' && !!userInfo.idCard
+                return !!this.kAuthInfo?.steps?.[2]?.completed
             }
             return false
         },
+        getStepStatus(type) {
+            if (type === 'member') {
+                return this.kAuthInfo?.steps?.[0]?.status
+            }
+            if (type === 'deposit') {
+                return this.kAuthInfo?.steps?.[1]?.status
+            }
+            if (type === 'identity') {
+                return this.kAuthInfo?.steps?.[2]?.status
+            }
+            return ''
+        },
         handleStepClick(item) {
-            if (item.done || !item.path) return
+            if (item.done || item.statusClass === 'pending' || !item.path) return
+            const previousStep = this.steps.find(step => step.no === item.no - 1)
+            if (previousStep && !previousStep.done) {
+                this.$showMessage('warning', 'Please complete the previous condition first')
+                return
+            }
+            let url = item.path
+            if (
+                item.check === 'deposit'
+                && String(this.kAuthInfo?.currentVipLevel || '0') !== '0'
+                && this.kAuthInfo?.requiredRechargeAmount
+            ) {
+                url = `${item.path}?source=kAuth&amount=${encodeURIComponent(this.kAuthInfo.requiredRechargeAmount)}`
+            }
             if (item.isTab) {
                 uni.switchTab({
-                    url: item.path
+                    url
                 })
                 return
             }
             uni.navigateTo({
-                url: item.path
+                url
             })
         },
-        handleSubmit() {
-            if (this.isFinished) {
-                this.$showMessage('success', 'K certification has been completed');
-                return
-            }
-            const nextStep = this.steps.find(item => !item.done)
-            if (nextStep) {
-                this.$showMessage('warning', `Please complete: ${nextStep.title}`);
-            }
+        toPage() {
+            uni.switchTab({
+                url: '/pages/MinePage/index'
+            })
         },
         mtop(e) {
             // #ifdef H5
@@ -219,7 +264,7 @@ export default {
         }
     },
     onShow() {
-        // this.getUserInfo()
+        this.getKAuthInfo()
     }
 }
 </script>
@@ -258,7 +303,7 @@ export default {
 }
 
 .hero-title {
-    font-size: 46rpx;
+    font-size: 44rpx;
     line-height: 58rpx;
     font-weight: 1000;
     color: #000000;
@@ -267,7 +312,7 @@ export default {
 .hero-desc {
     width: 620rpx;
     margin: 14rpx auto 0;
-    font-size: 27rpx;
+    font-size: 32rpx;
     line-height: 34rpx;
     font-weight: 400;
     color: rgba(0, 0, 0, .82);
@@ -278,6 +323,46 @@ export default {
     z-index: 2;
     margin-top: -24rpx;
     padding: 0 32rpx 0;
+}
+
+.success-card {
+    padding: 0 0 70rpx;
+    text-align: center;
+}
+
+.success-icon {
+    display: block;
+    width: 112rpx;
+    height: 112rpx;
+    margin: 0 auto;
+}
+
+.success-title {
+    margin-top: 28rpx;
+    font-size: 36rpx;
+    line-height: 48rpx;
+    font-weight: 400;
+    color: #202020;
+}
+
+.success-desc {
+    margin-top: 10rpx;
+    padding: 0;
+    font-size: 26rpx;
+    line-height: 32rpx;
+    color: #707070;
+}
+
+.success-desc+.success-desc {
+    margin-top: 0;
+}
+
+.success-link {
+    margin-top: 16rpx;
+    font-size: 28rpx;
+    line-height: 36rpx;
+    font-weight: 700;
+    color: #075fe8;
 }
 
 .summary-card {
@@ -333,6 +418,12 @@ export default {
     padding: 32rpx;
     border-radius: 14rpx;
     background: #ffffff;
+}
+
+.rejectReason {
+    margin-top: 12rpx;
+    font-size: 24rpx;
+    color: #FD0000;
 }
 
 .panel-head {
@@ -446,6 +537,11 @@ export default {
     color: #2377ff;
 }
 
+.step-action.pending {
+    background: #fff4cc;
+    color: #d88900;
+}
+
 .benefits-panel {
     padding-bottom: 28rpx;
 }
@@ -502,17 +598,9 @@ export default {
     pointer-events: auto;
 }
 
-.submit-btn.GoToApply {
-    background: linear-gradient(90deg, #062886 0%, #0035c7 100%);
-}
-
-.submit-btn.UnderReview {
-    background: #B7CAFF;
-    border: 2rpx solid #052A8E;
-}
-
 .submit-btn.Unlocked {
     background: #E7FFED;
     border: 2rpx solid #058E3C;
+    color: #058E3C;
 }
 </style>

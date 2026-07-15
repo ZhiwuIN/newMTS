@@ -37,13 +37,20 @@
 					pageNum: 1,
 					pageSize: 10
 				},
+				source: '',
+				amount: '',
 				actualCurrency: '', // 实际货币单位
 			}
 		},
 		methods: {
 			toPage(id) {
+				const query = [
+					`id=${encodeURIComponent(id)}`,
+					this.source ? `source=${encodeURIComponent(this.source)}` : '',
+					this.amount ? `amount=${encodeURIComponent(this.amount)}` : '',
+				].filter(Boolean).join('&')
 				uni.navigateTo({
-					url: '/pages/HomePage/rechargePage?id=' + id
+					url: `/pages/HomePage/rechargePage?${query}`
 				})
 			},
 			mtop(e) {
@@ -69,7 +76,9 @@
 
 			},
 		},
-		onLoad() {
+		onLoad(options = {}) {
+			this.source = options.source || ''
+			this.amount = options.amount || ''
 			this.getList()
 			this.actualCurrency = uni.getStorageSync('settings').actualCurrency
 		},

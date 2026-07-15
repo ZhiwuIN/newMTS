@@ -215,6 +215,19 @@
 			</view>
 		</view>
 
+		<!-- k认证 -->
+		<!-- <uni-popup ref="promptpopup2" type="center" :mask-click="false" style="z-index: 10002;">
+			<view class="prompt_pop_page">
+				<view class="prompt_pop_top">{{ $t('home.Prompt') }}</view>
+				<view class="prompt_pop_taps">
+					{{ 'Please complete KYC verification' }}
+				</view>
+				<view class="prompt_pop_bottom">
+					<button class="prompt_confirm_btn" @click="prompt_confirmK">{{ $t('pay.yes') }}</button>
+				</view>
+			</view>
+		</uni-popup> -->
+
 	</view>
 </template>
 
@@ -232,6 +245,9 @@ import {
 	noticeListApi,
 	menuListApi
 } from "@/common/api/home.js";
+import {
+	kAuthInfoApi
+} from '@/common/api/Certification.js'
 import {
 	userInfoApi,
 	settingsApi
@@ -307,7 +323,8 @@ export default {
 			bigGGIndex: 0,
 			bigGGBtnNum: 0, // 按钮倒计时
 			bigGGTimer: null, // 定时器
-			menuList: []
+			menuList: [],
+			kAuthInfo: {}
 		}
 	},
 	methods: {
@@ -703,7 +720,13 @@ export default {
 			workDepositApi().then(res => {
 				this.workDepositInfo = res.data
 			})
-		}
+		},
+		// prompt_confirmK() {
+		// 	this.$refs.promptpopup2.close()
+		// 	uni.navigateTo({
+		// 		url: '/pages/CertificationPage/index'
+		// 	})
+		// }
 	},
 	onShow() {
 		activityCenterApi().then(res => {
@@ -758,6 +781,10 @@ export default {
 		if (uni.getStorageSync('bagShow')) {
 			uni.removeStorageSync('bagShow')
 		}
+		// kAuthInfoApi().then(res => {
+		// 	this.kAuthInfo = res.data
+		// 	this.$refs.promptpopup2.open()
+		// })
 	}
 }
 </script>
