@@ -1,5 +1,5 @@
 <template>
-    <customnavbar :title="'Kay certification'" @mtop="mtop"
+    <customnavbar :title="'KYC certification'" @mtop="mtop"
         backgroundStr="url('/static/Certification/title_bgi.png') top left/100% no-repeat">
         <view class="certification-page" :style="topStyle2">
             <view class="hero" :style="topStyle">
@@ -119,7 +119,7 @@ export default {
                 {
                     no: 1,
                     title: MEMBER_STEP_TITLE,
-                    desc: 'Upgrade your account before applying for Kay Verification.',
+                    desc: 'Upgrade your account before applying for KYC Verification.',
                     path: '/pages/LevelPage/index',
                     isTab: true,
                     check: 'member'
