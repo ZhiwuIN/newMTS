@@ -13,7 +13,7 @@
 					<view class="function-item" v-for="item in list">
 						<view class="item_left">
 							<image :src="item.icon"></image>
-							<text>{{ item.userName }}</text>
+							<text class="text_box">{{ item.contactInfo }}</text>
 						</view>
 						<image class="item_right" src="/static/copy.png" @click="copyLink(item.contactInfo)"></image>
 					</view>
@@ -130,6 +130,7 @@ export default {
 				image {
 					width: 48rpx;
 					height: 48rpx;
+					min-width: 48rpx;
 				}
 
 				text {
@@ -141,12 +142,17 @@ export default {
 					margin-left: 30rpx;
 					text-align: left;
 					font-style: normal;
+					// white-space: nowrap;
+					// overflow: hidden;
+					// text-overflow: ellipsis;
 				}
 			}
 
 			.item_right {
 				width: 30rpx;
 				height: 30rpx;
+				min-width: 30rpx;
+				margin-left: 24rpx;
 			}
 		}
 	}
