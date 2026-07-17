@@ -9,6 +9,14 @@ export function companyInfoApi(data) {
 	})
 }
 
+// 悬浮联系方式
+export function getProxy() {
+	return request({
+		url: '/app/proxy',
+		method: 'get',
+	})
+}
+
 //语言配置
 // export function languageApi(data){
 // 	return request({

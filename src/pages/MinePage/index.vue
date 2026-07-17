@@ -192,11 +192,14 @@
 				</view>
 			</view>
 		</uni-popup>
+
+		<contactWay />
 	</view>
 </template>
 
 <script>
 import customnavbar from '@/component/custom-navbar/custom-navbar.vue'
+import contactWay from '@/components/contactWay/contactWay.vue';
 import {
 	kAuthInfoApi
 } from '@/common/api/Certification.js'
@@ -219,7 +222,8 @@ import {
 } from "@/common/api/SocialSecurityFund.js";
 export default {
 	components: {
-		customnavbar
+		customnavbar,
+		contactWay
 	},
 	data() {
 		return {

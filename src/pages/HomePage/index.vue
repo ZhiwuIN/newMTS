@@ -228,6 +228,7 @@
 			</view>
 		</uni-popup> -->
 
+		<contactWay />
 	</view>
 </template>
 
@@ -238,6 +239,7 @@ import arrowIcon from '/static/home/arrowright.png';
 import customnavbar from '@/component/custom-navbar/custom-navbar.vue';
 import messagePopup from '@/component/message-popup/message-popup.vue';
 import messagePopup2 from '@/component/message-popup-2/message-popup-2.vue';
+import contactWay from '@/components/contactWay/contactWay.vue';
 import {
 	companyInfoApi,
 	slideListApi,
@@ -274,7 +276,8 @@ export default {
 	components: {
 		customnavbar,
 		messagePopup,
-		messagePopup2
+		messagePopup2,
+		contactWay
 	},
 	data() {
 		return {
@@ -372,7 +375,7 @@ export default {
 		},
 		// 首页全屏公告
 		closeBigGG() {
-			uni.showTabBar();
+			// uni.showTabBar();
 			this.bigGGIndex++
 			if (this.bigGGIndex > uni.getStorageSync('settings').popWindowContentList.length - 1) {
 				this.bigGG = false;

@@ -76,8 +76,6 @@
 		},
 		data() {
 			return {
-				url: 'http://13.245.95.135:8888',
-				// url: 'http://192.168.2.35:8080',
 				isFunction: false, // 展示功能面板
 				imToken: '',
 				userId: '',
