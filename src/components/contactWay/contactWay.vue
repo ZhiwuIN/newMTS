@@ -5,7 +5,7 @@
 		<view>{{ $t('代理') }}</view>
 	</view>
 
-	<uni-popup ref="logout_popup" type="center" border-radius="10px 10px 0 0" style="z-index: 9999;">
+	<uni-popup ref="logout_popup" type="center" border-radius="10px 10px 0 0" style="z-index: 99999;">
 		<view class="logout_pop_page">
 			<view class="logout_pop_top">{{ $t("代理联系方式") }}</view>
 			<view class="function-card2">
@@ -182,6 +182,8 @@ export default {
 	/* 添加过渡效果使显示/隐藏更平滑 */
 	transform: translateX(0);
 	transition: all 0.3s ease-in-out;
+	z-index: 99999;
+	
 }
 
 /* 隐藏状态样式 */
