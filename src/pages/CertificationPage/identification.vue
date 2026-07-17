@@ -42,8 +42,8 @@
                     {{ $t('Front ID Photo') }}
                 </view>
                 <view class="img_main_box">
-                    <view v-if="certificatePhoto" class="item_box">
-                        <image :src="certificatePhoto" class="item_img"></image>
+                    <view v-if="certificatePhotoUrl" class="item_box">
+                        <image :src="certificatePhotoUrl" class="item_img"></image>
                         <!-- 删除按钮 -->
                         <view class="del-btn" @click="delImage('front')">×</view>
                     </view>
@@ -94,6 +94,7 @@ export default {
             phone: '',
             idNumber: '',
             certificatePhoto: '',
+            certificatePhotoUrl: '',
             // backIdPhoto: '',
             pageScrollTop: 0,
             topStyle2: '',
@@ -108,19 +109,27 @@ export default {
             uni.chooseImage({
                 count: 1, // 最多选 1 张
                 sourceType: ['album', 'camera'],
-                success: function (res) {
+                success: async function (res) {
                     const imagePath = res.tempFilePaths[0] || '';
                     if (type === 'front') {
-                        that.certificatePhoto = imagePath;
-                    } else if (type === 'back') {
-                        that.backIdPhoto = imagePath;
+                        that.certificatePhotoUrl = imagePath;
+                        uni.showLoading({
+                            title: that.$t('loading.btn'),
+                        })
+                        const uploadRes = await s3upload(that.certificatePhotoUrl)
+                        that.certificatePhoto = uploadRes.data.url
+                        uni.hideLoading()
                     }
+                    //  else if (type === 'back') {
+                    //     that.backIdPhoto = imagePath;
+                    // }
                 }
             })
         },
         // 删除图片
         delImage(type) {
             if (type === 'front') {
+                this.certificatePhotoUrl = '';
                 this.certificatePhoto = '';
             }
             //  else if (type === 'back') {
@@ -187,8 +196,6 @@ export default {
                 title: this.$t('loading.btn'),
             })
             try {
-                const uploadRes = await s3upload(this.certificatePhoto)
-                this.certificatePhoto = uploadRes.data.url
                 let {
                     realName,
                     phone,
