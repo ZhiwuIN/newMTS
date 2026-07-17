@@ -5,7 +5,7 @@
             <view class="prompt_pop_page">
                 <view class="prompt_pop_top">{{ $t('home.Prompt') }}</view>
                 <view class="prompt_pop_taps">
-                    {{ 'Please complete kay authentication' }}
+                    {{ 'Please complete KYC authentication' }}
                 </view>
                 <view class="prompt_pop_bottom">
                     <!-- <button class="prompt_cancel_btn" @click="prompt_cancel">{{ $t('Later') }}</button> -->
