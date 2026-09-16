@@ -48,6 +48,12 @@ const base_url = import.meta.env.VITE_API_URL ?? 'https://api.cwpc.cc';
 // 请求超时设置
 const timeout = 30000;
 
+
+function getLanguageHeader() {
+	return uni.getStorageSync('Language') || uni.getStorageSync('defaultLanguage') || 'en'
+}
+
+
 // 刷新token接口，假设为 /auth/refreshToken，返回新token
 function refreshToken() {
 	return new Promise((resolve, reject) => {
@@ -99,6 +105,8 @@ function requestWithAuth(params, resolve, reject, retried = false) {
 	let header = {
 		'Content-Type': 'application/json;charset=UTF-8',
 		'Authorization': 'Bearer ' + Token,
+		'X-Language': getLanguageHeader(),
+		'lang': getLanguageHeader(),
 		// 'X-Client-Type': 'app',
 		...params.header
 	};
@@ -118,7 +126,8 @@ function requestWithAuth(params, resolve, reject, retried = false) {
 				msg
 			} = response;
 			if (statusCode == 200) {
-				if (data.code === 200) {
+				// 部分分页接口直接返回 { total, rows }，没有统一的 code 包装。
+				if (data.code === 200 || (Array.isArray(data.rows) && data.total !== undefined)) {
 					resolve(data); //需要根据后端实际接口返回数据层级去resolve
 				} else {
 					switch (Number(data.code)) {

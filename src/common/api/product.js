@@ -1,10 +1,27 @@
 import request from './request.js'
 
+// 首页推荐产品
+export function productRecommendApi() {
+	return request({
+		url: '/app/product/recommend',
+		method: 'get',
+	})
+}
+
+// 产品页统计信息
+export function productIncomeSummaryApi() {
+	return request({
+		url: '/app/product/income-summary',
+		method: 'get',
+	})
+}
+
 // 产品列表
 export function productListApi(page) {
 	return request({
-		url: '/app/product/list?pageNum=' + page.pageNum + '&pageSize=' + page.pageSize,
+		url: '/app/product/list',
 		method: 'get',
+		data: page
 	})
 }
 
@@ -56,5 +73,13 @@ export function productMyApi(productId) {
 	return request({
 		url: '/app/product/my/' + productId,
 		method: 'get',
+	})
+}
+
+// 我的产品(个人中心用)
+export function productMyPreferredApi() {
+	return request({
+		url: '/app/product/my/preferred',
+		method: 'get'
 	})
 }

@@ -548,7 +548,7 @@ export default {
 	.withdrawal-btn {
 		margin-top: 46rpx;
 		height: 96rpx;
-		background: linear-gradient(180deg, $gradualColor2 0%, $gradualColor1 100%);
+		background: #1349f4;
 		border-radius: 24rpx;
 		font-family: 'DINPro-Bold', sans-serif;
 		font-weight: bold;

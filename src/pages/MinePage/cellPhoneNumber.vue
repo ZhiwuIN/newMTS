@@ -88,7 +88,7 @@
 	.identity_submit_btn {
 		margin-top: 90rpx;
 		height: 96rpx;
-		background: linear-gradient(180deg, $gradualColor2 0%, $gradualColor1 100%);
+		background: $themeColor;
 		border-radius: 24rpx;
 		font-family: "DINPro-Blod", sans-serif;
 		font-weight: bold;

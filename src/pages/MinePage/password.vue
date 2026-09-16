@@ -201,7 +201,7 @@
 
 			.confirm-btn {
 				height: 96rpx;
-				background: linear-gradient(180deg, $gradualColor2 0%, $gradualColor1 100%);
+				background: $themeColor;
 				border-radius: 24rpx;
 				font-family: "DINPro-Bold", sans-serif;
 				font-weight: bold;
@@ -228,9 +228,9 @@
 	.set_input {
 		padding: 0 34rpx;
 		background: #FFFFFF;
-		box-shadow: 0rpx 22rpx 28rpx -6rpx #E9F3FF;
-		border-radius: 42rpx;
-		border: 2rpx solid #F6F6F6;
+		// box-shadow: 0rpx 22rpx 28rpx -6rpx #E9F3FF;
+		border-radius: 16rpx;
+		border: 2rpx solid rgb(228, 228, 228);
 		margin-top: 24rpx;
 	}
 

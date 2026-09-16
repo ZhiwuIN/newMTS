@@ -1,316 +1,415 @@
 <template>
-	<customnavbar :title="pageTitle" :isFinancePage="true" @mtop="mtop">
-		<view class="product-container">
-			<view class="product-list" :style="topStyle">
-				<scroll-view scroll-y :refresher-enabled="true" :refresher-triggered="isRefreshing"
-					@scrolltolower="onReachBottom" @refresherrefresh="onRefresh" :refresher-threshold="120"
-					style="flex: 1;height: 1px;">
-					<view class="product-item" v-for="(item, index) in productList" :key="index">
-						<!-- 第一行 -->
-						<view class="header-row">
-							<image class="product-image" :src="item.image" mode="aspectFit"></image>
-							<text class="product-name">{{ item.productName }}</text>
-						</view>
-
-						<view class="item_box bg_gray">
-							<view class="item_title">
-								{{ $t('product.StartingAmount') }}
-							</view>
-							<view class="item_desc">
-								{{ item.startingAmount }} {{ currency }}
-							</view>
-						</view>
-						<view class="item_box">
-							<view class="item_title">
-								{{ $t('product.DailyRateOfReturn') }}
-							</view>
-							<view class="item_desc">
-								{{ item.dailyRateOfReturnStr }}
-							</view>
-						</view>
-						<view class="item_box bg_gray">
-							<view class="item_title">
-								{{ $t('product.TotalRevenue') }}
-							</view>
-							<view class="item_desc">
-								{{ item.totalRevenue }}
-							</view>
-						</view>
-						<view class="item_box">
-							<view class="item_title">
-								{{ $t('product.EndDate') }}
-							</view>
-							<view class="item_desc">
-								{{ item.endDate }}
-							</view>
-						</view>
-						<view class="item_box bg_gray">
-							<view class="item_title">
-								{{ $t('product.Remaining') }}
-							</view>
-							<view class="item_desc">
-								{{ item.remaining }}
-							</view>
-						</view>
-						<view class="item_box">
-							<view class="item_title">
-								<view class="item_title">
-									{{ $t('product.PurchaseConditions') }}
-								</view>
-								<view class="item_title" style="margin-top: 30rpx;">
-									{{ $t('product.Level') }}
-								</view>
-							</view>
-							<view class="item_desc">
-								{{ item.purchaseConditions.level }}
-							</view>
-						</view>
-						<view class="item_box bg_gray" style="border-bottom: none;">
-							<view class="item_title">
-								{{ $t('product.CreditValue') }}
-							</view>
-							<view class="item_desc">
-								{{ item.purchaseConditions.creditValue }}
-							</view>
-						</view>
-						<view class="item_box border_bottom" style="border-bottom: none;" v-if="item.buytimes">
-							<view class="item_title">
-								{{ $t('product.buytimes') }}
-							</view>
-							<view class="item_desc">
-								{{ item.buytimes }}
-							</view>
-						</view>
-
-						<!-- 详情按钮 -->
-						<view class="detail-button-wrapper">
-							<view class="detail-button" @click="toProduct(item.productId)">{{ $t('product.Details2') }}
-							</view>
-						</view>
+	<view class="page">
+		<customnavbar backgroundStr="#fff" :title="$t('financePage.title')" @mtop="mtop">
+			<view class="hero" :style="topStyle"></view>
+			<view class="content">
+				<view class="account-card">
+					<view class="Mybtn_box">
+						<text class="account-label">{{ $t('financePage.totalPurchasedRevenue') }}</text>
+						<text class="Mybtn" @click="toPage('/pages/MinePage/financePage')">{{ $t('financePage.myFund')
+							}}</text>
 					</view>
-					<listbottom :hasMore="hasMore" :loading="loading" :noData='nodata'
-						image="/static/default/No content.png"></listbottom>
-				</scroll-view>
+					<view class="account-total">{{ productIncomeSummary?.totalIncome || 0 }} <text>{{ currency }}</text>
+					</view>
+					<view class="balance-row">
+						<view><text>{{ $t('financePage.availableBalance') }}</text><b>{{
+							productIncomeSummary?.accountBalance || 0 }} {{
+									currency
+								}}</b></view>
+						<view><text>{{ $t('financePage.settledIncome') }}</text><b class="mint">+{{
+							productIncomeSummary?.settledIncome || 0 }}
+								{{ currency }}</b></view>
+						<view><text>{{ $t('financePage.pendingIncome') }}</text><b>{{
+							productIncomeSummary?.unsettledIncome || 0 }} {{ currency
+								}}</b></view>
+					</view>
+				</view>
+				<!-- <scroll-view class="filters" scroll-x>
+					<view v-for="(item, index) in filters" :key="item" :class="['filter', { active: index === 0 }]">{{
+						item }}</view>
+				</scroll-view> -->
+				<view v-for="(item, index) in productList" :key="item.productId || index"
+					:class="['product-card', { dark: item.recommendFlag }]" @click="toProduct(item.productId)">
+					<view class="recommendation" v-if="item.recommendTag">{{ item.recommendTag }}</view>
+					<view class="product-title">{{ item.productName || '--' }}</view>
+					<view class="scope">
+						{{ item.introduction || $t('financePage.purchaseScope') }}
+						<text v-if="item.totalRevenue">{{ $t('financePage.totalRevenueSeparator') }}{{ item.totalRevenue
+							}}</text>
+					</view>
+					<view class="product-stats">
+						<view><b>{{ item.dailyRateOfReturnStr || '--' }}</b><text>{{ $t('financePage.dailyRateOfReturn')
+								}}</text></view>
+						<view><b>{{ getStartingAmount(item.startingAmount, 0) }} {{ currency }}</b><text>{{
+							$t('financePage.minPurchase') }}</text></view>
+						<view><b>{{ getStartingAmount(item.startingAmount, 1) }} {{ currency }}</b><text>{{
+							$t('financePage.maxPurchase') }}</text></view>
+					</view>
+					<view class="card-footer">
+						<view class="progress-wrap">
+							<view class="progress"><i :style="{ width: getProgress(item.remaining) + '%' }"></i></view>
+							<text>{{ $t('financePage.remaining') }} {{ item.remaining || '--' }}</text>
+						</view>
+						<button>{{ $t('financePage.viewDetails') }}</button>
+					</view>
+				</view>
+				<listbottom :hasMore="hasMore" :loading="loading" :noData='nodata'
+					image="/static/default/NoContent.png">
+				</listbottom>
 			</view>
-		</view>
-	</customnavbar>
+		</customnavbar>
+	</view>
 </template>
 
 <script>
 import customnavbar from '@/component/custom-navbar/custom-navbar.vue'
 import listbottom from '../../component/list-bottom/list_bottom.vue'
 import {
-	productListApi
+	productListApi,
+	productIncomeSummaryApi
 } from '@/common/api/product.js'
 export default {
 	components: {
-		customnavbar: customnavbar,
-		listbottom: listbottom
+		customnavbar,
+		listbottom
 	},
 	data() {
 		return {
-			pageTitle: '',
+			productIncomeSummary: {}, // 统计信息
 			currency: '',
+			topStyle: '',
+			filters: ['All deadlines', '7 days', '14 days', '30 days'],
+			page: {
+				pageNum: 1,
+				pageSize: 7,
+			},
 			productList: [],
 			nodata: false,
 			hasMore: true,
 			loading: false,
-			page: {
-				pageNum: 1,
-				pageSize: 10
-			},
-			isRefreshing: false,
-			topStyle: 0
 		}
 	},
 	methods: {
-		mtop(e) {
-			// #ifdef H5
-			this.topStyle = `padding-top:${e - 44}rpx;height:calc(100vh - ${e}rpx - 44rpx)`;
-			// #endif
-			// #ifdef APP-PLUS
-			this.topStyle = `padding-top:${e - 54}rpx;height:calc(100vh - ${e}rpx - 54rpx)`;
-			// #endif
+		mtop(height) {
+			this.topStyle = `margin-top:-${height}rpx;padding-top:${height + 88}rpx`
 		},
-		// 下拉刷新
-		async onRefresh() {
-			this.isRefreshing = true
-			this.page.pageNum = 1
-			await this.getProductList()
-			setTimeout(() => {
-				this.isRefreshing = false
-			}, 500)
+		toPage(url) {
+			uni.navigateTo({ url })
 		},
-		toProduct(id) {
-			uni.navigateTo({
-				url: '/pages/HomePage/financeDetails?productId=' + id
-			})
+		toProduct(productId) {
+			if (!productId) return
+			uni.navigateTo({ url: '/pages/HomePage/financeDetails?productId=' + productId })
 		},
+		getStartingAmount(value, index) {
+			if (!value) return '--'
+			const amounts = String(value).split('~').map(item => item.trim()).filter(Boolean)
+			return amounts[index] || amounts[0] || '--'
+		},
+		getProgress(value) {
+			const progress = Number.parseFloat(String(value || '').replace('%', ''))
+			if (Number.isNaN(progress)) return 0
+			return Math.min(100, Math.max(0, progress))
+		},
+		// 产品列表
 		getProductList() {
+			if (this.loading || !this.hasMore) return
 			this.loading = true
-			uni.showLoading({
-				title: this.$t('loading.btn')
-			});
-			productListApi(this.page).then((res) => {
-				this.loading = false
-				if (this.page.pageNum == 1) this.productList = res.rows || []
-				else this.productList.push(...res.rows)
-				this.productList = res.rows || []
-				this.nodata = res.total == 0
-				this.hasMore = this.productList.length != res.total
+			productListApi(this.page).then(res => {
+				const rows = Array.isArray(res?.rows) ? res.rows : []
+				const total = Number(res?.total || 0)
 
-			}).catch((err) => {
-				console.log('request fail', err);
-				this.$showMessage('warning', err.msg);
+				if (this.page.pageNum === 1) this.productList = rows
+				else this.productList.push(...rows)
+
+				this.nodata = total === 0
+				this.hasMore = this.productList.length < total
+			}).catch(err => {
+				this.nodata = this.productList.length == 0
 			}).finally(() => {
-				uni.hideLoading();
+				this.loading = false
 			})
-
 		},
-		onReachBottom() {
-			if (!this.loading && this.hasMore) {
-				this.page.pageNum += 1
-				this.productListApi()
-			}
+		// 统计信息
+		getProductIncomeSummary() {
+			productIncomeSummaryApi().then(res => {
+				this.productIncomeSummary = res.data
+			})
 		}
 	},
-	onShow() {
-		if (uni.getStorageSync('pageTitle')) {
-			this.pageTitle = uni.getStorageSync('pageTitle')
-		}
-		this.currency = uni.getStorageSync('settings').currency
+	mounted() {
+		this.currency = uni.getStorageSync('settings').currency || ''
+		this.getProductIncomeSummary()
 		this.getProductList()
-	},
+	}
 }
 </script>
 
-<style scoped lang="scss">
-.product-list {
-	display: flex;
-	flex-direction: column;
-	padding: 50rpx;
-	padding-bottom: 0;
+<style lang="scss" scoped>
+* {
+	box-sizing: border-box;
+	font-family: 'MiSans';
 }
 
-.product-item {
-	background: #FFFFFF;
-	box-shadow: 0rpx 22rpx 28rpx -6rpx #E9F3FF;
-	border-radius: 18rpx;
-	border: 2rpx solid #F8F8F8;
-	margin-bottom: 40rpx;
-	padding: 40rpx;
-}
+.page {
+	min-height: 100vh;
+	background: #f2f4fd;
 
-.header-row {
-	display: flex;
-	align-items: center;
-	padding-bottom: 20rpx;
-	border-bottom: 1rpx solid #eee;
-}
+	.hero {
+		position: absolute;
+		top: 0;
+		width: 100%;
+		height: 1076rpx;
+		background: #f2f5ff;
+	}
 
-.product-image {
-	width: 120rpx;
-	height: 120rpx;
-	margin-right: 40rpx;
-	border-radius: 10rpx;
-	overflow: hidden;
-}
+	.search-button {
+		image {
+			width: 100%;
+			height: 100%;
+		}
+	}
 
-.product-name {
-	font-family: "DINPro-Medium", sans-serif;
-	font-weight: 500;
-	font-size: 32rpx;
-	color: #1C2D57;
-	line-height: 42rpx;
-	text-align: left;
-	font-style: normal;
-}
+	.content {
+		position: relative;
+		z-index: 1;
+		padding: 24rpx 24rpx 130rpx;
 
-.arrow-right {
-	color: #999;
-	font-size: 32rpx;
-}
+		.account-card {
+			padding: 42rpx 24rpx 28rpx;
+			border-radius: 24rpx;
+			color: #fff;
+			background: #1049eb;
+			margin-bottom: 16rpx;
 
-.info-rows {
-	padding: 20rpx 0;
-}
+			.Mybtn_box {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
 
-.info-row {
-	display: flex;
-	justify-content: space-between;
-	margin-bottom: 15rpx;
-}
+				.Mybtn {
+					font-size: 24rpx;
+					font-weight: bold;
+				}
+			}
 
-.label {
-	color: #666;
-	font-size: 28rpx;
-}
+			.account-label {
+				font-size: 24rpx;
+				color: #c9d7ff;
+			}
 
-.value {
-	color: #333;
-	font-size: 28rpx;
-	font-weight: 500;
-}
+			.account-total {
+				margin-top: 14rpx;
+				font-size: 64rpx;
+				line-height: 78rpx;
+				font-weight: 700;
+				white-space: nowrap;
 
-.detail-button-wrapper {
-	text-align: center;
-	padding-top: 20rpx;
-}
+				text {
+					font-size: 34rpx;
+					font-weight: 400;
+				}
+			}
 
-.detail-button {
-	height: 96rpx;
-	display: flex;
-	align-items: center;
-	justify-content: center;
+			.balance-row {
+				display: flex;
+				justify-content: space-between;
+				margin-top: 28rpx;
 
-	background: linear-gradient(180deg, $gradualColor2 0%, $gradualColor1 100%);
-	border-radius: 24rpx;
-	font-family: "DINPro-Bold", sans-serif;
-	font-weight: bold;
-	font-size: 36rpx;
-	color: #FFFFFF;
-	line-height: 96rpx;
-	text-align: left;
-	font-style: normal;
-	text-transform: none;
-}
+				view {
+					width: 33.333%;
 
-.bg_gray {
-	background: #F5F8FF;
-}
+					text,
+					b {
+						display: block;
+						white-space: nowrap;
+					}
 
-.border_bottom {
-	border-bottom: 2rpx solid #F4F4F4;
-}
+					text {
+						font-size: 23rpx;
+						color: #c9d7ff;
+					}
 
-.item_box {
-	padding: 32rpx 40rpx 28rpx 40rpx;
-	display: flex;
-	justify-content: space-between;
-	align-items: flex-end;
-}
+					b {
+						margin-top: 12rpx;
+						font-size: 29rpx;
+						line-height: 36rpx;
+					}
+				}
+			}
+		}
 
-.item_title {
-	font-family: "DINPro-Regular", sans-serif;
-	font-weight: 400;
-	font-size: 26rpx;
-	color: #1C2D57;
-	line-height: 34rpx;
-	text-align: left;
-	font-style: normal;
-}
+		.mint {
+			color: #63ead1;
+		}
 
-.item_desc {
-	font-family: "DINPro-Medium", sans-serif;
-	font-weight: 400;
-	font-size: 26rpx;
-	color: #000000;
-	line-height: 36rpx;
-	text-align: left;
-	font-style: normal;
-	white-space: normal;
-	word-break: break-all;
-	text-align: right;
-	flex-shrink: 1;
+		.filters {
+			display: flex;
+			width: calc(100% + 24rpx);
+			margin-bottom: 16rpx;
+			white-space: nowrap;
+
+			.filter {
+				display: inline-block;
+				height: 64rpx;
+				margin-right: 16rpx;
+				padding: 0 32rpx;
+				border-radius: 34rpx;
+				background: #fff;
+				color: #999;
+				font-size: 27rpx;
+				line-height: 64rpx;
+
+				&.active {
+					background: #1049eb;
+					color: #fff;
+				}
+			}
+		}
+
+		.product-card {
+			margin-bottom: 24rpx;
+			padding: 32rpx;
+			border-radius: 24rpx;
+			background: #fff;
+			color: #000;
+
+			.recommendation {
+				display: inline-block;
+				padding: 12rpx 18rpx;
+				border-radius: 12rpx;
+				background: #edf3ff;
+				color: $themeColor;
+				font-size: 27rpx;
+				line-height: 34rpx;
+				margin-bottom: 26rpx;
+			}
+
+			.product-title {
+				font-size: 31rpx;
+				line-height: 40rpx;
+				font-weight: 700;
+			}
+
+			.scope {
+				margin-top: 16rpx;
+				color: #616161;
+				font-size: 24rpx;
+				line-height: 32rpx;
+			}
+
+			.product-stats {
+				display: grid;
+				grid-template-columns: repeat(3, 1fr);
+				margin-top: 26rpx;
+
+				view {
+					padding-left: 16rpx;
+					border-left: 2rpx solid #61708c;
+
+					&:first-child {
+						padding-left: 0;
+						border-left: 0;
+
+						b {
+							color: $themeColor;
+						}
+					}
+
+					b,
+					text {
+						display: block;
+						white-space: nowrap;
+					}
+
+					b {
+						font-size: 33rpx;
+						line-height: 40rpx;
+					}
+
+					text {
+						margin-top: 10rpx;
+						color: #666;
+						font-size: 22rpx;
+						line-height: 30rpx;
+					}
+				}
+			}
+
+			.card-footer {
+				display: flex;
+				align-items: flex-end;
+				justify-content: space-between;
+				margin-top: 28rpx;
+
+				.progress-wrap {
+					width: 62%;
+
+					.progress {
+						height: 14rpx;
+						overflow: hidden;
+						border-radius: 10rpx;
+						background: #E8EEF7;
+
+						i {
+							display: block;
+							width: 79%;
+							height: 100%;
+							border-radius: inherit;
+							background: linear-gradient(90deg, #43d6ff 0%, #0052d9 100%);
+						}
+					}
+
+					>text {
+						display: block;
+						margin-top: 12rpx;
+						color: #a9b9d8;
+						font-size: 24rpx;
+					}
+				}
+
+				button {
+					width: 220rpx;
+					height: 70rpx;
+					margin: 0;
+					padding: 0;
+					border: 0;
+					border-radius: 34rpx;
+					background: #084cf0;
+					color: #fff;
+					font-size: 28rpx;
+					font-weight: 700;
+					line-height: 70rpx;
+
+					&::after {
+						border: 0;
+					}
+				}
+			}
+
+			&.dark {
+				color: #fff;
+				background: #13171c;
+
+				.recommendation {
+					background: rgba(138, 180, 255, .18);
+					color: #63ead1;
+				}
+
+				.scope,
+				.product-stats text,
+				.progress-wrap>text {
+					color: #AAB5CB;
+				}
+
+				.progress {
+					background: rgba(255, 255, 255, 0.08);
+				}
+
+				.product-stats view:first-child b {
+					color: #63ead1;
+				}
+			}
+		}
+	}
 }
 </style>

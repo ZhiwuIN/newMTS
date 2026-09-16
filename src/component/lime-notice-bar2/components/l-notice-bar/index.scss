@@ -1,0 +1,217 @@
+@import '~@/uni_modules/lime-style/index.scss';
+$prefix: l !default;
+$notice-bar: #{$prefix}-notice-bar;
+
+
+$notice-bar-font-size: create-var(notice-bar-font-size, $font-size);
+$notice-bar-padding-x: create-var(notice-bar-padding-x, $spacer);
+$notice-bar-padding-y: create-var(notice-bar-padding-y, $spacer-sm);
+$notice-bar-line-height: create-var(notice-bar-line-height, 44rpx);
+$notice-bar-icon-font-size: create-var(notice-bar-icon-font-size, 44rpx);
+
+$notice-bar-info-color: create-var(notice-bar-info-color, $blue); 
+$notice-bar-info-bg-color: create-var(notice-bar-info-bg-color, $blue-1); 
+$notice-bar-success-color: create-var(notice-bar-success-color, $success-color); 
+$notice-bar-success-bg-color: create-var(notice-bar-success-bg-color, $success-color-1); 
+$notice-bar-warning-color: create-var(notice-bar-warning-color, $warning-color); 
+$notice-bar-warning-bg-color: create-var(notice-bar-warning-bg-color, $warning-color-1); 
+$notice-bar-danger-color: create-var(notice-bar-danger-color, $error-color-6); 
+$notice-bar-danger-bg-color: create-var(notice-bar-danger-bg-color, $error-color-1); 
+
+
+.#{$notice-bar} {
+    /* #ifndef UNI-APP-X */
+    display: flex;
+    /* #endif */
+    align-items: flex-start;
+    flex-direction: row;
+    padding: $notice-bar-padding-y $notice-bar-padding-x;
+    /* #ifndef APP-ANDROID || APP-IOS || APP-HARMONY */
+    font-size: $notice-bar-font-size;
+    /* #endif */
+    
+    &__left {
+        /* #ifdef APP-ANDROID || APP-IOS || APP-HARMONY */
+        padding-right: $spacer-xs;
+        /* #endif */
+
+        /* #ifndef APP-ANDROID || APP-IOS || APP-HARMONY || APP-NVUE */
+        font-size: $notice-bar-icon-font-size;
+        text {
+            font-size: $notice-bar-icon-font-size;
+        }
+        /* #endif */
+
+        /* #ifndef APP-ANDROID || APP-IOS || APP-HARMONY */
+        &:not(:empty) {
+            padding-right: $spacer-xs;
+            display: inline-flex;
+        }
+        /* #endif */
+
+        /* #ifdef APP-ANDROID || APP-IOS || APP-HARMONY || APP-NVUE */
+        .#{$notice-bar} {
+            &__icon {
+                width: $notice-bar-icon-font-size !important;
+                font-size: $notice-bar-icon-font-size !important;
+            }
+        }
+        /* #endif */
+    }
+
+    &__right {
+        /* #ifdef APP-ANDROID || APP-IOS || APP-HARMONY */
+        padding-left: $spacer-xs;
+        /* #endif */
+
+        /* #ifndef APP-ANDROID || APP-IOS || APP-HARMONY || APP-NVUE */
+        font-size: $notice-bar-icon-font-size;
+        text {
+            font-size: $notice-bar-icon-font-size;
+        }
+        /* #endif */
+
+        /* #ifndef APP-ANDROID || APP-IOS || APP-HARMONY */
+        &:not(:empty) {
+            padding-left: $spacer-xs;
+            display: inline-flex;
+        }
+        /* #endif */
+
+        /* #ifdef APP-ANDROID || APP-IOS || APP-HARMONY || APP-NVUE */
+        .#{$notice-bar} {
+            &__icon {
+                width: $notice-bar-icon-font-size !important;
+                font-size: $notice-bar-icon-font-size !important;
+            }
+        }
+        /* #endif */
+    }
+
+    &__wrap {
+        position: relative;
+        flex: 1;
+        flex-direction: row;
+        height: 100%;
+
+        /* #ifndef APP-ANDROID || APP-IOS || APP-HARMONY || APP-NVUE */
+        line-height: $notice-bar-line-height;
+        flex-wrap: nowrap;
+        overflow-x: hidden;
+        text {
+            line-height: inherit;
+            font-size: inherit;
+        }
+        /* #endif */
+
+        /* #ifndef UNI-APP-X */
+        &[data-swiper] {
+            height: $notice-bar-line-height;
+        }
+        /* #endif */
+    }
+
+    &__content {
+        white-space: nowrap;
+        transition-property: transform;
+        transition-timing-function: linear;
+        align-self: center;
+
+        /* #ifndef UNI-APP-X */
+        display: block;
+        /* #endif */
+
+        /* #ifdef APP-ANDROID || APP-IOS || APP-HARMONY */
+        font-size: $notice-bar-font-size;
+        /* #endif */
+
+        &-scroll {
+            width: 100000px;
+            flex-direction: row;
+            /* #ifndef UNI-APP-X */
+            display: flex;
+            /* #endif */
+        }
+
+        &-ellipsis {
+            width: 100%;
+            text-overflow: ellipsis;
+            /* #ifndef UNI-APP-X */
+            overflow: hidden;
+            /* #endif */
+            
+            /* #ifdef APP-ANDROID || APP-IOS || APP-HARMONY || APP-NVUE */
+            bleed: 1;
+            /* #endif */
+        }
+
+        &-wrapable {
+            white-space: normal;
+            width: 100%;
+        }
+    }
+
+    &--info {
+        background-color: $notice-bar-info-bg-color;
+
+        /* #ifndef APP-ANDROID || APP-IOS || APP-HARMONY || APP-NVUE */
+        color: $notice-bar-info-color;
+        /* #endif */
+
+        /* #ifdef UNI-APP-X */
+        .#{$notice-bar} {
+            &__content,&__icon {
+                color: $notice-bar-info-color;
+            }
+        }
+        /* #endif */
+    }
+    
+    &--success {
+        background-color: $notice-bar-success-bg-color;
+
+        /* #ifndef APP-ANDROID || APP-IOS || APP-HARMONY || APP-NVUE */
+        color: $notice-bar-success-color;
+        /* #endif */
+
+        /* #ifdef UNI-APP-X */
+        .#{$notice-bar} {
+            &__content,&__icon {
+                color: $notice-bar-success-color;
+            }
+        }
+        /* #endif */
+    }
+    
+    &--warning {
+        background-color: $notice-bar-warning-bg-color;
+
+        /* #ifndef APP-ANDROID || APP-IOS || APP-HARMONY || APP-NVUE */
+        color: $notice-bar-warning-color;
+        /* #endif */
+
+        /* #ifdef UNI-APP-X */
+        .#{$notice-bar} {
+            &__content,&__icon {
+                color: $notice-bar-warning-color;
+            }
+        }
+        /* #endif */
+    }
+    
+    &--danger {
+        background-color: $notice-bar-danger-bg-color;
+
+        /* #ifndef APP-ANDROID || APP-IOS || APP-HARMONY || APP-NVUE */
+        color: $notice-bar-danger-color;
+        /* #endif */
+
+        /* #ifdef UNI-APP-X */
+        .#{$notice-bar} {
+            &__content,&__icon {
+                color: $notice-bar-danger-color;
+            }
+        }
+        /* #endif */
+    }
+}

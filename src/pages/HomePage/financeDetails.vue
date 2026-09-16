@@ -1,7 +1,50 @@
 <template>
 	<view>
-		<customnavbar :title="productDetails.productName">
-			<view class="product_container">
+		<customnavbar :title="$t('product.ProductDetails')" backgroundStr="#fff">
+			<view class="design-details-page">
+				<view class="design-hero">
+					<view class="design-hero-title">{{ productDetails.productName || '--' }}</view>
+					<view class="design-rate-row">
+						<text class="design-rate">{{ productDetails.dailyRateOfReturnStr || '--' }}</text>
+						<text class="design-rate-label">{{ $t('product.Annualized') }}</text>
+					</view>
+					<view class="design-progress">
+						<view class="design-progress-fill" :style="{ width: remainingProgress + '%' }"></view>
+					</view>
+					<view class="design-remaining">{{ $t('product.RemainingColon') }} <text>{{ productDetails.remaining || '--' }}</text></view>
+				</view>
+
+				<view class="design-card">
+					<view class="design-card-title">{{ $t('product.Information') }}</view>
+					<view class="design-info-row"><text>{{ $t('product.InvestmentHorizon') }}</text><b>{{ productDetails.totalRevenue ||
+						'--' }}</b></view>
+					<view class="design-info-row"><text>{{ $t('product.MinimumInvestment') }}</text><b>{{ minAmount }} {{ currency }}</b>
+					</view>
+					<view class="design-info-row"><text>{{ $t('product.HighestInvestment') }}</text><b>{{ maxAmount }} {{ currency }}</b>
+					</view>
+					<view class="design-info-row"><text>{{ $t('product.RiskLevel') }}</text><b>{{ $t('product.ReturnUponExpiration') }}</b></view>
+				</view>
+
+				<view class="design-card">
+					<view class="design-card-title">{{ $t('product.ProfitCalculation') }}</view>
+					<view class="design-info-row"><text>{{ $t('product.PrincipalInvestment') }}</text><b>{{ displayPrincipal }} {{ currency
+					}}</b></view>
+					<view class="design-info-row"><text>{{ $t('product.EstimatedReturn') }}</text><b>{{ displayProfit }} {{ currency }}</b>
+					</view>
+					<view class="design-info-row"><text>{{ $t('product.DueAndCredited') }}</text><b>{{ displayTotal }} {{
+						currency }}</b></view>
+				</view>
+
+				<view class="design-card design-rules-card">
+					<view class="design-card-title">{{ $t('product.Rules') }}</view>
+					<rich-text v-if="productDetails.description" :nodes="productDetails.description"></rich-text>
+					<text v-else>{{ productDetails.introduction || $t('product.ReturnUponExpiration') }}</text>
+				</view>
+
+				<view class="design-bottom-space"></view>
+				<view class="design-buy-button" @click="buyNow">{{ $t('product.BuyNow') }}</view>
+			</view>
+			<view class="product_container legacy-details">
 				<view class="product_detaile_box">
 					<view class="details_item_img_box">
 						<image :src="productDetails.image" class="product_details_item_img">
@@ -16,6 +59,7 @@
 							{{ productDetails.startingAmount }} {{ currency }}
 						</view>
 					</view>
+
 					<view class="details_item_box">
 						<view class="details_item_title">
 							{{ $t('product.DailyRateOfReturn') }}
@@ -79,28 +123,6 @@
 					</view>
 				</view>
 				<view class="details_box" v-if="productDetails.description">
-					<!-- <view class="details_t">{{$t('product.Exemple')}}</view>
-					<view class="content_t">
-						Supposons que vous choisissiez de déposer 10 000 XAF dans un produit de fonds de gestion de
-						patrimoine BlackRock avec une période de dépôt de 3 jours et un taux d'intérêt total de 2,4 %.
-						La
-						méthode de calcul spécifique est la suivante : Principal: 10 000 XAF Taux d'intérêt total : 10
-						000
-						XAF * 2,4% = 240 XAF Montant total après échéance : Principal 10 000 XAF + Bénéfice 240 = 10 240
-						XAF
-						Attention : après l'échéance, votre capital et vos bénéfices seront automatiquement restitués
-						sur
-						votre compte CWPC.
-					</view>
-					<view class="details_t mt30">{{$t('product.Details')}}</view>
-					<view class="content_t">
-						BlackRock Group est une société de gestion d'investissement américaine dont le siège social est
-						à
-						New York, aux États-Unis, avec 70 bureaux dans 30 pays à travers le monde et des clients dans
-						100
-						pays. L'activité principale consiste à fournir des services de gestion d'investissement aux
-						personnes morales et aux canaux de vente au détail.
-					</view> -->
 					<rich-text :nodes="productDetails.description"></rich-text>
 				</view>
 				<view class="flex-center">
@@ -110,7 +132,7 @@
 			</view>
 
 		</customnavbar>
-		<uni-popup ref="popup" type="bottom" border-radius="40rpx 40rpx 0 0">
+		<uni-popup ref="popup" type="bottom" border-radius="40rpx 40rpx 0 0" style="z-index: 10002;">
 			<view class="financeDetails_pop_page">
 				<view class="financeDetails_pop_top">{{ $t('product.Buy') }}</view>
 				<view class="financeDetails_pop_content">
@@ -128,9 +150,7 @@
 					</view>
 
 					<view class="pop_content_item">
-						<!-- :min="productBuyDetails.min" :max="productBuyDetails.max" -->
-						<uni-number-box v-model="buyPurchase" :width='280' background="#F5F8FF"
-							color="#000000"></uni-number-box>
+						<uni-number-box v-model="buyPurchase" background="#edf4ff" color="#000000"></uni-number-box>
 					</view>
 					<view class="max_tips pop_content_details_item_bottom_border">
 						{{ $t('product.MaximumPurchase') }} {{ productBuyDetails.max }}
@@ -153,7 +173,7 @@
 					<view class="pop_content_item" style="border-bottom: none;">
 						<view class="pop_content_details_item_title">{{ $t('product.Total') }}</view>
 						<view class="pop_content_details_item_total">
-							{{ buyPurchase + +approximateEarnings() }} {{ currency }}
+							{{ +buyPurchase + +approximateEarnings() }} {{ currency }}
 						</view>
 					</view>
 				</view>
@@ -240,6 +260,7 @@ export default {
 	},
 	onShow() {
 		this.getProductDetails()
+		this.getProductBuyDetails()
 	},
 	watch: {
 		buyPurchase(newVal) {
@@ -248,17 +269,56 @@ export default {
 			// 如果需要，可以手动更新 UI 或调用其他方法
 		},
 	},
+	computed: {
+		amountRange() {
+			const value = this.productDetails.startingAmount || ''
+			return String(value).split('~').map(item => item.trim()).filter(Boolean)
+		},
+		minAmount() {
+			return this.amountRange[0] || '--'
+		},
+		maxAmount() {
+			return this.amountRange[1] || this.amountRange[0] || '--'
+		},
+		remainingProgress() {
+			const value = Number.parseFloat(String(this.productDetails.remaining || '').replace('%', ''))
+			if (Number.isNaN(value)) return 0
+			return Math.min(100, Math.max(0, value))
+		},
+		displayPrincipal() {
+			const amount = Number(this.productBuyDetails.min || this.minAmount)
+			return Number.isFinite(amount) ? amount.toFixed(2) : '1,000.00'
+		},
+		displayProfit() {
+			const amount = Number(this.displayPrincipal)
+			const rate = this.effectiveTotalRate / 100
+			return Number.isFinite(amount) ? (amount * rate).toFixed(4) : '0.0000'
+		},
+		displayTotal() {
+			return (Number(this.displayPrincipal) + Number(this.displayProfit)).toFixed(4)
+		},
+		effectiveTotalRate() {
+			const buyRate = Number(this.productBuyDetails.totalRateOfReturn)
+			if (Number.isFinite(buyRate)) return buyRate
+
+			const detailRate = Number(this.productDetails.totalRateOfReturn)
+			if (Number.isFinite(detailRate)) return detailRate
+
+			// 详情接口没有总收益率时，用日收益率和期限估算预览值。
+			const dailyRate = Number(this.productDetails.dailyRateOfReturn)
+			const days = Number.parseInt(String(this.productDetails.totalRevenue || '').replace(/[^\d]/g, ''), 10)
+			if (Number.isFinite(dailyRate) && Number.isFinite(days) && days > 0) {
+				return dailyRate * days
+			}
+			return 0
+		}
+	},
 	methods: {
 		// 大概收益
 		approximateEarnings() {
-			const {
-				totalRateOfReturn
-			} = this.productBuyDetails;
-			// console.log(this.productDetails)
-			const currentPrice = this.buyPurchase; // 当前价格
-			const dailyRate = totalRateOfReturn / 100; // 收益率
-			const totalEarnings = currentPrice * dailyRate;
-			return totalEarnings.toFixed(4);
+			const currentPrice = Number(this.buyPurchase) || 0
+			const totalEarnings = currentPrice * this.effectiveTotalRate / 100
+			return totalEarnings.toFixed(4)
 		},
 		// 时间差计算
 		timeDifference(endDate) {
@@ -279,6 +339,11 @@ export default {
 			}).catch((err) => {
 				this.$showMessage('warning', err.msg);
 			})
+		},
+		getProductBuyDetails() {
+			productBuyApi(this.productId).then((res) => {
+				this.productBuyDetails = res.data || {}
+			}).catch(() => {})
 		},
 		buyNow() {
 			productBuyApi(this.productId).then((res) => {
@@ -370,6 +435,142 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.legacy-details {
+	display: none;
+}
+
+.design-details-page {
+	min-height: 100vh;
+	padding: 42rpx 32rpx 0;
+	background: #f1f4ff;
+	color: #080808;
+}
+
+.design-hero {
+	padding: 24rpx;
+	border-radius: 24rpx;
+	background: linear-gradient(110deg, #102d63 0%, #0759dc 100%);
+	color: #fff;
+}
+
+.design-hero-title {
+	font-family: DingTalk JinBuTi;
+	font-size: 32rpx;
+	line-height: 44rpx;
+}
+
+.design-rate-row {
+	display: flex;
+	align-items: baseline;
+	margin-top: 32rpx;
+}
+
+.design-rate {
+	font-family: DingTalk JinBuTi;
+	font-size: 48rpx;
+	color: #07E192;
+}
+
+.design-rate-label {
+	font-family: MiSans;
+	font-size: 24rpx;
+	padding-left: 14rpx;
+}
+
+.design-progress {
+	height: 14rpx;
+	margin-top: 24rpx;
+	overflow: hidden;
+	border-radius: 10rpx;
+	background: rgba(72, 169, 255, .28);
+}
+
+.design-progress-fill {
+	height: 100%;
+	border-radius: inherit;
+	background: #42d2f0;
+}
+
+.design-remaining {
+	margin-top: 18rpx;
+	font-family: MiSans;
+	font-size: 20rpx;
+	line-height: 34rpx;
+}
+
+.design-remaining text {
+	margin-left: 14rpx;
+}
+
+.design-card {
+	margin-top: 32rpx;
+	padding: 24rpx;
+	border-radius: 24rpx;
+	background: #fff;
+}
+
+.design-card-title {
+	margin-bottom: 24rpx;
+	font-family: MiSans;
+	font-size: 32rpx;
+	font-weight: 600;
+	line-height: 48rpx;
+}
+
+.design-info-row {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	margin-top: 22rpx;
+	font-family: MiSans;
+	font-size: 24rpx;
+	line-height: 38rpx;
+}
+
+.design-info-row text {
+	flex: 1;
+}
+
+.design-info-row b {
+	max-width: 58%;
+	font-family: MiSans;
+	font-size: 24rpx;
+	font-weight: 600;
+	line-height: 38rpx;
+	text-align: right;
+}
+
+.design-rules-card {
+	line-height: 34rpx;
+}
+
+.design-rules-card rich-text,
+.design-rules-card>text {
+	font-size: 26rpx;
+	line-height: 34rpx;
+}
+
+.design-bottom-space {
+	height: 150rpx;
+}
+
+.design-buy-button {
+	position: fixed;
+	right: 32rpx;
+	bottom: 34rpx;
+	left: 32rpx;
+	z-index: 10;
+	height: 90rpx;
+	border-radius: 24rpx;
+	background: linear-gradient(97deg, #4183ff 0%, #0052d9 100%);
+	box-shadow: 0px 18rpx 44rpx 0px rgba(73, 102, 255, 0.25);
+	color: #fff;
+	font-size: 34rpx;
+	font-weight: 700;
+	line-height: 90rpx;
+	text-align: center;
+}
+
 .product_container {
 	padding: 40rpx;
 	padding: 40rpx;
@@ -469,7 +670,7 @@ export default {
 
 .financeDetails_pop_page {
 	background-color: #fff;
-	border-radius: 20rpx 20rpx 0 0;
+	border-radius: 24rpx 24rpx 0 0;
 }
 
 .financeDetails_pop_top {
@@ -547,7 +748,7 @@ export default {
 	font-family: "DINPro-Medium", sans-serif;
 	font-weight: 500;
 	font-size: 32rpx;
-	color: #FF0000;
+	color: $themeColor;
 	line-height: 42rpx;
 	text-align: justify;
 	font-style: normal;
@@ -562,13 +763,13 @@ export default {
 .financeDetails_pop_bottom_btn {
 	width: 100%;
 	height: 96rpx;
-	background: linear-gradient(180deg, $gradualColor2 0%, $gradualColor1 100%);
+	background: linear-gradient(98deg, #4183ff 0%, #0052d9 100%);
+	box-shadow: 0px 18rpx 44rpx 0px rgba(73, 102, 255, 0.25);
 	border-radius: 24rpx;
-	font-family: "DINPro-Bold", sans-serif;
+	font-size: 34rpx;
 	font-weight: bold;
-	font-size: 36rpx;
 	color: #FFFFFF;
-	line-height: 96rpx;
+	line-height: 90rpx;
 	text-align: center;
 	font-style: normal;
 	text-transform: none;
@@ -734,7 +935,7 @@ export default {
 
 ::v-deep .uni-numbox {
 	height: 84rpx;
-	background: #F5F8FF;
+	background: #edf4ff;
 	border-radius: 12rpx;
 	color: #000;
 	display: flex;
@@ -742,5 +943,17 @@ export default {
 	font-family: "DINPro-Regular", sans-serif;
 	font-weight: 400;
 	font-size: 36rpx;
+	width: 100%;
+}
+
+::v-deep .uni-numbox__value {
+	width: 100% !important;
+}
+
+::v-deep .uni-numbox-btns {
+	padding: 0 24rpx
+}
+::v-deep .uni-numbox--text {
+margin-bottom: 4rpx;
 }
 </style>

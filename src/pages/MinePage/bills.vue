@@ -22,7 +22,7 @@
 						@click="pushInfo(currentTab, item.id)">
 						<view class="item-left" v-if="currentTab == 3">
 							<view class="item-left-t1">
-								<view>{{ item.amount + item.fee }} {{ currency }}</view>
+								<view>{{ +item.amount + +item.fee }} {{ currency }}</view>
 								<view class="item-left-t2">{{ $t('包含手续费') }}{{ item.fee * usdtRateOut || 0 }}
 									{{ actualCurrency }}
 								</view>
@@ -169,16 +169,17 @@ export default {
 					break
 			}
 			this.loading = true
-			this.billsList = []
 			uni.showLoading({
 				title: this.$t('loading.btn')
 			});
 			financialRecordsApi(type, this.page).then((res) => {
 				this.loading = false
-				if (this.page.pageNum == 1) this.billsList = res.rows || []
-				else this.billsList.push(...res.rows)
-				this.nodata = res.total == 0
-				if (this.billsList.length == res.total) this.hasMore = false
+				if (this.page.pageNum == 1) {
+					this.billsList = res.data.rows || []
+				}
+				else this.billsList.push(...res.data.rows)
+				this.nodata = res.data.total == 0
+				if (this.billsList.length == res.data.total) this.hasMore = false
 
 			}).catch((err) => {
 				console.log('request fail', err);

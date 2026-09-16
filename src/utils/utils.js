@@ -16,7 +16,7 @@ import {
  * @returns {string}
  */
 export function formatRichText(html) {
-	let newContent = html.replace(/<img[^>]*>/gi, function(match) {
+	let newContent = html.replace(/<img[^>]*>/gi, function (match) {
 		// 去掉style、width、height、alt属性
 		let imgTag = match
 			.replace(/style="[^"]*"/gi, '')
@@ -29,7 +29,7 @@ export function formatRichText(html) {
 			.replace(/alt='[^']*'/gi, '');
 
 		// 处理src，补全或替换为baseUrl
-		imgTag = imgTag.replace(/src\s*=\s*(['"]?)([^'"\s>]+)\1/gi, function(srcMatch, quote, srcValue) {
+		imgTag = imgTag.replace(/src\s*=\s*(['"]?)([^'"\s>]+)\1/gi, function (srcMatch, quote, srcValue) {
 			let newSrc = srcValue;
 			try {
 				let base = new URL(baseUrl);
@@ -133,6 +133,31 @@ export function showMessage(theme, content, duration = 1500) {
 
 	uni.showToast({
 		title: content,
+		icon: 'none',
+		duration
+	})
+	// if (Message[theme]) {
+	// 	Message[theme]({
+	// 		offset: [10, 16],
+	// 		content,
+	// 		duration,
+	// 		icon: true,
+	// 		zIndex: 99999,
+	// 	});
+	// }
+}
+
+// 保留一位小数
+export function keepOneDecimal(num) {
+	// 步骤1：保留一位小数（核心逻辑不变）
+	const withOneDecimal = Math.round(num * 10) / 10;
+	// 步骤2：判断是否为整数（小数位为0），若是则转为整数，否则保留一位小数
+	return Number.isInteger(withOneDecimal) ? Math.floor(withOneDecimal) : withOneDecimal;
+}
+
+export function showWaitMessage(theme, duration = 1500) {
+	uni.showToast({
+		title: 'under construction',
 		icon: 'none',
 		duration
 	})

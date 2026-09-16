@@ -80,10 +80,10 @@
 				});
 				luckyRecordMyApi(this.page).then((res) => {
 					this.loading = false
-					if (this.page.pageNum == 1) this.billsList = res.rows || []
-					else this.billsList.push(...res.rows)
-					this.nodata = res.total == 0
-					if (this.billsList.length == res.total) this.hasMore = false
+					if (this.page.pageNum == 1) this.billsList = res.data.rows || []
+					else this.billsList.push(...res.data.rows)
+					this.nodata = res.data.total == 0
+					if (this.billsList.length == res.data.total) this.hasMore = false
 
 				}).catch((err) => {
 					console.log('request fail', err);

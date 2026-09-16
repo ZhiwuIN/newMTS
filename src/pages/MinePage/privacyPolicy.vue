@@ -40,9 +40,9 @@
 				pageNum: 1,
 				pageSize: 10
 			}).then((res) => {
-				if (res.rows.length) {
-					this.data = res.rows[0]
-					this.privacyPolicyInfo = formatRichText(res.rows[0]?.content)
+				if (res.data.rows.length) {
+					this.data = res.data.rows[0]
+					this.privacyPolicyInfo = formatRichText(res.data.rows[0]?.content)
 				}
 			}).catch((err) => {
 				console.log('request fail', err);

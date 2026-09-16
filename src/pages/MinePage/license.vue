@@ -50,10 +50,10 @@
 				this.loading = true
 				noticeListApi(4, this.page).then((res) => {
 					this.loading = false
-					if (this.page.pageNum == 1) this.privacyPolicyInfo = res.rows || []
-					else this.privacyPolicyInfo.push(...res.rows)
-					this.nodata = res.total == 0
-					if (this.privacyPolicyInfo.length == res.total) this.hasMore = false
+					if (this.page.pageNum == 1) this.privacyPolicyInfo = res.data.rows || []
+					else this.privacyPolicyInfo.push(...res.data.rows)
+					this.nodata = res.data.total == 0
+					if (this.privacyPolicyInfo.length == res.data.total) this.hasMore = false
 				}).catch((err) => {
 					console.log('request fail', err);
 					this.$showMessage('warning', err.msg);

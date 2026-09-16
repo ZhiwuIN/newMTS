@@ -16,3 +16,12 @@ export function buyApi(id){
 		method: 'get'
 	})
 }
+
+// 商品页面等级列表
+export function shopLevelListApi(data){
+	return request({
+		url: '/app/activity/shop/level/list',
+		method: 'get',
+		data,
+	})
+}

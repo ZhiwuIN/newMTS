@@ -1,34 +1,39 @@
 <template>
-	<customnavbar :title="$t('pages.task')" backgroundStr="url('/static/task/taskBgi.png') top left/100% no-repeat"
-		:showBack="false" :whiteTitle="true" @mtop="mtop">
+	<homenavbar homenavbar backgroundStr="''" :showBack="false" @mtop='mtop' :isHome="true">
+		<view class="top-bg" :style="topStyle"></view>
 		<view class="task-page" :style="topStyle2">
-			<view class="task_top_card" :style="topStyle">
+			<view class="task_top_card" :style="taskTopCardStyle">
+				<view class="text_box">
+					<view>{{ $t('taskPage.finishToday') }}</view>
+					<view>{{ $t('taskPage.earnToday') }}</view>
+					<view class="small">{{ $t('taskPage.dailyTaskCenter') }}</view>
+				</view>
 				<!-- 顶部数据卡片 -->
 				<view class="data_box">
+					<image class="tag_img" src="/static/task/tag_img.png" mode=""></image>
 					<view class="data_row">
 						<view class="dataItem">
 							<view class="tag">{{ $t('今日任务收益') }}</view>
-							<view class="income">{{ taskInfo.todayTaskCommission || 0 }} {{ currency }}</view>
-						</view>
-						<view class="dataItem progress_box">
-							<view class="progress_text">
-								<view class="tag">{{ $t('今日剩余次数') }}</view>
-								<view class="num">{{ taskInfo.totalTaskNum - taskInfo.tasksCompletedToday || 0 }}/{{
-									taskInfo.totalTaskNum || 0 }}</view>
+							<view class="income">{{ taskInfo.todayTaskCommission || 0 }} <span>{{ currency }}</span>
 							</view>
-							<t-progress :color="'#ffaf37'" style="width: 100%;transform: rotate(180deg);" :label="false"
-								:percentage="(taskInfo.totalTaskNum - taskInfo.tasksCompletedToday) / taskInfo.totalTaskNum * 100" />
+						</view>
+						<view class="dataItem">
+							<view class="DAILY">{{ $t('taskPage.daily') }}</view>
 						</view>
 					</view>
 
 					<view class="data_row">
-						<view class="dataItem">
-							<view class="tag">{{ $t('今日总完成次数') }}</view>
-							<view class="num">{{ taskInfo.totalTaskNum || 0 }}</view>
-						</view>
-						<view class="dataItem">
-							<view class="tag">{{ $t('今日完成次数') }}</view>
-							<view class="num">{{ taskInfo.tasksCompletedToday || 0 }}</view>
+						<view class="dataItem progress_box">
+							<view class="progress_text">
+								<view
+									style="width: 100%;display: flex;align-items: center;justify-content: space-between;">
+									<view class="tag">{{ $t('今日任务进度') }}</view>
+									<view class="num">{{ taskInfo.todayDoneCount || 0 }}/{{ taskInfo.taskQuota || 0 }}
+									</view>
+								</view>
+							</view>
+							<t-progress :color="'#000'" style="width: 100%;" :label="false"
+								:percentage="taskInfo.taskQuota ? (taskInfo.todayDoneCount / taskInfo.taskQuota) * 100 : 0" />
 						</view>
 					</view>
 				</view>
@@ -81,18 +86,18 @@
 				</view>
 			</view>
 		</uni-popup>
-	</customnavbar>
+	</homenavbar>
 
 	<contactWay />
 </template>
 
 <script>
-import customnavbar from '@/component/custom-navbar/custom-navbar.vue'
+import homenavbar from '@/component/home-navbar/home-navbar.vue'
 import listbottom from '../../component/list-bottom/list_bottom.vue'
 import contactWay from '@/components/contactWay/contactWay.vue';
 import {
-	taskListApi,
-	taskInfoApi
+	getTaskLists,
+	getTheTaskQuotaOfTheDay
 } from '@/common/api/task.js'
 import {
 	userInfoApi,
@@ -103,7 +108,7 @@ import {
 } from "@/utils/utils.js";
 export default {
 	components: {
-		customnavbar,
+		homenavbar,
 		listbottom,
 		contactWay
 	},
@@ -113,9 +118,9 @@ export default {
 			dialog_yes_message: '',
 			scrollTop: 0,
 			needRestoreScroll: false,
-			topStyle: 0,
+			topStyle: '',
 			topStyle2: '',
-			scrollViewStyle: '',
+			scrollViewBaseHeight: '',
 			currency: '',
 			userInfo: {},
 			taskInfo: {},
@@ -132,11 +137,27 @@ export default {
 			levelCode: '',
 			preLoadScrollTop: 0,
 			taskCardHeight: 298, // 顶部卡片固定高度（rpx）
+			taskCardCollapseOffset: 0,
+			taskCardCollapseMax: 220,
+			windowWidth: 375,
 			errorCode: 0
 		};
 	},
+	computed: {
+		taskTopCardStyle() {
+			const offset = this.taskCardCollapseOffset;
+			return `transform: translateY(-${offset}rpx); margin-bottom: -${offset}rpx;`;
+		},
+		scrollViewStyle() {
+			if (!this.scrollViewBaseHeight) return '';
+			return `height: calc(${this.scrollViewBaseHeight} + ${this.taskCardCollapseOffset}rpx);`;
+		}
+	},
 	onLoad() {
+		const systemInfo = uni.getSystemInfoSync();
+		this.windowWidth = systemInfo.windowWidth || 375;
 		this.scrollTop = uni.getStorageSync('taskListScrollTop') || 0;
+		this.updateTaskCardCollapse(this.scrollTop);
 		this.currency = uni.getStorageSync('settings').currency;
 		this.getTaskList().then(() => {
 			this.$nextTick(() => {
@@ -145,28 +166,11 @@ export default {
 		});
 		this.isShow = true;
 	},
-	onShow() {
-		settingsApi().then((res) => {
-			uni.setStorageSync('settings', res.data)
-		}).catch(err => {
-			console.log('request fail', err);
-			if (err.data?.code == 403) {
-				this.$showMessage('warning', err.data?.msg);
-			} else {
-				this.$showMessage('warning', err.msg);
-			}
-		})
+	async onShow() {
 		this.getUserInfo();
-		if (this.$refs.promptpopup2) {
-			this.$refs.promptpopup2.close()
-		}
 		const completedId = uni.getStorageSync('isTodayCompletedId');
+		// await this.theTaskQuotaOfTheDay();
 		if (this.taskList.length && completedId) {
-			this.preLoadScrollTop = this.scrollTop;
-			this.taskList = this.taskList.filter(item => item.taskId != completedId);
-			if (this.taskList.length < 10) {
-				this.onReachBottom()
-			}
 			uni.removeStorageSync('isTodayCompletedId');
 			this.needRestoreScroll = true;
 			this.$nextTick(() => {
@@ -210,25 +214,32 @@ export default {
 			this.$refs.promptpopup.close()
 		},
 		onPageScroll(e) {
-			this.scrollTop = e.scrollTop;
+			const scrollTop = e.detail?.scrollTop ?? e.scrollTop ?? 0;
+			this.scrollTop = scrollTop;
+			this.updateTaskCardCollapse(scrollTop);
+		},
+		updateTaskCardCollapse(scrollTop = 0) {
+			const scrollRpx = scrollTop * 750 / this.windowWidth;
+			this.taskCardCollapseOffset = Math.min(this.taskCardCollapseMax, Math.max(0, scrollRpx));
 		},
 		onRefresh() {
-			this.isRefreshing = true;
-			this.page.pageNum = 1;
-			taskListApi(this.page).then((res) => {
-				this.taskList = res.rows || [];
-				this.taskList = [...new Map(this.taskList.map(item => [item.taskId, item])).values()];
-				this.taskList = this.taskList.filter(item => item.isTodayCompleted !== 1);
-				if (!this.taskList.length && res.rows.length) {
-					this.onReachBottom()
-				}
-				if (this.taskList.length < 10 && res.rows.length) {
-					this.onReachBottom()
-				}
-				this.levelCode = this.taskInfo.levelCode;
-				this.nodata = res.total === 0;
-				this.hasMore = this.taskList.length !== res.total;
+			// this.isRefreshing = true;
+			// this.page.pageNum = 1;
+			getTaskLists().then((res) => {
+				this.taskList = res.data || [];
+				// this.taskList = [...new Map(this.taskList.map(item => [item.taskId, item])).values()];
+				// this.taskList = this.taskList.filter(item => item.isTodayCompleted !== 1);
+				// if (!this.taskList.length && res.rows.length) {
+				// 	this.onReachBottom()
+				// }
+				// if (this.taskList.length < 10 && res.rows.length) {
+				// 	this.onReachBottom()
+				// }
+				this.levelCode = this.userInfo.levelCode;
+				// this.nodata = res.total === 0;
+				// this.hasMore = this.taskList.length !== res.total;
 				this.scrollTop = 0;
+				this.updateTaskCardCollapse(0);
 				this.isRefreshing = false;
 			}).catch((err) => {
 				console.log('request fail', err);
@@ -241,32 +252,21 @@ export default {
 
 			// #ifdef H5
 			// H5端：额外减去底部可能的留白
-			this.topStyle = `margin-top:-${navHeight}rpx;padding-top:${navHeight + 114}rpx`;
-			this.topStyle2 = `height:calc(100vh - ${navHeight}rpx - 200rpx);`;
+			this.topStyle = "margin-top:-" + e + "rpx;padding-top:" + (e + 88) + "rpx"
 			// 固定scroll-view高度：屏幕高度 - 导航栏高度 - 顶部卡片高度 - 额外留白
-			this.scrollViewStyle = `height: calc(100vh - ${navHeight}rpx - ${this.taskCardHeight}rpx - 300rpx);`;
+			this.scrollViewBaseHeight = `100vh - ${navHeight}rpx - ${this.taskCardHeight}rpx - 300rpx`;
 			// #endif
 
 			// #ifdef APP-PLUS
 			// APP端：更紧凑的计算
-			this.topStyle = `margin-top:-${navHeight}rpx;padding-top:${navHeight + 68}rpx`;
-			this.topStyle2 = `height:calc(100vh - ${navHeight}rpx);`;
+			this.topStyle = "margin-top:-" + e + "rpx;padding-top:" + (e + 99) + "rpx"
 			// 固定scroll-view高度：屏幕高度 - 导航栏高度 - 顶部卡片高度
-			this.scrollViewStyle = `height: calc(100vh - ${navHeight}rpx - ${this.taskCardHeight}rpx - 128rpx);`;
+			this.scrollViewBaseHeight = `100vh - ${navHeight}rpx - ${this.taskCardHeight}rpx - 128rpx`;
 			// #endif
 		},
 		getUserInfo() {
 			userInfoApi().then((res) => {
 				this.userInfo = res.data;
-				if (this.userInfo.hasMessage) {
-					uni.showTabBarRedDot({
-						index: 2
-					});
-				} else {
-					uni.hideTabBarRedDot({
-						index: 2
-					});
-				}
 				uni.setStorageSync('userInfo', res.data);
 				this.getTaskInfo();
 			}).catch((err) => {
@@ -276,9 +276,8 @@ export default {
 		},
 		getTaskInfo() {
 			this.errorCode = 0
-			taskInfoApi().then((res) => {
+			getTheTaskQuotaOfTheDay().then((res) => {
 				this.taskInfo = res.data;
-				uni.setStorageSync('levelCode', res.data.levelCode);
 			}).catch((err) => {
 				console.log('request fail', err);
 				// this.$showMessage('warning', err.msg);
@@ -294,27 +293,15 @@ export default {
 				title: this.$t('loading.btn')
 			});
 
-			return taskListApi(this.page).then((res) => {
+			return getTaskLists().then((res) => {
 				this.loading = false;
-				if (this.page.pageNum == 1) {
-					this.taskList = res.rows || [];
-				} else {
-					this.taskList = [...this.taskList, ...(res.rows || [])];
-				}
-				this.taskList = [...new Map(this.taskList.map(item => [item.taskId, item])).values()];
-				this.taskList = this.taskList.filter(item => item.isTodayCompleted !== 1);
-				if (!this.taskList.length && res.rows.length) {
-					this.onReachBottom()
-				}
-				if (this.taskList.length < 10 && res.rows.length) {
-					this.onReachBottom()
-				}
-				this.levelCode = this.taskInfo.levelCode;
-				this.nodata = res.total === 0;
+				this.taskList = res.data || [];
+				this.levelCode = this.userInfo.levelCode;
+				// this.nodata = res.total === 0;
 				this.hasMore = this.taskList.length !== res.total;
-				if (this.page.pageNum > 1) {
-					this.scrollTop = this.preLoadScrollTop;
-				}
+				// if (this.page.pageNum > 1) {
+				// 	this.scrollTop = this.preLoadScrollTop;
+				// }
 			}).catch((err) => {
 				this.loading = false;
 				console.log('request fail', err);
@@ -388,90 +375,126 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.top-bg {
+	position: absolute;
+	top: 0;
+	width: 100%;
+	height: 1076rpx;
+	background:
+		radial-gradient(circle at 0% 0%, #69d6ec 0%, rgba(105, 214, 236, 0.55) 34%, transparent 62%),
+		radial-gradient(circle at 100% 0%, #3aaff5 0%, rgba(58, 175, 245, 0.55) 36%, transparent 65%),
+		radial-gradient(circle at 50% 45%, rgba(245, 248, 255, 0.9) 0%, rgba(245, 248, 255, 0.25) 42%, transparent 72%),
+		linear-gradient(180deg, #b9e9f3 0%, rgba(234, 246, 248, 0.8) 55%, rgba(244, 245, 251, 0) 100%);
+	z-index: 1;
+}
+
 .task-page {
 	display: flex;
 	flex-direction: column;
 	width: 100%;
+	background-color: #f2f5ff;
 
 	.task_top_card {
+		box-sizing: border-box;
 		position: relative;
+		z-index: 1;
 		width: 100%;
-		background: url('/static/task/taskBgi.png') top left/100% no-repeat;
-		height: 356rpx; // 使用数据中的高度值
-		// padding-bottom: 24rpx;
-		margin-bottom: -110rpx;
+		padding: 24rpx;
+
+		.text_box {
+			position: relative;
+			z-index: 2;
+			font-size: 64rpx;
+			font-weight: bold;
+			line-height: 94rpx;
+
+			.small {
+				font-size: 26rpx;
+				line-height: 32rpx;
+				font-weight: 500;
+				color: #3D3D3D;
+			}
+		}
 
 		.data_box {
+			margin-top: 30rpx;
 			box-sizing: border-box;
-			position: absolute;
-			left: 50%;
-			transform: translate(-50%, 0%);
-			padding: 40rpx 30rpx 38rpx;
-			background: #f6f9fe;
-			box-shadow: inset 0rpx 2rpx 4rpx 0rpx rgba(255, 255, 255, 0.5);
-			border-radius: 20rpx;
-			width: 690rpx;
+			position: relative;
+			padding: 24rpx;
+			background: #fff;
+			border-radius: 24rpx;
 			z-index: 2;
+
+			.tag_img {
+				position: absolute;
+				top: -262rpx;
+				right: -24rpx;
+				width: 338rpx;
+				height: 362rpx;
+			}
 
 			.data_row {
 				display: flex;
-				gap: 30rpx;
+				align-items: end;
+				justify-content: space-between;
+			}
 
-				&:nth-child(2) .dataItem {
-					margin-bottom: 0;
-				}
+			.DAILY {
+				font-family: Noto Sans SC;
+				font-size: 26rpx;
+				font-weight: bold;
+				line-height: 34rpx;
+				color: #fff;
+				padding: 4rpx 26rpx;
+				border-radius: 2026rpx;
+				background: #000000;
 			}
 
 			.dataItem {
-				flex: 1;
 				display: flex;
 				flex-direction: column;
 				align-items: start;
-				gap: 10rpx;
-				margin-bottom: 30rpx;
+				gap: 12rpx;
 
 				&.progress_box {
-					// background: linear-gradient(180deg, #FFD75F 0%, #FFAE31 100%);
-					background-color: #2775d7;
-					border-radius: 12rpx;
-					padding: 18rpx 14rpx;
+					width: 100%;
+					margin-top: 20rpx;
 
 					.progress_text {
 						display: flex;
 						width: 100%;
 						justify-content: space-between;
-						margin-bottom: 22rpx;
 
 						.tag {
-							font-family: PingFangSC, PingFang SC;
-							font-weight: 400;
-							font-size: 16rpx;
-							color: #fff;
+							font-size: 22rpx;
+							color: #3D3D3D;
 							line-height: 22rpx;
 							text-align: left;
 							font-style: normal;
 						}
 
 						.num {
-							font-family: PingFangSC, PingFang SC;
-							font-weight: 400;
-							font-size: 16rpx;
-							color: #fff;
+							font-size: 26rpx;
+							color: #9E9E9E;
 							line-height: 22rpx;
 							text-align: right;
 							font-style: normal;
+							margin-bottom: 4rpx;
 						}
 					}
 				}
 
 				.income {
-					font-family: PingFangSC, PingFang SC;
-					font-weight: 500;
-					font-size: 36rpx;
-					color: #FFAE31;
+					font-family: Dela Gothic One;
+					font-size: 72rpx;
 					line-height: 50rpx;
 					text-align: justify;
 					font-style: normal;
+
+					span {
+						font-family: Source Han Sans;
+						font-size: 34rpx;
+					}
 				}
 
 
@@ -487,10 +510,9 @@ export default {
 				}
 
 				.tag {
-					font-family: PingFangSC, PingFang SC;
-					font-weight: 400;
-					font-size: 20rpx;
-					color: #666666;
+					font-family: Noto Sans SC;
+					font-size: 26rpx;
+					color: #9E9E9E;
 					line-height: 28rpx;
 					font-style: normal;
 				}
@@ -500,14 +522,10 @@ export default {
 	}
 
 	.custom-waterfalls {
+		position: relative;
+		z-index: 2;
 		// flex: 1; // 让瀑布流容器占满剩余空间
 		width: 100%;
-		// #ifdef H5
-		transform: translateY(120rpx);
-		// #endif
-		// #ifdef APP-PLUS
-		transform: translateY(120rpx);
-		// #endif
 	}
 }
 

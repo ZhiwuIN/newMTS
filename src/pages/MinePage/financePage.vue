@@ -11,44 +11,36 @@
 				@scrolltolower="onReachBottom" @refresherrefresh="onRefresh" :refresher-threshold="120"
 				class="scroll-view-box">
 				<view class="product-list">
-					<view class="product-item" v-for="(item, index) in productList" :key="index"
-						@click="toProduct(item.productId)">
-						<!-- 第一行 -->
+					<view class="product-item" v-for="(item, index) in productList" :key="index">
+						<!-- @click="toProduct(item.productId)" -->
+						<!-- 产品名称 -->
 						<view class="header-row">
 							<view class="left_box">
-								<image class="product-image" :src="item.image" mode="aspectFit"></image>
 								<view class="header-row_text">
 									<text class="product-name">{{ item.productName }}</text>
-									<text class="product-status"
-										:class="currentTab == 0 ? 'themeColor' : 'gray'">{{ item.status }}</text>
 								</view>
 							</view>
-							<image class="rigth_img" src="/static/back_icon.png" mode="aspectFit"></image>
+							<view class="recommendation" :class="currentTab == 0 ? 'themeColor' : 'gray'">{{
+								item.status }}</view>
+						</view>
+						<!-- 购买金额&预期收益 -->
+						<view class="number_box">
+							<view class="item_box">
+								<view>{{ $t('product.PurchaseAmount') }}</view>
+								<view class="bold">{{ item.purchaseAmount }} {{ currency }}</view>
+							</view>
+							<view v-if="currentTab == 0" class="item_box">
+								<view>{{ $t('product.ExpectedEarnings') }}</view>
+								<view class="bold">{{ item.expectedEarnings || 0 }} {{ currency }}</view>
+							</view>
 						</view>
 						<view class="item_box_main">
-							<view class="item_box">
-								<view class="item_title">
-									{{ $t('product.PurchaseAmount') }}
-								</view>
-								<view class="item_desc">
-									{{ item.purchaseAmount }} {{ currency }}
-								</view>
-							</view>
 							<view class="item_box">
 								<view class="item_title">
 									{{ $t('product.ExpectedReturn') }}
 								</view>
 								<view class="item_desc">
 									{{ item.expectedReturn }} {{ currency }}
-								</view>
-							</view>
-							<!-- 进行中 -->
-							<view class="item_box" v-if="currentTab == 0">
-								<view class="item_title">
-									{{ $t('product.ExpectedEarnings') }}
-								</view>
-								<view class="item_desc">
-									{{ item.expectedEarnings || 0 }} {{ currency }}
 								</view>
 							</view>
 							<view class="item_box">
@@ -147,10 +139,10 @@ export default {
 			const api = this.currentTab == 0 ? productMyRunningApi : productMyCompleteApi;
 			api(this.page).then((res) => {
 				this.loading = false
-				if (this.page.pageNum == 1) this.productList = res.rows || []
-				else this.productList.push(...res.rows)
-				this.nodata = res.total == 0
-				this.hasMore = this.productList.length != res.total
+				if (this.page.pageNum == 1) this.productList = res.data.rows || []
+				else this.productList.push(...res.data.rows)
+				this.nodata = res.data.total == 0
+				this.hasMore = this.productList.length != res.data.total
 
 			}).catch((err) => {
 				console.log('request fail', err);
@@ -212,16 +204,21 @@ export default {
 	display: flex;
 	flex-direction: column;
 	padding-top: 24rpx;
+	background-color: #f2f5ff;
 }
 
 .product-list {
-	padding: 50rpx;
+	padding: 32rpx;
 }
 
 .tabs {
-	display: flex;
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
 	background: #fff;
 	justify-content: space-evenly;
+	margin: 0 32rpx;
+	border-radius: 2026rpx;
+	padding: 8rpx;
 
 	.tab-item {
 		position: relative;
@@ -232,14 +229,12 @@ export default {
 		line-height: 70rpx;
 		text-align: center;
 		font-style: normal;
-		height: 70rpx;
-		width: 168rpx;
 
 		&.active {
 			color: #FFFFFF;
 			font-weight: 600;
 			background: $themeColor;
-			box-shadow: 0rpx 4rpx 16rpx 0rpx #B2C8FB;
+			// box-shadow: 0rpx 4rpx 16rpx 0rpx #B2C8FB;
 			border-radius: 36rpx;
 		}
 	}
@@ -248,17 +243,51 @@ export default {
 .product-item {
 	background: #FFFFFF;
 	box-shadow: 0rpx 22rpx 28rpx -6rpx #E9F3FF;
-	border-radius: 32rpx;
+	border-radius: 24rpx;
 	border: 2rpx solid #F6F6F6;
-	margin-bottom: 32rpx;
-	padding: 40rpx;
+	margin-bottom: 24rpx;
+	padding: 24rpx;
+
+	.recommendation {
+		display: inline-block;
+		padding: 12rpx 18rpx;
+		border-radius: 12rpx;
+		background: #edf3ff;
+		color: $themeColor;
+		font-size: 27rpx;
+		line-height: 34rpx;
+		white-space: nowrap;
+	}
 }
 
 .header-row {
 	display: flex;
 	align-items: start;
 	justify-content: space-between;
-	padding-bottom: 30rpx;
+	padding-bottom: 10rpx;
+}
+
+.number_box {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	padding-bottom: 16rpx;
+	border-bottom: 2rpx solid #879BBB;
+
+	.item_box {
+		display: flex;
+		flex-direction: column;
+		align-items: start;
+		gap: 8rpx;
+		font-family: MiSans;
+		font-size: 24rpx;
+
+		.bold {
+			font-family: MiSans;
+			font-size: 32rpx;
+			font-weight: 500;
+			line-height: 32rpx;
+		}
+	}
 }
 
 .left_box {
@@ -268,17 +297,12 @@ export default {
 
 .rigth_img {
 	width: 48rpx;
+	min-width: 48rpx;
 	height: 48rpx;
 	transform: rotate(180deg);
 }
 
-.header-row_text {
-	display: flex;
-	flex-direction: column;
-	align-items: start;
-	justify-content: space-between;
-	height: 96rpx;
-}
+.header-row_text {}
 
 .product-image {
 	width: 96rpx;
@@ -289,13 +313,17 @@ export default {
 }
 
 .product-name {
-	font-family: DINPro, DINPro;
-	font-weight: 500;
+	font-family: DingTalk JinBuTi;
 	font-size: 32rpx;
+	line-height: 36rpx;
 	color: #000000;
-	line-height: 42rpx;
-	text-align: center;
+	text-align: left;
 	font-style: normal;
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .product-status {
@@ -368,8 +396,8 @@ export default {
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;
-	gap: 20rpx;
-	margin-top: 20rpx;
+	gap: 16rpx;
+	margin-top: 16rpx;
 }
 
 .item_box {
@@ -379,20 +407,18 @@ export default {
 }
 
 .item_title {
-	font-family: DINPro, DINPro;
-	font-weight: 400;
-	font-size: 26rpx;
-	color: #1C2D57;
+	font-family: MiSans;
+	font-size: 24rpx;
+	color: #000;
 	line-height: 34rpx;
 	text-align: center;
 	font-style: normal;
 }
 
 .item_desc {
-	font-family: DINPro, DINPro;
-	font-weight: 400;
-	font-size: 26rpx;
-	color: #000000;
+	font-family: MiSans;
+	font-size: 24rpx;
+	color: #000;
 	line-height: 34rpx;
 	text-align: center;
 	font-style: normal;

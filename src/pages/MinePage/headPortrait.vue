@@ -165,7 +165,7 @@
 		.head {
 			padding: 80rpx 0 60rpx;
 			background-color: #fff;
-			background: linear-gradient(180deg, $gradualColor2 0%, $gradualColor1 100%);
+			background: $themeColor;
 		}
 
 		.avatar-section {
@@ -293,7 +293,7 @@
 		padding: 20rpx 0 26rpx;
 		display: flex;
 		justify-content: center;
-		background: linear-gradient(180deg, $gradualColor2 0%, $gradualColor1 100%);
+		background: $themeColor;
 		border-radius: 24rpx;
 		font-family: PingFangSC, PingFang SC;
 		font-weight: 600;

@@ -15,6 +15,9 @@
 			<image src="/static/mine/application_record.png" :lazy-load="true" class="right-icon"
 				v-if="isPositionManage" @click="toApplication('/pages/MinePage/applicationRecord')">
 			</image>
+			<image src="/static/mine/application_record_black.png" :lazy-load="true" class="right-icon"
+				v-if="isPositionManageBlack" @click="toApplication('/pages/MinePage/applicationRecord')">
+			</image>
 			<image :lazy-load="true" src="/static/home/Record.png" class="right-icon isFinancePage" v-if="isFinancePage"
 				@click="toApplication('/pages/MinePage/financePage')">
 			</image>
@@ -63,7 +66,7 @@ export default {
 		},
 		backgroundStr: {
 			type: String,
-			default: '#FFFFFF'
+			default: ''
 		},
 		showBack: {
 			type: Boolean,
@@ -78,6 +81,10 @@ export default {
 			default: false
 		},
 		isPositionManage: {
+			type: Boolean,
+			default: false
+		},
+		isPositionManageBlack: {
 			type: Boolean,
 			default: false
 		},
@@ -110,7 +117,7 @@ export default {
 		return {
 			statusBarHeight: 0,
 			navBarHeight: 88, // 默认导航栏高度
-			scrollBackgroundStr: '#FFFFFF',
+			scrollBackgroundStr: ' ',
 			mtop: 0,
 			pageH: 0
 		}
@@ -178,6 +185,11 @@ export default {
 	mounted() {
 		this.setNavBarInfo();
 		this.scrollBackgroundStr = this.$props.backgroundStr
+	},
+	watch: {
+		backgroundStr(value) {
+			this.scrollBackgroundStr = value
+		}
 	},
 }
 </script>

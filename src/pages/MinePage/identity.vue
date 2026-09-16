@@ -210,7 +210,7 @@
 	.identity_submit_btn {
 		margin-top: 90rpx;
 		height: 96rpx;
-		background: linear-gradient(180deg, $gradualColor2 0%, $gradualColor1 100%);
+		background: $themeColor;
 		border-radius: 24rpx;
 		font-family: "DINPro-Blod", sans-serif;
 		font-weight: bold;
@@ -235,9 +235,9 @@
 	.identity_set_input {
 		padding: 0 34rpx;
 		background: #FFFFFF;
-		box-shadow: 0rpx 22rpx 28rpx -6rpx #E9F3FF;
-		border-radius: 42rpx;
-		border: 2rpx solid #F6F6F6;
+		// box-shadow: 0rpx 22rpx 28rpx -6rpx #E9F3FF;
+		border-radius: 16rpx;
+		border: 2rpx solid rgb(228, 228, 228);
 		margin-top: 24rpx;
 	}
 
@@ -256,7 +256,7 @@
 		margin-right: 26rpx;
 
 		&.active {
-			background: $gradualColor2;
+			background: $themeColor;
 			border: 10rpx solid #E6E6E6;
 		}
 	}
@@ -264,8 +264,9 @@
 	.nationality_box {
 		height: 112rpx;
 		background: #FFFFFF;
-		box-shadow: 0rpx 16rpx 32rpx 4rpx rgba(119, 154, 241, 0.2);
-		border-radius: 24rpx;
+		// box-shadow: 0rpx 16rpx 32rpx 4rpx rgba(119, 154, 241, 0.2);
+		border: 2rpx solid rgb(228, 228, 228);
+		border-radius: 16rpx;
 		display: flex;
 		align-items: center;
 		padding: 0 34rpx;

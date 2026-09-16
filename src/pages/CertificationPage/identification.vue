@@ -54,13 +54,13 @@
                 </view>
             </view>
             <!-- 背面 -->
-            <!-- <view class="content img_box">
+            <view class="content img_box">
                 <view class="title">
-                    {{ $t('Back ID Photo') }}
+                    {{ $t('Payment Vouchers') }}
                 </view>
                 <view class="img_main_box">
-                    <view v-if="backIdPhoto" class="item_box">
-                        <image :src="backIdPhoto" class="item_img"></image>
+                    <view v-if="paymentVoucherUrl" class="item_box">
+                        <image :src="paymentVoucherUrl" class="item_img"></image>
                         <view class="del-btn" @click="delImage('back')">×</view>
                     </view>
                     <view v-else>
@@ -68,14 +68,17 @@
                         </image>
                     </view>
                 </view>
-            </view> -->
+            </view>
 
             <view class="hint">
-                * Please enter your genuine personal information and upload your own authentic ID photos *
+                * Please fill in your genuine personal information and upload your own authentic ID photos as well as
+                payment vouchers *
             </view>
 
             <view class="btn_box">
-                <view class="main_box" @click="onPost">{{ $t('home.Confirm') }}</view>
+                <view class="main_box" :class="{ disabled: isUploading }" @click="handleSubmit">
+                    {{ $t('home.Confirm') }}
+                </view>
             </view>
         </view>
     </view>
@@ -93,17 +96,33 @@ export default {
             realName: '',
             phone: '',
             idNumber: '',
+            paymentVoucher: '',
+            paymentVoucherUrl: '',
             certificatePhoto: '',
             certificatePhotoUrl: '',
+            isUploadingFront: false,
+            isUploadingBack: false,
             // backIdPhoto: '',
             pageScrollTop: 0,
             topStyle2: '',
+        }
+    },
+    computed: {
+        isUploading() {
+            return this.isUploadingFront || this.isUploadingBack
         }
     },
     onLoad() {
         this.mtop()
     },
     methods: {
+        handleSubmit() {
+            if (this.isUploading) {
+                this.$showMessage('warning', this.$t('loading.btn'))
+                return
+            }
+            this.onPost()
+        },
         selectImage(type) {
             const that = this; // 固定写法，解决 this 指向问题
             uni.chooseImage({
@@ -113,16 +132,34 @@ export default {
                     const imagePath = res.tempFilePaths[0] || '';
                     if (type === 'front') {
                         that.certificatePhotoUrl = imagePath;
+                        that.isUploadingFront = true;
                         uni.showLoading({
                             title: that.$t('loading.btn'),
                         })
-                        const uploadRes = await s3upload(that.certificatePhotoUrl)
-                        that.certificatePhoto = uploadRes.data.url
-                        uni.hideLoading()
+                        try {
+                            const uploadRes = await s3upload(that.certificatePhotoUrl)
+                            that.certificatePhoto = uploadRes.data.url
+                        }
+                        finally {
+                            that.isUploadingFront = false
+                            uni.hideLoading()
+                        }
                     }
-                    //  else if (type === 'back') {
-                    //     that.backIdPhoto = imagePath;
-                    // }
+                    else if (type === 'back') {
+                        that.paymentVoucherUrl = imagePath;
+                        that.isUploadingBack = true;
+                        uni.showLoading({
+                            title: that.$t('loading.btn'),
+                        })
+                        try {
+                            const uploadRes = await s3upload(that.paymentVoucherUrl)
+                            that.paymentVoucher = uploadRes.data.url
+                        }
+                        finally {
+                            that.isUploadingBack = false
+                            uni.hideLoading()
+                        }
+                    }
                 }
             })
         },
@@ -132,9 +169,10 @@ export default {
                 this.certificatePhotoUrl = '';
                 this.certificatePhoto = '';
             }
-            //  else if (type === 'back') {
-            //     this.backIdPhoto = '';
-            // }
+            else if (type === 'back') {
+                this.paymentVoucherUrl = '';
+                this.paymentVoucher = '';
+            }
         },
         mtop() {
             let statusBarHeight
@@ -188,10 +226,10 @@ export default {
                 this.$showMessage('warning', this.$t('Front ID Photo'))
                 return
             }
-            // if (!this.backIdPhoto) {
-            //     this.$showMessage('warning', this.$t('Back ID Photo'))
-            //     return
-            // }
+            if (!this.paymentVoucher) {
+                this.$showMessage('warning', this.$t('Payment Vouchers'))
+                return
+            }
             uni.showLoading({
                 title: this.$t('loading.btn'),
             })
@@ -200,13 +238,15 @@ export default {
                     realName,
                     phone,
                     idNumber,
-                    certificatePhoto
+                    certificatePhoto,
+                    paymentVoucher
                 } = this
                 const postRes = await kAuthSubmitApi({
                     realName,
                     phone,
                     idNumber,
-                    certificatePhoto
+                    certificatePhoto,
+                    paymentVoucher
                 })
                 this.$showMessage('info', this.$t('申请成功等待审核'))
                 uni.hideLoading()
@@ -218,6 +258,9 @@ export default {
                 uni.hideLoading()
                 this.$showMessage('warning', err?.msg || 'error')
                 this.certificatePhoto = ''
+                this.certificatePhotoUrl = ''
+                this.paymentVoucher = ''
+                this.paymentVoucherUrl = ''
             }
         }
     }
@@ -397,6 +440,10 @@ export default {
         font-size: 32rpx;
         color: #fff;
         padding: 12rpx 0;
+    }
+
+    .main_box.disabled {
+        opacity: 0.6;
     }
 }
 </style>

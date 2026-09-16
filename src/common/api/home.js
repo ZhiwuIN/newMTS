@@ -196,20 +196,6 @@ export function pointPrizeExchangeApi(uid, productId) {
 	})
 }
 
-// 上传图片
-export function s3upload(file) {
-	const formData = new FormData();
-	formData.append('file', file);
-	return request({
-		url: `/s3/upload`,
-		method: 'post',
-		data: formData,
-		headers: {
-			'Content-Type': 'multipart/form-data'
-		}
-	})
-}
-
 // 最新版本
 export function versionApi() {
 	return request({
@@ -240,5 +226,118 @@ export function menuListApi(params) {
 		url: '/app/personal/menu/list',
 		method: 'get',
 		data: params
+	})
+}
+
+
+// 上传图片
+export async function s3upload(file) {
+	const formData = new FormData()
+	formData.append('file', file)
+
+	const base_url = import.meta.env.VITE_API_URL ?? 'https://api.cwpc.cc'
+	const token = uni.getStorageSync('token') || ''
+
+	const res = await fetch(`${base_url}/s3/upload`, {
+		method: 'POST',
+		headers: {
+			Authorization: `Bearer ${token}`,
+			// 关键：这里绝对不要写 Content-Type！
+		},
+		body: formData, // fetch 会自动生成正确的 multipart/form-data + boundary
+	})
+
+	return await res.json()
+}
+
+// 一次性上传多张图片
+export async function s3uploads(files) {
+	const formData = new FormData()
+
+	for (let i = 0; i < files.length; i++) {
+		const filePath = files[i]
+		const blob = await pathToBlob(filePath)
+		formData.append('file', blob, `image_${i}.jpg`)
+	}
+
+	const base_url = import.meta.env.VITE_API_URL ?? 'https://api.cwpc.cc'
+	const token = uni.getStorageSync('token') || ''
+
+	const res = await fetch(`${base_url}/s3/uploads`, {
+		method: 'POST',
+		headers: {
+			Authorization: `Bearer ${token}`,
+		},
+		body: formData,
+	})
+
+	return await res.json()
+}
+
+// 把本地路径转成 Blob
+function pathToBlob(filePath) {
+	return new Promise((resolve, reject) => {
+		if (filePath.startsWith('blob:')) {
+			fetch(filePath)
+				.then(res => res.blob())
+				.then(resolve)
+				.catch(reject)
+		}
+		else {
+			uni.request({
+				url: filePath,
+				responseType: 'blob',
+				success: res => resolve(res.data),
+				fail: reject,
+			})
+		}
+	})
+}
+
+// 首页弹窗
+export function settingsPopupsApi() {
+	return request({
+		url: '/app/settings/popups',
+		method: 'get'
+	})
+}
+
+// 首页三位活动
+export function activeCenterTopApi() {
+	return request({
+		url: '/app/active-center/top',
+		method: 'get'
+	})
+}
+
+// 子菜单
+export function sonMenuListApi(pid) {
+	return request({
+		url: '/app/personal/child/list?pid=' + pid,
+		method: 'get'
+	})
+}
+
+//查询自定义获奖记录(honor)
+export function honorCustomDrawResultApi() {
+	return request({
+		url: '/app/honor/custom-draw-result',
+		method: 'get'
+	})
+}
+
+// 语言包
+export function languageApi(){
+	return request({
+		url: '/app/language',
+		method: 'get'
+	})
+}
+
+// 用户指南
+export function userNoticeApi(){
+	return request({
+		url: '/app/settings/user-notice',
+		method: 'get'
 	})
 }

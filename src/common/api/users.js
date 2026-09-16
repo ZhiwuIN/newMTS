@@ -96,3 +96,11 @@ export function changeUserPhoneApi(params) {
 		data: params,
 	})
 }
+
+// 个人中心金额接口
+export function userInfoAmountApi() {
+	return request({
+		url: '/app/user/info/amount',
+		method: 'get',
+	})
+}

@@ -129,10 +129,10 @@ export default {
 			positionMyPositionListApi().then(res => {
 				if (res.code == 200) {
 					this.loading = false
-					if (this.page.pageNum == 1) this.data = res.rows || []
-					else this.data.concat(res.rows)
-					this.nodata = res.total == 0
-					this.hasMore = this.data.length != res.total
+					if (this.page.pageNum == 1) this.data = res.data.rows || []
+					else this.data.concat(res.data.rows)
+					this.nodata = res.data.total == 0
+					this.hasMore = this.data.length != res.data.total
 				} else {
 					this.$showMessage('error', res.msg || 'error')
 					// uni.showToast({
@@ -169,7 +169,7 @@ export default {
 		// align-items: center;
 		// justify-content: space-between;
 		background: #FFFFFF;
-		box-shadow: 0rpx 22rpx 28rpx -6rpx #E9F3FF;
+		// box-shadow: 0rpx 22rpx 28rpx -6rpx #E9F3FF;
 		border-radius: 24rpx;
 		border: 2rpx solid #F6F6F6;
 		padding: 26rpx 40rpx 24rpx;

@@ -254,7 +254,7 @@
 	.add-btn {
 		width: 100%;
 		height: 96rpx;
-		background: linear-gradient(180deg, $gradualColor2 0%, $gradualColor1 100%);
+		background: $themeColor;
 		border-radius: 24rpx;
 		font-family: "DINPro-Bold", sans-serif;
 		font-weight: bold;

@@ -1,5 +1,5 @@
 <template>
-	<view class="contactWay_box" :class="{ hidden: isHidden }" @click="unShow" v-if="list.length">
+	<view class="contactWay_box" :class="{ hidden: isHidden }" @click="unShow" v-if="false">
 		<!--  && levelCode != '0' -->
 		<image src="/static/result.png" style="width: 48rpx; height: 48rpx;" mode=""></image>
 		<view>{{ $t('代理') }}</view>

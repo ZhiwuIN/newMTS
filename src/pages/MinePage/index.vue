@@ -1,892 +1,1246 @@
 <template>
-	<view>
-		<customnavbar backgroundStr="url('/static/mine/mine_bg.png') top left/100%  no-repeat" @mtop="mtop"
-			:white-title="true" :showBack="false" :isHome="true" :hasMessage="userInfo.hasMessage">
-			<template #right-content>
-				<!-- <img v-if="myPosition.image" :src="myPosition.image" style="width: 100%;height: 100%;"> -->
-			</template>
+	<view style="background-color: #f4f5fb;">
+		<homenavbar backgroundStr="''" @mtop="mtop" :isHome="true" :showBack="false" :whiteBackgroundOnScroll="true">
+			<view class="mine-top-bg" :style="topStyle"></view>
 			<view class="mine-container">
-				<view class="mine_top_bg" :style="topStyle">
-					<!-- 个人信息区域 -->
+				<view class="profile-row">
 					<view class="user-info">
-						<view class="avatarBox" @click="pushAccount">
-							<image class="avatar_img" mode="aspectFill"
-								:src="userInfo.avatar ? userInfo.avatar : '/static/default-avatar.png'">
-							</image>
-							<view class="avatarEdit_img_Box">
-								<image class="avatarEdit_img" src="/static/mine/editAvatar.png"></image>
+						<view class="user-info_box">
+							<view class="avatar-box" @click="pushAccount">
+								<image class="avatar-img" mode="aspectFill"
+									:src="userInfo.avatar || '/static/mine_a.png'">
+								</image>
+								<!-- <view class="level-tag">LV1</view> -->
+							</view>
+							<view class="user-detail">
+								<view class="user-name">{{ userInfo.username || '--' }}</view>
+								<view class="user-id">{{ $t('minePage.cqaiId') }}: {{ displayUserId }}</view>
 							</view>
 						</view>
-
-						<view class="user-detail">
-							<view class="user_name">{{ userInfo.username || '--' }}</view>
-							<view class="user_phone">{{ userInfo.phone || '--' }}</view>
+						<!-- 保证金 -->
+						<view class="earnestMoney_box">
+							<view>{{ $t('minePage.workDeposit') }} <span>{{ userInfo?.depositAmount }}</span></view>
 						</view>
 					</view>
-
-					<!-- 资金明细卡片 -->
-					<view class="money-card">
-						<view class="money-grid">
-							<view class="money_max_box">
-								<view class="money_box">
-									<view class="label">{{ $t('mine.AccountBalance') }}</view>
-									<view class="amount">{{ userInfo.accountBalance || '0' }}</view>
-									<view class="btn" v-if="userInfo.userType != 'test'"
-										@click="toPage2('/pages/HomePage/RechargeChannel')">{{ $t('mine.Deposit') }}
-									</view>
-								</view>
-								<view class="line"></view>
-								<view class="money_box">
-									<view class="label">{{ $t('mine.TotalIncome') }}</view>
-									<view class="amount">{{ userInfo.totalRevenue || '0' }}</view>
-									<view class="btn" style="background-color: #ffae31;"
-										@click="isRestrictAccess ? this.$refs.promptpopup_access.open() : toPage2('/pages/MinePage/withdrawal')">
-										{{
-											$t('mine.Withdrawal') }}
-									</view>
-								</view>
-							</view>
-
-							<view>
-								<view class="money_list">
-									<view class="money-item">
-										<view class="label">{{ $t('mine.Totalwithdrawals') }}</view>
-										<view class="amount">{{ userInfo.totalWithdrawals || '0' }}</view>
-									</view>
-									<view class="money-item">
-										<view class="label">{{ $t('mine.MonthlyRevenue') }}</view>
-										<view class="amount">{{ userInfo.monthlyRevenue || '0' }}</view>
-									</view>
-									<view class="money-item">
-										<view class="label">{{ $t('mine.DailyRevenue') }}</view>
-										<view class="amount">{{ userInfo.dailyRevenue || '0' }}</view>
-									</view>
-									<view class="money-item">
-										<view class="label">{{ $t('mine.TotalProfits') }}</view>
-										<view class="amount">{{ userInfo.totalProfits || '0' }}</view>
-									</view>
-								</view>
-								<view style="grid-template-columns: repeat(2, 1fr);padding: 0 30rpx;"
-									class="money-grid">
-									<view class="money-item">
-										<view class="label"><text>{{ splitText($t('保证金')) }}</text></view>
-										<view class="amount" v-if="userInfo.levelCode == '0'">{{ '0' }}</view>
-										<view class="amount" v-else>{{ userInfo.depositAmount || '0' }}</view>
-									</view>
-									<view class="money-item">
-										<view class="label"><text>{{ $t('第一次购买等级日期') }}</text></view>
-										<view class="amount" v-if="userInfo.levelCode == '0'">{{ '--' }}</view>
-										<view class="amount" v-else>{{ userInfo.firstPurchaseLevelDate || '--' }}</view>
-									</view>
-								</view>
-							</view>
-
-
-						</view>
+					<!-- 用户指南 -->
+					<view class="guide-card" @click="toPage3('/pages/MinePage/userNotice')">
+						<image class="guide-book" src="/static/mine/book_img.png" mode="aspectFit"></image>
+						<view class="guide-title">{{ $t('minePage.userGuide') }}</view>
+						<view class="guide-subtitle">{{ $t('minePage.goCheck') }}</view>
 					</view>
 				</view>
 
+				<!-- 工资领取 -->
+				<view class="salary_box">
+					<view class="main_box">
+						<!-- 职位不存在 -->
+						<view class="desc" v-if="!userInfo.position">
+							{{ $t('申请您的职位来领取工资') }}
+						</view>
+						<!-- 已领取 -->
+						<view class="desc" v-else-if="salaryIsGet">
+							{{ $t('工资已领取') }}
+						</view>
+						<!-- 职位任务未达标 -->
+						<view class="desc" v-else-if="userInfo.compliance == 0">
+							{{ $t("职位任务未完成") }}
+						</view>
+						<!-- 未到发薪日 -->
+						<view class="desc" v-else-if="!salaryIsGet && NoPayday">
+							{{ NoPayday }}
+						</view>
+						<!-- 薪资未领取 -->
+						<view class="desc" v-else-if="!salaryIsGet && !NoPayday">
+							{{ $t('home.TodaySalary') }} : {{ todaySalary }} {{ currency }}
+						</view>
+						<!-- /////////////////////////////////////////////// -->
+						<view class="tag"
+							v-if="!(!salaryIsGet && userInfo.compliance && !NoPayday && userInfo.position)"
+							@click="toPostManage">{{ $t('去看看') }}</view>
+						<view class="btn" @click="onGetDailyWage"
+							v-if="!salaryIsGet && userInfo.compliance && !NoPayday && userInfo.position">{{
+								$t('领取工资') }}
+						</view>
+					</view>
+					<image class="position_img" :src="myPosition?.image || '/static/level/1.png'" mode="aspectFit">
+					</image>
+				</view>
 
-				<!-- 邀请链接 区域 -->
-				<!-- <view class="invitation_sction" v-if="userInfo.levelCode != 0">
-					<view class="invitation_card">
-						<img style="height: 100%;width: 100%;" src="/static/mine/share.png" alt="">
-						<text class="link">{{ qrcodeUrl }}</text>
-						<view v-if="userInfo.invitationCode" class="copy-btn" @click="copy_invitation_url">{{ $t("点击复制")
-						}}</view>
+
+
+				<view class="fund-card">
+					<view class="position-card" @click="toPage3('/pages/HomePage/postManage')">
+						<image class="position-icon" v-if="myPosition?.image" :src="myPosition?.image"
+							mode="aspectFill"></image>
+						<view class="position-name">{{ myPosition?.positionName
+							|| $t('minePage.noPositionActivated') }}</view>
+						<image class="position-arrow" src="/static/mine/right.png" mode="aspectFit"></image>
+					</view>
+					<!-- <view class="fund-right">
+						<image class="fund-eye"
+							:src="eyeOpen ? '/static/mine/eye_open.png' : '/static/mine/eye_close.png'"
+							@click.stop="eyeOpen = !eyeOpen"></image>
+					</view> -->
+					<view class="max-fund-body">
+						<view class="fund-body">
+							<view class="fund-label">{{ $t('minePage.availableFunds') }} ({{ currency }})</view>
+							<view class="fund-amount">{{ eyeOpen ? money(userInfo.accountBalance) : '****.**' }}</view>
+						</view>
+						<view class="fund-body">
+							<view class="fund-top">
+								<image class="top-img" src="/static/mine/TodayIsincome.png" mode="aspectFit"></image>
+								<view class="fund-label">{{ $t('minePage.todayIncome') }}</view>
+							</view>
+							<view class="fund-amount red">{{ signedMoney(userInfoAmount.dailyRevenue) }}</view>
+						</view>
+						<view class="fund-body">
+							<view class="fund-top">
+								<image class="top-img" src="/static/mine/MonthlyIncome.png" mode="aspectFit"></image>
+								<view class="fund-label">{{ $t('minePage.monthlyIncome') }}</view>
+							</view>
+							<view class="fund-amount red">{{ signedMoney(userInfoAmount.monthlyRevenue) }}</view>
+						</view>
+						<view class="fund-body">
+							<view class="fund-top">
+								<image class="top-img" src="/static/mine/TotalRevenue.png" mode="aspectFit"></image>
+								<view class="fund-label">{{ $t('minePage.totalRevenue') }}</view>
+							</view>
+							<view class="fund-amount red">{{ signedMoney(userInfoAmount.totalRevenue) }}</view>
+						</view>
+					</view>
+
+					<!-- 职位信息 -->
+					<view class="position_info_box" v-if="myPosition?.positionName">
+						<view class="item_box">
+							<view>{{ $t('minePage.monthlySalary') }}</view>
+							<view class="number">{{ myPosition?.salary }} {{ currency }}</view>
+						</view>
+						<view class="item_box">
+							<view>{{ $t('minePage.payday') }}</view>
+							<view class="number">{{ myPosition?.paydayText }}</view>
+						</view>
+						<view class="item_box">
+							<view>{{ $t('minePage.payType') }}</view>
+							<view class="number">{{ myPosition?.payType }}</view>
+						</view>
+					</view>
+					<!-- 充值提现按钮 -->
+					<view class="fund-actions">
+						<view class="fund-btn" @click="toPage2('/pages/HomePage/RechargeChannel')">{{
+							$t('minePage.recharge') }}</view>
+						<view class="fund-btn"
+							@click="isRestrictAccess ? $refs.promptpopup_access.open() : toPage2('/pages/MinePage/withdrawal')">
+							{{ $t('minePage.withdraw') }}</view>
+					</view>
+				</view>
+
+				<!-- <view class="info-card">
+					<view class="info-title">Account Overview</view>
+					<view class="info-grid">
+						<view class="info-item">
+							<view class="info-label">Total Assets</view>
+							<view class="info-value">{{ eyeOpen ? money(userInfo.accountBalance) : '****.**' }} {{
+								currency || 'FOX' }}</view>
+						</view>
+						<view class="info-item">
+							<view class="info-label">Lock in funds</view>
+							<view class="info-value">{{ eyeOpen ? money(userInfo.lockFunds) : '****.**' }} {{ currency
+							}}</view>
+						</view>
 					</view>
 				</view> -->
 
-				<!-- 功能入口卡片 -->
-				<view class="function-card">
-					<!-- 等级职位 -->
-					<view class="user_card">
-						<view class="member_card" @click="toPage3('/pages/LevelPage/index')">
-							<view class="member_card_img" v-if="myvipInfo?.image">
-								<image style="width: 100%;height: 100%;" :src="myvipInfo?.image"></image>
-							</view>
-							<view class="card_text">
-								{{ userInfo?.levelName }}
-							</view>
+				<!-- <view class="info-card">
+					<view class="info-title">Revenue Overview</view>
+					<view class="info-grid">
+						<view class="info-item">
+							<view class="info-label">Today's Earnings</view>
+							<view class="info-value income">{{ eyeOpen ? signedMoney(userInfoAmount.dailyRevenue) :
+								'****.**' }} {{ currency
+								}}</view>
 						</view>
-						<view class="line"></view>
-						<view class="member_card"
-							@click="toPage3('/pages/HomePage/postManage?title=Management+Positions')">
-							<view class="member_card_img" v-if="myPosition?.image">
-								<image style="width: 100%;height: 100%;" :src="myPosition?.image">
-								</image>
-							</view>
-							<view class="card_text"
-								:style="{ paddingLeft: myPosition?.positionName ? '0' : '20rpx', fontSize: myPosition?.positionName ? '28rpx' : '24rpx' }">
-								{{ myPosition?.positionName ? myPosition?.positionName : $t("暂无职位") }}
-							</view>
+						<view class="info-item">
+							<view class="info-label">Monthly Revenue</view>
+							<view class="info-value income">{{ eyeOpen ? signedMoney(userInfoAmount.monthlyRevenue) :
+								'****.**' }}{{ currency
+								}}</view>
 						</view>
 					</view>
-					<view class="function-grid">
-						<!-- 上面四个 -->
-						<view class="function-item" @click="toPage(item)" v-for="item in firstFourItems">
-							<image :src="item?.iconUrl" :lazy-load="true"></image>
-							<text>{{ splitText(item?.menuName) }}</text>
-						</view>
-					</view>
-				</view>
+				</view> -->
 
 				<!-- k认证 -->
 				<view class="shebaoFund_box" v-if="kAuthInfo.activitySwitch">
 					<image @click="toPageUrl(kAuthInfo.targetUrl)"
-						:src="kAuthInfo.image || '/static/Certification/kAuthImg.png'"
-						class="shebaoFund_img" mode="widthFix">
+						:src="kAuthInfo.image || '/static/Certification/kAuthImg.png'" class="shebaoFund_img"
+						mode="widthFix">
 					</image>
 				</view>
 
-				<!-- 社保基金 -->
-				<view class="shebaoFund_box" v-if="showShebaoFund">
-					<image @click="toPageUrl('/pages/SocialSecurityFundPage/index')"
-						:src="shebaoFundImage || '/static/SocialSecurityFund/shebaoFundImage.png'"
-						class="shebaoFund_img" mode="widthFix">
-					</image>
+				<!-- 我的产品 -->
+				<view class="products-card">
+					<view class="products-head" @click="toPageProducts">
+						<text>{{ $t('minePage.myFundProducts') }}</text>
+						<image class="products-arrow" src="/static/mine/right.png" mode="aspectFit"></image>
+					</view>
+					<view class="products-grid" v-if="productMyPreferred.length">
+						<view class="products-item" v-for="value in productMyPreferred">
+							<view class="products-name">{{ value.productName }}</view>
+							<view class="products-value">+{{ eyeOpen ? value.expectedReturn : '****.**' }} {{ currency
+							}}</view>
+						</view>
+					</view>
+					<view v-else class="not">
+						{{ $t('minePage.noProducts') }}
+					</view>
 				</view>
 
-
-				<!-- 功能卡片2 -->
-				<view class="function-card2">
-					<view class="function-grid">
-						<view class="function-item" @click="toPage(item)" v-for="item in remainingItems">
-							<view class="item_left">
-								<image :src="item?.iconUrl" :lazy-load="true"></image>
-								<text>{{ (item?.menuName) }}</text>
-							</view>
-							<image class="item_right" src="/static/mine/right.png"></image>
+				<view class="shortcut-card" v-if="gridMenuItems.length">
+					<view class="shortcut-grid">
+						<view class="shortcut-item" @click="toPage(item)" v-for="item in gridMenuItems"
+							:key="item.id || item.menuName || item.targetValue">
+							<image class="shortcut-icon" :src="item.iconUrl" mode="aspectFit"></image>
+							<text>{{ splitText(item.menuName) }}</text>
 						</view>
 					</view>
 				</view>
-			</view>
-		</customnavbar>
-		<uni-popup ref="promptpopup" type="center">
-			<view class="prompt_pop_page">
-				<view class="prompt_pop_top">{{ $t('home.Prompt') }}</view>
-				<view class="prompt_pop_taps">{{ $t('请先实名') }}</view>
-				<view class="prompt_pop_bottom">
-					<button class="prompt_cancel_btn" @click="prompt_cancel">{{ $t('pay.no') }}</button>
-					<button class="prompt_confirm_btn" @click="prompt_confirm">{{ $t('pay.yes') }}</button>
-				</view>
-			</view>
-		</uni-popup>
-		<uni-popup ref="promptpopup_yes" type="center" :mask-click="false">
-			<view class="prompt_pop_page">
-				<view class="prompt_pop_top">{{ $t('home.Prompt') }}</view>
-				<view class="prompt_pop_taps">{{ pop_message }}</view>
-				<view class="prompt_pop_bottom">
-					<button class="prompt_confirm_btn" @click="prompt_confirm_yes">{{ $t('pay.yes') }}</button>
-				</view>
-			</view>
-		</uni-popup>
 
+				<!-- <view class="logout-card" @click="logout">{{ $t('languageChange') }}</view> -->
+				<view class="logout-card" @click="logout">{{ $t('minePage.logOut') }}</view>
+
+				<view class="privacy-links" v-if="false">
+					<view @click="toPageUrl('/pages/MinePage/privacyPolicy')">{{
+						$t('minePage.personalInformationSharingList') }}</view>
+					<view @click="toPageUrl('/pages/MinePage/privacyPolicy')">{{
+						$t('minePage.personalInformationCollectedList') }}</view>
+					<view @click="toPageUrl('/pages/MinePage/privacyPolicy')">{{ $t('minePage.privacyPolicy') }}</view>
+				</view>
+			</view>
+		</homenavbar>
+
+		<uni-popup ref="promptpopup" type="center">
+			<view class="prompt-pop-page">
+				<view class="prompt-pop-top">{{ $t('home.Prompt') }}</view>
+				<view class="prompt-pop-tips">{{ $t('璇峰厛瀹炲悕') }}</view>
+				<view class="prompt-pop-bottom">
+					<button class="prompt-cancel-btn" @click="prompt_cancel">{{ $t('pay.no') }}</button>
+					<button class="prompt-confirm-btn" @click="prompt_confirm">{{ $t('pay.yes') }}</button>
+				</view>
+			</view>
+		</uni-popup>
 		<uni-popup ref="promptpopup_access" type="center">
-			<view class="prompt_pop_page">
-				<view class="prompt_pop_top">{{ $t('home.Prompt') }}</view>
-				<view class="prompt_pop_taps">{{ this.$t("withdrawal.restrictedAccess") }}</view>
-				<view class="prompt_pop_bottom">
-					<button class="prompt_confirm_btn" @click="this.$refs.promptpopup_access.close()">{{ $t('pay.yes')
+			<view class="prompt-pop-page">
+				<view class="prompt-pop-top">{{ $t('home.Prompt') }}</view>
+				<view class="prompt-pop-tips">{{ $t('withdrawal.restrictedAccess') }}</view>
+				<view class="prompt-pop-bottom only-confirm">
+					<button class="prompt-confirm-btn" @click="$refs.promptpopup_access.close()">{{ $t('pay.yes')
 					}}</button>
 				</view>
 			</view>
 		</uni-popup>
-
 		<contactWay />
+
+		<!-- 报错提示 -->
+		<uni-popup ref="promptpopup2" type="center" :mask-click="false">
+			<view class="prompt_pop_page">
+				<view class="prompt_pop_top">{{ $t('home.Prompt') }}</view>
+				<view class="prompt_pop_taps">{{ pop_message_yes }}</view>
+				<view class="prompt_pop_bottom">
+					<button class="prompt_confirm_btn" @click="prompt_confirm2">{{ $t('pay.yes') }}</button>
+				</view>
+			</view>
+		</uni-popup>
 	</view>
 </template>
 
 <script>
-import customnavbar from '@/component/custom-navbar/custom-navbar.vue'
+import homenavbar from '@/component/home-navbar/home-navbar.vue';
 import contactWay from '@/components/contactWay/contactWay.vue';
+import { kAuthInfoApi } from '@/common/api/Certification.js';
+import { userInfoApi, settingsApi, userInfoAmountApi } from '@/common/api/users.js';
+import { menuListApi } from '@/common/api/home.js';
+import { vipInfoApi } from '@/common/api/level.js';
+import { positionMyPositionApi } from '@/common/api/position.js';
+import { productMyPreferredApi } from '@/common/api/product.js';
+import { shebaoFundConfigApi } from '@/common/api/SocialSecurityFund.js';
 import {
-	kAuthInfoApi
-} from '@/common/api/Certification.js'
-import {
-	userInfoApi,
-	logoutApi,
-	settingsApi
-} from "@/common/api/users.js";
-import {
-	menuListApi
-} from "@/common/api/home.js";
-import {
-	vipInfoApi,
-} from "@/common/api/level.js";
-import {
-	positionMyPositionApi,
-} from '@/common/api/position.js'
-import {
-	shebaoFundConfigApi
-} from "@/common/api/SocialSecurityFund.js";
+	withdrawalSalaryApi
+} from '@/common/api/withdrawal.js'
+
 export default {
 	components: {
-		customnavbar,
+		homenavbar,
 		contactWay
 	},
 	data() {
 		return {
+			salary: {
+				// 薪资类型 日 周 月
+				payType: "daily",
+				// 领取日期 类型为day时不生效
+				payDay: "",
+				// 是否可领取
+				whetherItIsAvailable: false
+			},
+			// 今日工资
+			todaySalary: '',
+			// 不在发薪日提示
+			NoPayday: '',
+			// 是否领取了工资
+			salaryIsGet: false,
+			// 是否限制访问
+			isHouseKeeper: false,
+			productMyPreferred: [],
 			kAuthInfo: {},
 			menuList: [],
-			topStyle: 0,
+			topStyle: '',
 			userInfo: {},
 			myPosition: {},
 			myvipInfo: {},
 			isRestrictAccess: false,
 			showShebaoFund: 0,
-			shebaoFundImage: ''
-		}
-	},
-	onShow() {
-		positionMyPositionApi().then(res => this.myPosition = res.data)
-		settingsApi().then((res) => {
-			uni.setStorageSync('settings', res.data)
-		}).catch(err => {
-			console.log('request fail', err);
-			if (err.data?.code == 403) {
-				this.$showMessage('warning', err.data?.msg);
-			} else {
-				this.$showMessage('warning', err.msg);
-			}
-		})
-		userInfoApi().then((res) => {
-			this.userInfo = res.data
-			if (this.userInfo.firstPurchaseLevelDate) {
-				this.userInfo.firstPurchaseLevelDate = this.userInfo.firstPurchaseLevelDate.split(' ')[0]
-			}
-			this.isRestrictAccess = res.data.housekeeper == 1 ? true : false
-			if (this.userInfo.hasMessage) {
-				uni.showTabBarRedDot({
-					index: 2
-				})
-			} else {
-				uni.hideTabBarRedDot({
-					index: 2
-				})
-			}
-			uni.setStorageSync('userInfo', res.data)
-			this.getMenuListApi()
-			vipInfoApi().then(vipinfo => this.myvipInfo = vipinfo.data.list.filter(v => v.levelCode == res.data
-				.levelCode)[0])
-				.catch(err =>
-					this.$showMessage('warning', err.msg)
-				)
-		}).catch((err) => {
-			this.$showMessage('warning', err.msg);
-		})
-		this.getShebaoFundOverview()
-		kAuthInfoApi().then(res => {
-			this.kAuthInfo = res.data
-		})
+			shebaoFundImage: '',
+			textCache: {},
+			currency: '',
+			eyeOpen: true,
+			userInfoAmount: {}
+		};
 	},
 	computed: {
-		firstFourItems() {
-			return this.menuList.slice(0, 4);
+		displayUserId() {
+			return this.userInfo.cqaiId || this.userInfo.userId || this.userInfo.uid || this.userInfo.id || this.userInfo.phone || '--';
 		},
-		remainingItems() {
-			return this.menuList.slice(4);
+		gridMenuItems() {
+			// return this.menuList.slice(0, 9);
+			return this.menuList
 		}
 	},
+	onLoad() {
+		this.getTadaySalary()
+	},
+	onShow() {
+		positionMyPositionApi().then(r => {
+			this.myPosition = r.data || {}
+			const weekList = {
+				1: this.$t('minePage.weekdays.monday'),
+				2: this.$t('minePage.weekdays.tuesday'),
+				3: this.$t('minePage.weekdays.wednesday'),
+				4: this.$t('minePage.weekdays.thursday'),
+				5: this.$t('minePage.weekdays.friday'),
+				6: this.$t('minePage.weekdays.saturday'),
+				7: this.$t('minePage.weekdays.sunday')
+			}
+			if (this.myPosition.payday) {
+				this.myPosition.paydayText = weekList[this.myPosition.payday]
+			}
+		});
+		settingsApi().then(r => uni.setStorageSync('settings', r.data));
+		this.currency = uni.getStorageSync('settings').currency;
+		userInfoApi().then(r => {
+			this.userInfo = r.data || {};
+			this.isRestrictAccess = r.data.housekeeper == 1;
+			if (r.data.housekeeper == 1) {
+				this.isHouseKeeper = true
+			} else {
+				this.isHouseKeeper = false
+			}
+			uni.setStorageSync('userInfo', r.data);
+			this.getMenuListApi();
+			this.getUserInfoAmount()
+			vipInfoApi().then(v => {
+				this.myvipInfo = (v.data.list || []).find(x => x.levelCode == r.data.levelCode) || {};
+			});
+		}).catch(e => this.$showMessage('warning', e.msg));
+
+		this.getShebaoFundOverview();
+		// 我的产品
+		this.getProductMyPreferred()
+		kAuthInfoApi().then(r => this.kAuthInfo = r.data || {});
+	},
 	methods: {
-		// 社保基金
-		getShebaoFundOverview() {
-			shebaoFundConfigApi().then(res => {
-				this.showShebaoFund = res.data.activitySwitch
-				this.shebaoFundImage = res.data.image
+		toPostManage() {
+			uni.setStorageSync('pageTitle', ' ')
+			uni.navigateTo({
+				url: '/pages/HomePage/postManage'
 			})
 		},
-		// 个人中心菜单
-		getMenuListApi() {
-			menuListApi({
-				type: 'personal'
-			}).then(res => {
-				this.menuList = res.data
-				if (this.userInfo.levelCode == '0') {
-					this.menuList = this.menuList.filter(item => {
-						return item.canEnterIntern != false;
+		// 领取薪资按钮
+		onGetDailyWage() {
+			if (this.isHouseKeeper) {
+				this.pop_message_yes = this.$t("您的帐户已被限制")
+				this.$refs.promptpopup2.open()
+				return
+			}
+			const weekDays = {
+				1: this.$t('minePage.weekdays.monday'),
+				2: this.$t('minePage.weekdays.tuesday'),
+				3: this.$t('minePage.weekdays.wednesday'),
+				4: this.$t('minePage.weekdays.thursday'),
+				5: this.$t('minePage.weekdays.friday'),
+				6: this.$t('minePage.weekdays.saturday'),
+				7: this.$t('minePage.weekdays.sunday')
+			}
+			if (!this.userInfo.position) {
+				uni.navigateTo({
+					url: '/pages/HomePage/postManage'
+				})
+				return
+			}
+			if (this.salaryIsGet) {
+				return
+			}
+			if (!this.salaryIsGet && !this.todaySalary) {
+				switch (this.salary.payType) {
+					case 'weekly':
+						this.pop_message_yes = this.$t('minePage.nextPayday', {
+							day: weekDays[Number(this.salary.payDay)]
+						});
+						break;
+					default:
+						this.pop_message_yes = this.$t('home.notYetCollectionDate');
+						break;
+				}
+				this.$refs.promptpopup2.open()
+				return
+			}
+			withdrawalSalaryApi(1).then(res => {
+				this.salaryIsGet = res.data.whetherToReceive ? true : false;
+				this.todaySalary = 0
+				this.$showMessage('warning', this.$t("home.receivedSuccessfully"))
+			}).catch(err => {
+				this.$showMessage('warning', err.msg);
+			}).finally(() => this.getUserInfo())
+		},
+		// 获取今日薪水
+		getTadaySalary() {
+			this.NoPayday = ''
+			withdrawalSalaryApi("0").then(res => {
+				this.todaySalary = res.data.todayAmount ?? 0
+				this.salary.payType = res.data.payType
+				this.salary.payDay = res.data.payDay
+				if (res.data.whetherToReceive == 1) {
+					this.salaryIsGet = true
+				} else {
+					this.salaryIsGet = false;
+				}
+				if (!res.data.isPayDay && res.data.whetherToReceive) {
+					const weekDays = {
+						1: this.$t('minePage.weekdays.monday'),
+						2: this.$t('minePage.weekdays.tuesday'),
+						3: this.$t('minePage.weekdays.wednesday'),
+						4: this.$t('minePage.weekdays.thursday'),
+						5: this.$t('minePage.weekdays.friday'),
+						6: this.$t('minePage.weekdays.saturday'),
+						7: this.$t('minePage.weekdays.sunday')
+					}
+					this.NoPayday = this.$t('minePage.nextPayday', {
+						day: weekDays[Number(this.salary.payDay)]
 					});
 				}
-			}).catch((err) => {
-				console.log('request fail', err);
-				this.$showMessage('warning', err.msg);
+			}).catch(err => {
+				// this.NoPayday = err.msg
 			})
 		},
-		// 实名校验
-		toPage2(path) {
-			if (!this.userInfo.realName) {
-				this.$refs.promptpopup.open()
-				return
-			}
-			uni.navigateTo({
-				url: path
-			})
+		prompt_confirm2() {
+			this.$refs.promptpopup2.close()
 		},
-		// 实习生跳转限制
-		toPageTeamExpansion(path) {
-			if (this.userInfo.levelCode == '0') {
-				this.$showMessage('warning', this.$t('实习生没有权限'))
-				return
-			}
-			uni.navigateTo({
-				url: path
-			})
-		},
-		prompt_confirm() {
-			this.$refs.promptpopup.close()
-			uni.navigateTo({
-				url: '/pages/MinePage/identity'
-			})
-		},
-		prompt_cancel() {
-			this.$refs.promptpopup.close()
-		},
-		onDownload() {
-			uni.navigateTo({
-				url: '/pages/appDownload'
-			})
-		},
-		pushAccount() {
-			uni.navigateTo({
-				url: '/pages/MinePage/headPortrait'
-			})
-		},
-		toPage(value) {
-			uni.setStorageSync('pageTitle', value.menuName)
-			const {
-				canEnterButlerMode, // 管家模式
-				canEnterIntern, // 实习生
-				allowUnverifiedAccess, // 实名
-				targetValue // 地址
-			} = value
-			// 实名校验
-			if (allowUnverifiedAccess == false) {
-				this.toPage2(targetValue)
-				return
-			}
-			// 实习生不能进
-			if (canEnterIntern == false && this.userInfo.levelCode == '0') {
-				this.toPageTeamExpansion(targetValue)
-				return
-			}
-			// 管家模式不允许进入
-			if (canEnterButlerMode == false && this.isRestrictAccess) {
-				this.$refs.promptpopup_access.open()
-				return
-			}
-			uni.navigateTo({
-				url: targetValue
-			})
-		},
-		toPage3(path) {
-			return
-			if (path == '/pages/LevelPage/index') {
-				uni.switchTab({
-					url: path
-				})
-			} else {
-				uni.navigateTo({
-					url: path
-				})
-			}
-		},
-		toPageUrl(url) {
+		// 产品跳转判断
+		toPageProducts() {
+			let url = this.productMyPreferred.length ? '/pages/MinePage/financePage' : '/pages/HomePage/financePage'
+			// 无产品跳转购买页
 			uni.navigateTo({
 				url
 			})
 		},
+		// 我的产品
+		getProductMyPreferred() {
+			productMyPreferredApi().then(res => {
+				this.productMyPreferred = res.data
+			})
+		},
+		// 用户金额接口
+		getUserInfoAmount() {
+			userInfoAmountApi().then(res => {
+				this.userInfoAmount = res.data
+			})
+		},
+		getShebaoFundOverview() {
+			shebaoFundConfigApi().then(r => {
+				this.showShebaoFund = r.data.activitySwitch;
+				this.shebaoFundImage = r.data.image;
+			});
+		},
+		getMenuListApi() {
+			menuListApi({ type: 'personal' }).then(r => {
+				this.menuList = r.data || [];
+				if (this.userInfo.levelCode == '0') {
+					this.menuList = this.menuList.filter(x => x.canEnterIntern != false);
+				}
+			}).catch(e => this.$showMessage('warning', e.msg));
+		},
+		money(v) {
+			return Number(v || 0).toLocaleString('en-US', {
+				minimumFractionDigits: 2,
+				maximumFractionDigits: 2
+			});
+		},
+		signedMoney(v) {
+			const n = Number(v || 0);
+			return (n > 0 ? '+' : '') + this.money(n);
+		},
+		toPage2(path) {
+			if (!this.userInfo.realName) {
+				this.$refs.promptpopup.open();
+				return;
+			}
+			uni.navigateTo({ url: path });
+		},
+		prompt_confirm() {
+			this.$refs.promptpopup.close();
+			uni.navigateTo({ url: '/pages/MinePage/identity' });
+		},
+		prompt_cancel() {
+			this.$refs.promptpopup.close();
+		},
+		// 跳转换头像
+		pushAccount() {
+			uni.navigateTo({ url: '/pages/MinePage/headPortrait' });
+		},
+		toPage(v) {
+			uni.setStorageSync('pageTitle', v.menuName);
+
+			if (v.allowUnverifiedAccess == false) {
+				this.toPage2(v.targetValue);
+				return;
+			}
+			if (v.canEnterIntern == false && this.userInfo.levelCode == '0') {
+				this.$showMessage('warning', this.$t('minePage.internNoPermission'));
+				return;
+			}
+			if (v.canEnterButlerMode == false && this.isRestrictAccess) {
+				this.$refs.promptpopup_access.open();
+				return;
+			}
+			uni.navigateTo({ url: v.targetValue });
+		},
+		toPage3(path) {
+			path === '/pages/LevelPage/index'
+				? uni.switchTab({ url: path })
+				: uni.navigateTo({ url: path });
+		},
+		toPageUrl(url) {
+			uni.navigateTo({ url });
+		},
+		logout() {
+			uni.removeStorageSync('token');
+			uni.removeStorageSync('userInfo');
+			uni.reLaunch({ url: '/pages/HomePage/index' });
+		},
 		mtop(e) {
 			// #ifdef H5
-			this.topStyle = "margin-top:-" + e + "rpx;padding-top:" + (e + 66) + "rpx"
+			this.topStyle = `margin-top:-${e}rpx;padding-top:${e + 88}rpx`
 			// #endif
+
 			// #ifdef APP-PLUS
-			this.topStyle = "margin-top:-" + e + "rpx;padding-top:" + (e + 44) + "rpx"
+			this.topStyle = `margin-top:-${e}rpx;padding-top:${e + 99}rpx`
 			// #endif
 		},
 		splitText(t) {
-			// 添加缓存避免重复计算
 			if (!t) return '';
+			const l = uni.getStorageSync('settings')?.defaultLanguage || 'fr';
+			const k = l + '_' + t;
 
-			const lang = uni.getStorageSync('settings')?.defaultLanguage || 'fr';
-			const cacheKey = `${lang}_${t}`;
-
-			if (this.textCache && this.textCache[cacheKey]) {
-				return this.textCache[cacheKey];
+			if (this.textCache[k]) {
+				return this.textCache[k];
 			}
 
-			let result;
-			if (lang === 'fr') {
-				const parts = t.split(' ');
-				result = parts.length > 1 ? parts[0] + ' ' + parts[1] + '\n' + parts.slice(2).join(' ') : t;
+			let r;
+			if (l === 'fr') {
+				r = t.split(' ').length > 2
+					? t.split(' ').slice(0, 2).join(' ') + '\n' + t.split(' ').slice(2).join(' ')
+					: t;
 			} else {
-				result = t.split(' ').join('\n');
+				r = t.split(' ').join('\n');
 			}
 
-			// 缓存结果
-			if (!this.textCache) this.textCache = {};
-			this.textCache[cacheKey] = result;
-
-			return result;
+			return this.textCache[k] = r;
 		}
 	}
 }
 </script>
 
 <style lang="scss" scoped>
-.mine-container {
-	background-color: #f5f5f5;
-	padding-bottom: 40rpx;
-}
-
-.mine_top_bg {
-	width: 750rpx;
-	background: url('/static/mine/mine_bg.png') top left/100% no-repeat;
-	// background-color: 	linear-gradient(225deg, rgb(255, 192, 20) 44%, rgb(255, 179, 27) 100%) 0% 0% / cover;
-}
-
-.user_card {
-	display: flex;
-	align-items: center;
-	width: 690rpx;
-	margin: 0 auto;
-	background: linear-gradient(178deg, #7cb7ff 0%, #287DD4 100%);
-	border-radius: 20rpx;
-	// height: 128rpx;
-
-	.line {
-		width: 1rpx;
-		height: 76rpx;
-		background: #FFFFFF;
-		opacity: 0.3;
-	}
-
-	.member_card {
-		display: flex;
-		align-items: center;
-		padding: 20rpx;
-		width: 344rpx;
-
-		.member_card_img {
-			width: 100rpx;
-			min-width: 100rpx;
-			height: 100rpx;
-			margin-right: 20rpx;
-		}
-
-		.card_text {
-			font-family: PingFangSC, PingFang SC;
-			font-weight: 500;
-			font-size: 28rpx;
-			color: #fff;
-			line-height: 34rpx;
-			text-align: left;
-			font-style: normal;
-		}
-	}
-}
-
-.user-info {
-	display: flex;
-	margin: 0rpx 38rpx;
-
-	.avatarBox {
-		position: relative;
-
-		.avatar_img {
-			width: 120rpx;
-			height: 120rpx;
-			border-radius: 50%;
-			background: #EBF5FF;
-		}
-
-		.avatarEdit_img_Box {
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			position: absolute;
-			right: 4rpx;
-			bottom: 4rpx;
-			width: 40rpx;
-			height: 40rpx;
-			border-radius: 50%;
-			background-color: rgba(0, 0, 0, .6);
-
-			.avatarEdit_img {
-				width: 20rpx;
-				height: 20rpx;
-			}
-		}
-	}
-
-	.user-detail {
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		gap: 10rpx;
-		height: 120rpx;
-		margin-left: 30rpx;
-
-		.user_name {
-			font-family: PingFangSC, PingFang SC;
-			font-weight: 500;
-			font-size: 36rpx;
-			color: #fff;
-			text-align: left;
-			font-style: normal;
-			text-transform: none;
-		}
-
-		.user_phone {
-			font-family: PingFangSC, PingFang SC;
-			font-weight: 400;
-			font-size: 24rpx;
-			color: #FFFFFF;
-			text-align: left;
-			font-style: normal;
-			text-transform: none;
-		}
-
-	}
-}
-
-.invitation_sction {
-	padding: 0 40rpx;
-	height: 200rpx;
-	margin-top: 40rpx;
-
-	.invitation_card {
-		position: relative;
-
-		.link {
-			position: absolute;
-			right: 10rpx;
-			bottom: 80rpx;
-			width: 46%;
-			font-family: "DINPro-Regular";
-			font-size: 20rpx;
-		}
-
-		.copy-btn {
-			position: absolute;
-			right: 40rpx;
-			bottom: 40rpx;
-			font-family: "DINPro-Regular";
-			font-size: 20rpx;
-			color: blue;
-			cursor: pointer;
-		}
-	}
-}
-
-.money-card {
-	width: 690rpx;
-	margin: 40rpx auto 20rpx;
-	padding: 40rpx 0;
-	background: #fff;
-	box-shadow: inset 0rpx 2rpx 4rpx 0rpx rgba(255, 255, 255, 0.5);
-	border-radius: 20rpx;
-
-
-	.money-grid {
-		display: grid;
-		border-radius: 8rpx;
-
-		.money-item {
-			text-align: center;
-			background: #f4f7fe;
-			padding: 14rpx 20rpx;
-
-			.amount {
-				font-family: PingFangSC, PingFang SC;
-				font-weight: 500;
-				font-size: 24rpx;
-				color: #000000;
-				// line-height: 34rpx;
-				text-align: center;
-				font-style: normal;
-			}
-
-			.label {
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				font-family: PingFangSC, PingFang SC;
-				font-weight: 400;
-				font-size: 16rpx;
-				color: #666666;
-				text-align: center;
-				font-style: normal;
-				height: 40rpx;
-				margin-bottom: 10rpx;
-				// white-space: nowrap;
-			}
-		}
-
-		.money_max_box {
-			display: flex;
-			align-items: start;
-			justify-content: center;
-			margin-bottom: 20rpx;
-
-			.line {
-				width: 1rpx;
-				height: 112rpx;
-				background: #000000;
-				opacity: 0.3;
-				margin-top: 12rpx;
-			}
-
-			.money_box {
-				width: 334rpx;
-				display: flex;
-				flex-direction: column;
-				align-items: center;
-				justify-content: center;
-				gap: 10rpx;
-
-				.amount {
-					font-family: PingFangSC, PingFang SC;
-					font-weight: 500;
-					font-size: 36rpx;
-					color: #000000;
-					text-align: center;
-					font-style: normal;
-				}
-
-				.label {
-					font-family: PingFangSC, PingFang SC;
-					font-weight: 400;
-					font-size: 20rpx;
-					color: #666666;
-					text-align: center;
-					font-style: normal;
-				}
-
-				.btn {
-					width: 148rpx;
-					height: 44rpx;
-					background: $themeColor;
-					border-radius: 8rpx;
-					font-family: PingFangSC, PingFang SC;
-					font-weight: 400;
-					font-size: 20rpx;
-					color: #FFFFFF;
-					line-height: 44rpx;
-					text-align: center;
-					font-style: normal;
-					text-transform: none;
-				}
-			}
-		}
-
-		.money_list {
-			display: grid;
-			grid-template-columns: repeat(4, 1fr);
-			margin: 0 30rpx;
-			border-radius: 8rpx;
-
-			.money-item {
-				text-align: center;
-				background: #f4f7fe;
-				padding: 14rpx 20rpx;
-
-				.amount {
-					font-family: PingFangSC, PingFang SC;
-					font-weight: 500;
-					font-size: 24rpx;
-					color: #000000;
-					// line-height: 34rpx;
-					text-align: center;
-					font-style: normal;
-				}
-
-				.label {
-					display: flex;
-					align-items: center;
-					justify-content: center;
-					font-family: PingFangSC, PingFang SC;
-					font-weight: 400;
-					font-size: 16rpx;
-					color: #666666;
-					text-align: center;
-					font-style: normal;
-					height: 40rpx;
-					margin-bottom: 10rpx;
-					// white-space: nowrap;
-				}
-			}
-		}
-
-
-	}
-
-}
-
-.function-card {
+* {
 	box-sizing: border-box;
-	background-color: #fff;
-	// box-shadow: 0rpx 22rpx 28rpx -6rpx #E9F3FF;
-	border-radius: 20rpx;
-	width: 690rpx;
-	margin: 20rpx auto;
-
-
-	.function-grid {
-		padding: 40rpx 12rpx;
-		display: grid;
-		grid-template-columns: repeat(4, 1fr);
-
-		.function-item {
-			text-align: center;
-			// margin-bottom: 50rpx;
-
-			image {
-				width: 80rpx;
-				height: 80rpx;
-			}
-
-			text {
-				display: block;
-				font-family: "DINPro-Regular", sans-serif;
-				font-weight: 400;
-				font-size: 20rpx;
-				color: #1C2D57;
-				line-height: 24rpx;
-				text-align: center;
-				font-style: normal;
-				margin-top: 12rpx;
-			}
-		}
-	}
+	font-family: 'MiSans', PingFangSC, sans-serif;
 }
 
 .shebaoFund_box {
 	box-sizing: border-box;
-	width: 690rpx;
+	width: 702rpx;
 	margin: 0 auto;
 	margin-bottom: 16rpx;
 	display: flex;
 	justify-content: center;
 
 	.shebaoFund_img {
-		width: 690rpx;
+		width: 702rpx;
 	}
 
 }
 
-.function-card2 {
-	box-sizing: border-box;
+.mine-container {
+	position: relative;
+	z-index: 1;
+	padding: 26rpx 24rpx 40rpx;
+}
+
+.mine-top-bg {
+	position: absolute;
+	top: 0;
+	width: 100%;
+	height: 1076rpx;
+	background:
+		radial-gradient(circle at 0% 0%, #69d6ec 0%, rgba(105, 214, 236, 0.55) 34%, transparent 62%),
+		radial-gradient(circle at 100% 0%, #3aaff5 0%, rgba(58, 175, 245, 0.55) 36%, transparent 65%),
+		radial-gradient(circle at 50% 45%, rgba(245, 248, 255, 0.9) 0%, rgba(245, 248, 255, 0.25) 42%, transparent 72%),
+		linear-gradient(180deg, #b9e9f3 0%, rgba(234, 246, 248, 0.8) 55%, rgba(244, 245, 251, 0) 100%);
+}
+
+.profile-row {
+	display: flex;
+	// align-items: center;
+	justify-content: space-between;
+	gap: 18rpx;
+}
+
+.user-info {
+	flex: 1;
+	border-radius: 16rpx;
 	background-color: #fff;
-	width: 690rpx;
-	margin: 0 auto;
-	background: #FFFFFF;
-	border-radius: 20rpx;
+	padding: 14rpx 24rpx;
 
+	.user-info_box {
+		display: flex;
+	}
 
-	.function-grid {
-		padding: 0 30rpx;
+	.earnestMoney_box {
+		border-top: 2rpx solid #F9F9F9;
+		padding-top: 16rpx;
+		font-size: 28rpx;
+		transform: translateY(-4rpx);
 
-		.function-item {
-			display: flex;
-			align-items: center;
-			justify-content: space-between;
-			padding: 30rpx 0;
-			border-bottom: 1rpx solid #EFEFEF;
-			// margin-bottom: 50rpx;
-
-			&:last-child {
-				border-bottom: none;
-			}
-
-			.item_left {
-				display: flex;
-				align-items: center;
-
-				image {
-					width: 48rpx;
-					height: 48rpx;
-				}
-
-				text {
-					font-family: DINPro, DINPro;
-					font-weight: 400;
-					font-size: 24rpx;
-					color: #1C2D57;
-					// line-height: 30rpx;
-					margin-left: 30rpx;
-					text-align: left;
-					font-style: normal;
-				}
-			}
-
-			.item_right {
-				width: 30rpx;
-				height: 30rpx;
-			}
+		span {
+			font-weight: bold;
+			color: #B65300;
 		}
 	}
 }
 
-.prompt_pop_page {
-	width: 570rpx;
-	background: #FFFFFF;
-	border-radius: 28rpx;
-	padding: 40rpx 54rpx 28rpx 54rpx;
+.avatar-box {
+	box-sizing: border-box;
+	position: relative;
+	width: 120rpx;
+	height: 120rpx;
+	border: 4rpx solid #01d1ef;
+	border-radius: 50%;
+	background: #e9f3ff;
+	flex: 0 0 auto;
+	transform: translateY(-40rpx);
+}
 
-	.prompt_pop_top {
-		font-family: "DINPro-Medium", sans-serif;
-		font-weight: 500;
-		font-size: 32rpx;
-		color: #000000;
-		line-height: 42rpx;
-		text-align: center;
-		font-style: normal;
+.avatar-img {
+	width: 100%;
+	height: 100%;
+	border-radius: 50%;
+	border: 2rpx solid #fff;
+}
+
+.level-tag {
+	position: absolute;
+	left: 50%;
+	bottom: -12rpx;
+	transform: translateX(-50%);
+	min-width: 62rpx;
+	height: 30rpx;
+	padding: 0 10rpx;
+	border-radius: 16rpx;
+	font-size: 18rpx;
+	line-height: 30rpx;
+	text-align: center;
+	color: #fff;
+	background: #01D1EF;
+}
+
+.user-detail {
+	margin-left: 18rpx;
+	min-width: 0;
+}
+
+.user-name {
+	font-weight: 700;
+	font-size: 30rpx;
+	line-height: 40rpx;
+	color: #000;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.user-id {
+	margin-top: 8rpx;
+	font-size: 28rpx;
+	line-height: 30rpx;
+	color: #727272;
+	word-break: break-all;
+}
+
+// 用户指南
+.guide-card {
+	position: relative;
+	min-width: 224rpx;
+	padding: 116rpx 16rpx 14rpx;
+	border-radius: 16rpx;
+	background: #fff;
+	box-shadow: 0 8rpx 24rpx rgba(26, 50, 112, 0.08);
+
+	.guide-book {
+		position: absolute;
+		top: -20rpx;
+		right: 0;
+		width: 132rpx;
+		height: 132rpx;
 	}
 
-	.prompt_pop_taps {
-		font-family: "DINPro-Regular", sans-serif;
-		font-weight: 400;
-		font-size: 28rpx;
-		color: #1C2D57;
+	.guide-title {
+		font-size: 32rpx;
 		line-height: 36rpx;
-		text-align: center;
-		font-style: normal;
-		margin-top: 40rpx;
+		font-weight: 700;
+		color: #000;
+		white-space: nowrap;
 	}
 
-	.prompt_pop_bottom {
+	.guide-subtitle {
+		margin-top: 4rpx;
+		font-size: 24rpx;
+		color: #000;
+		white-space: nowrap;
+	}
+}
+
+.position-card {
+	display: flex;
+	align-items: center;
+	width: 100%;
+	height: 94rpx;
+	padding: 0 24rpx;
+	border-radius: 16rpx 16rpx 0 0;
+	background: url('/static/mine/position1.png') 0 0/100% 100% no-repeat;
+}
+
+.position-icon {
+	width: 62rpx;
+	height: 62rpx;
+	margin-right: 16rpx;
+}
+
+.position-name {
+	flex: 1;
+	font-family: DingTalk JinBuTi;
+	font-size: 32rpx;
+	color: #C7C7C7;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.position-arrow,
+.products-arrow {
+	width: 26rpx;
+	height: 26rpx;
+}
+
+.salary_box {
+	display: flex;
+	justify-content: space-between;
+	padding: 20rpx 32rpx;
+	background-color: #fff;
+	margin-top: 16rpx;
+	border-radius: 16rpx;
+
+	.main_box {
 		display: flex;
-		margin-top: 54rpx;
+		flex-direction: column;
+		align-items: start;
+
+		.desc {
+			font-family: MiSans;
+			font-size: 28rpx;
+			font-weight: 500;
+			color: #3D3D3D;
+			margin-bottom: 16rpx;
+		}
+
+		.tag {
+			font-family: MiSans;
+			font-size: 24rpx;
+			color: $themeColor;
+		}
+
+		.btn {
+			padding: 8rpx 14rpx;
+			font-family: MiSans;
+			font-size: 24rpx;
+			background-color: $themeColor;
+			color: #fff;
+			border-radius: 2026rpx;
+		}
+
 	}
 
-	.prompt_cancel_btn {
-		width: 212rpx;
-		height: 72rpx;
-		background: #EBEBEB;
-		border-radius: 16rpx;
-		font-family: "DINPro-Medium", sans-serif;
-		font-weight: 500;
-		font-size: 32rpx;
-		color: #000000;
-		line-height: 72rpx;
-		text-align: center;
-		font-style: normal;
+	.position_img {
+		width: 74rpx;
+		min-width: 74rpx;
+		height: 74rpx;
 	}
+}
 
-	.prompt_confirm_btn {
-		width: 212rpx;
-		height: 72rpx;
-		background: linear-gradient(90deg, $gradualColor2 0%, $gradualColor1 100%);
-		// box-shadow: 0rpx 4rpx 16rpx 0rpx #B2C8FB;
-		border-radius: 16rpx;
-		font-family: "DINPro-Black", sans-serif;
-		font-family: DINPro, DINPro;
-		font-weight: 500;
-		font-size: 32rpx;
-		color: #fff;
-		line-height: 72rpx;
-		text-align: center;
-		font-style: normal;
+.fund-card,
+.info-card,
+.products-card,
+.shortcut-card,
+.logout-card {
+	width: 100%;
+	margin: 0 auto 18rpx;
+	border-radius: 16rpx;
+	background: #fff;
+	box-shadow: 0 8rpx 24rpx rgba(26, 50, 112, 0.06);
+}
+
+.fund-card {
+	padding-bottom: 24rpx;
+	margin-top: 16rpx;
+	overflow: hidden;
+}
+
+.fund-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	height: 88rpx;
+	padding: 0 24rpx;
+	background: linear-gradient(90deg, #2b2424 0%, #3a3130 100%);
+}
+
+.fund-head-left {
+	display: flex;
+	align-items: center;
+	min-width: 0;
+}
+
+.fund-head-icon {
+	width: 34rpx;
+	height: 34rpx;
+	margin-right: 12rpx;
+}
+
+.fund-head-left text {
+	font-size: 26rpx;
+	line-height: 34rpx;
+	font-style: italic;
+	color: rgba(255, 255, 255, .82);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.fund-head-arrow {
+	width: 24rpx;
+	height: 24rpx;
+	filter: brightness(2);
+}
+
+.max-fund-body {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+}
+
+.fund-body {
+	position: relative;
+	padding: 14rpx 24rpx 0;
+
+	.fund-top {
+		display: flex;
+		align-items: center;
+		gap: 8rpx;
+
+		.top-img {
+			width: 32rpx;
+			min-width: 32rpx;
+			height: 32rpx;
+		}
+
+		.fund-label {
+			color: #9F9F9F;
+			font-size: 24rpx;
+			font-weight: 500;
+		}
 	}
+}
+
+.fund-label {
+	font-size: 28rpx;
+	line-height: 32rpx;
+	color: #000;
+}
+
+.fund-right {
+	position: absolute;
+	top: 10rpx;
+	right: 20rpx;
+}
+
+.fund-eye {
+	width: 48rpx;
+	height: 48rpx;
+}
+
+.fund-amount {
+	margin-top: 8rpx;
+	font-family: initial;
+	font-size: 44rpx;
+	font-weight: bold;
+	line-height: normal;
+	color: #000;
+
+	&.red {
+		font-size: 32rpx;
+		color: #FF0000;
+	}
+}
+
+.fund-unit {
+	position: absolute;
+	right: 24rpx;
+	top: 88rpx;
+	font-size: 34rpx;
+	line-height: 36rpx;
+	color: #111;
+}
+
+.position_info_box {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	padding: 20rpx;
+	border-radius: 16rpx;
+	background-color: #f8f9fd;
+	margin: 24rpx;
+
+	.item_box {
+		display: flex;
+		flex-direction: column;
+		align-items: start;
+		gap: 14rpx;
+		font-size: 24rpx;
+		color: #818181;
+
+		.number {
+			font-size: 28rpx;
+			font-weight: bold;
+			color: $themeColor;
+		}
+	}
+}
+
+.fund-actions {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	gap: 16rpx;
+	margin-top: 32rpx;
+	padding: 0 24rpx;
+}
+
+.fund-btn {
+	height: 70rpx;
+	border-radius: 8rpx;
+	font-size: 24rpx;
+	line-height: 70rpx;
+	text-align: center;
+	color: #fff;
+	background: #000;
+}
+
+.info-card {
+	padding: 24rpx;
+}
+
+.info-title {
+	font-size: 32rpx;
+	font-weight: bold;
+	color: #000;
+}
+
+.info-grid {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	gap: 24rpx;
+	margin-top: 10rpx;
+}
+
+.info-label {
+	font-size: 24rpx;
+	line-height: 30rpx;
+	color: #9F9F9F;
+}
+
+.info-value {
+	margin-top: 10rpx;
+	font-size: 32rpx;
+	line-height: 34rpx;
+	font-weight: 700;
+	color: #111;
+	white-space: nowrap;
+}
+
+.products-card {
+	padding: 24rpx;
+
+	.not {
+		width: 100%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		margin-top: 24rpx;
+		color: #9F9F9F;
+	}
+}
+
+.products-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	font-size: 32rpx;
+	font-weight: bold;
+	color: #000;
+}
+
+.products-grid {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	gap: 20rpx;
+	margin-top: 10rpx;
+}
+
+.products-item {
+	padding-right: 18rpx;
+}
+
+.products-item+.products-item {
+	padding-left: 18rpx;
+	border-left: 1rpx solid #e7e7e7;
+}
+
+.products-name {
+	font-size: 24rpx;
+	line-height: 30rpx;
+	color: #9F9F9F;
+}
+
+.products-value {
+	margin-top: 10rpx;
+	font-size: 32rpx;
+	line-height: 36rpx;
+	font-weight: 700;
+	color: #C20000;
+}
+
+.shortcut-card {
+	padding: 24rpx 0;
+}
+
+.shortcut-grid {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	row-gap: 48rpx;
+}
+
+.shortcut-item {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.shortcut-icon {
+	width: 48rpx;
+	height: 48rpx;
+}
+
+.shortcut-item text {
+	margin-top: 18rpx;
+	width: 170rpx;
+	font-size: 24rpx;
+	line-height: 28rpx;
+	text-align: center;
+	color: #000;
+	white-space: pre-line;
+}
+
+.logout-card {
+	height: 80rpx;
+	line-height: 80rpx;
+	text-align: center;
+	font-size: 28rpx;
+	font-weight: 700;
+	color: #FF0000;
+}
+
+.privacy-links {
+	padding: 14rpx 0 28rpx;
+}
+
+.privacy-links view {
+	font-size: 22rpx;
+	line-height: 34rpx;
+	text-align: center;
+	color: #2f7cff;
+}
+
+.shebao-fund-box {
+	width: 702rpx;
+	margin: 0 auto 24rpx;
+}
+
+.shebao-fund-img {
+	width: 702rpx;
+}
+
+.settings-card {
+	width: 702rpx;
+	margin: 0 auto;
+	background: #fff;
+}
+
+.settings-title {
+	height: 92rpx;
+	padding-left: 32rpx;
+	font-size: 28rpx;
+	line-height: 92rpx;
+	color: rgba(0, 0, 0, 0.4);
+	border-bottom: 1rpx solid #E7E7E7;
+}
+
+.setting-item {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	height: 112rpx;
+	padding: 0 32rpx;
+	border-bottom: 1rpx solid #E7E7E7;
+}
+
+.setting-left {
+	display: flex;
+	align-items: center;
+	min-width: 0;
+}
+
+.setting-icon {
+	width: 48rpx;
+	height: 48rpx;
+	margin-right: 22rpx;
+}
+
+.setting-left text {
+	font-size: 32rpx;
+	color: rgba(0, 0, 0, 0.9);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.setting-arrow {
+	font-size: 42rpx;
+	color: #777;
+}
+
+.prompt-pop-page {
+	width: 570rpx;
+	padding: 40rpx 54rpx 28rpx;
+	border-radius: 28rpx;
+	background: #fff;
+}
+
+.prompt-pop-top {
+	font-size: 32rpx;
+	text-align: center;
+}
+
+.prompt-pop-tips {
+	margin-top: 40rpx;
+	font-size: 28rpx;
+	text-align: center;
+	color: #1c2d57;
+}
+
+.prompt-pop-bottom {
+	display: flex;
+	justify-content: space-between;
+	margin-top: 54rpx;
+}
+
+.only-confirm {
+	justify-content: center;
+}
+
+.prompt-cancel-btn,
+.prompt-confirm-btn {
+	width: 212rpx;
+	height: 72rpx;
+	border-radius: 16rpx;
+	font-size: 32rpx;
+	line-height: 72rpx;
+	text-align: center;
+}
+
+.prompt-cancel-btn {
+	background: #ebebeb;
+}
+
+.prompt-confirm-btn {
+	background: $themeColor;
+	color: #fff;
+}
+
+.prompt_pop_bottom {
+	display: flex;
+	margin-top: 54rpx;
+}
+
+.prompt_cancel_btn {
+	width: 212rpx;
+	height: 72rpx;
+	background: #EBEBEB;
+	border-radius: 16rpx;
+	font-family: "DINPro-Medium", sans-serif;
+	font-weight: 500;
+	font-size: 32rpx;
+	color: #000000;
+	line-height: 72rpx;
+	text-align: center;
+	font-style: normal;
+}
+
+.prompt_confirm_btn {
+	width: 212rpx;
+	height: 72rpx;
+	background: linear-gradient(90deg, $gradualColor2 0%, $gradualColor1 100%);
+	border-radius: 16rpx;
+	font-family: "DINPro-Black", sans-serif;
+	font-family: DINPro, DINPro;
+	font-weight: 500;
+	font-size: 32rpx;
+	color: #fff;
+	line-height: 72rpx;
+	text-align: center;
+	font-style: normal;
 }
 </style>

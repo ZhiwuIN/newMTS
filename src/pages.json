@@ -1,7 +1,7 @@
 {
 	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
 		{
-			"path": "pages/guide",
+			"path": "pages/LoginPage/login",
 			"style": {
 				"navigationStyle": "custom"
 			}
@@ -31,6 +31,12 @@
 			}
 		},
 		{
+			"path": "pages/TeamPage/RewardDetails",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
 			"path": "pages/TeamPage/details",
 			"style": {
 				"navigationStyle": "custom"
@@ -44,6 +50,12 @@
 		},
 		{
 			"path": "pages/MinePage/index",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/MinePage/userNotice",
 			"style": {
 				"navigationStyle": "custom"
 			}
@@ -97,13 +109,13 @@
 			}
 		},
 		{
-			"path": "pages/LoginPage/register",
+			"path": "pages/HomePage/company",
 			"style": {
 				"navigationStyle": "custom"
 			}
 		},
 		{
-			"path": "pages/LoginPage/login",
+			"path": "pages/LoginPage/register",
 			"style": {
 				"navigationStyle": "custom"
 			}
@@ -194,6 +206,12 @@
 		},
 		{
 			"path": "pages/MinePage/addPayment",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/MinePage/bankList",
 			"style": {
 				"navigationStyle": "custom"
 			}
@@ -422,13 +440,127 @@
 			"style": {
 				"navigationStyle": "custom"
 			}
+		},
+		{
+			"path": "pages/ArticlePage/articleList",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/ArticlePage/articleInfo",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/ArticlePage/articleCreation",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/ArticlePage/introduce",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/BalanceProductPage/index",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/postManagePage/index",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/ActivityUpdatesPage/index",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/ActivityUpdatesPage/recordPage",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/DiscountMallPage/index",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/DiscountMallPage/commodityDetails",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/DiscountMallPage/rechargePage",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/DiscountMallPage/rule",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/DiscountMallPage/record",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/HomePage/whitePaperPage",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/ActivityPage/gloryCards",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/WishTreePage/index",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/WishTreePage/recordPage",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/WorldCupPage/index",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/WorldCupPage/recordPage",
+			"style": {
+				"navigationStyle": "custom"
+			}
 		}
 	],
 	"tabBar": {
 		"iconfontSrc": "static/fonts/DINPRO-Regular.otf",
 		"color": "#BEBEBE",
 		// "selectedColor": "#5385fa",
-		"selectedColor": "#1167D1",
+		"selectedColor": "#0145F1",
 		"backgroundColor": "#fff",
 		// "height": "176rpx",
 		// "fontSize": "24rpx",
@@ -443,23 +575,35 @@
 				"selectedIconPath": "/static/tab/home_a.png",
 				"text": "%pages.home%"
 			},
-			{
-				"pagePath": "pages/TaskPage/index",
-				"iconPath": "/static/tab/task.png",
-				"selectedIconPath": "/static/tab/task_a.png",
-				"text": "%pages.task%"
-			},
+			// {
+			// 	"pagePath": "pages/BalanceProductPage/index",
+			// 	"iconPath": "/static/tab/finance.png",
+			// 	"selectedIconPath": "/static/tab/finance_a.png",
+			// 	"text": "%pages.Product%"
+			// },
 			// {
 			// 	"pagePath": "pages/TeamPage/index",
 			// 	"iconPath": "/static/tab/team.png",
 			// 	"selectedIconPath": "/static/tab/team_a.png",
 			// 	"text": "%pages.team%"
 			// },
+			// {
+			// 	"pagePath": "pages/MessagePage/index",
+			// 	"iconPath": "/static/tab/msg.png",
+			// 	"selectedIconPath": "/static/tab/msg_a.png",
+			// 	"text": "%pages.Message%"
+			// },
+			// {
+			// 	"pagePath": "pages/ArticlePage/articleList",
+			// 	"iconPath": "/static/tab/article.png",
+			// 	"selectedIconPath": "/static/tab/article_a.png",
+			// 	"text": "%pages.Community%"
+			// },
 			{
-				"pagePath": "pages/MessagePage/index",
-				"iconPath": "/static/tab/msg.png",
-				"selectedIconPath": "/static/tab/msg_a.png",
-				"text": "%pages.Message%"
+				"pagePath": "pages/TaskPage/index",
+				"iconPath": "/static/tab/article.png",
+				"selectedIconPath": "/static/tab/article_a.png",
+				"text": "%pages.task%"
 			},
 			{
 				"pagePath": "pages/LevelPage/index",
@@ -477,7 +621,7 @@
 	},
 	"globalStyle": {
 		"navigationBarBackgroundColor": "#F8F8F8",
-		"navigationBarTitleText": "CWPC",
+		"navigationBarTitleText": "TEST",
 		"backgroundColor": "#F8F8F8",
 		"app-plus": {
 			"bounce": "none",

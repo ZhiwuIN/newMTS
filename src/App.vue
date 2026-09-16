@@ -18,18 +18,9 @@ export default {
 			// 2. 判断是否是首次启动（而非刷新）
 			const isInitialized = uni.getStorageSync('app_initialized')
 			if (!isInitialized) {
-				// 首次启动：执行引导页/首页逻辑
-				if (!uni.getStorageSync('first_flag')) {
-					console.log('跳转引导页')
-					uni.redirectTo({
-						url: '/pages/guide'
-					})
-				} else {
-					console.log('跳转首页')
-					uni.reLaunch({
-						url: '/pages/HomePage/index'
-					})
-				}
+				uni.reLaunch({
+					url: '/pages/HomePage/index'
+				})
 				// 标记为已初始化
 				uni.setStorageSync('app_initialized', true)
 			}
@@ -58,26 +49,14 @@ export default {
 						});
 					}, 100)
 				} else {
-					// 首次启动：执行引导页/首页逻辑
-					if (!uni.getStorageSync('first_flag')) {
-						console.log('跳转引导页')
-						uni.redirectTo({
-							url: '/pages/guide',
-							success: () => {
-								//跳转完页面后再关闭启动页
-								plus.navigator.closeSplashscreen();
-							}
-						})
-					} else {
-						console.log('跳转首页')
-						uni.reLaunch({
-							url: '/pages/HomePage/index',
-							success: () => {
-								//跳转完页面后再关闭启动页
-								plus.navigator.closeSplashscreen();
-							}
-						})
-					}
+					uni.reLaunch({
+						url: '/pages/LoginPage/login',
+						success: () => {
+							//跳转完页面后再关闭启动页
+							plus.navigator.closeSplashscreen();
+						}
+					})
+
 				}
 			})
 		});
@@ -87,9 +66,18 @@ export default {
 	onShow: function () {
 		console.log('App onShow')
 		settingsApi().then((res) => {
-			uni.setStorageSync('settings', res.data)
-			uni.setLocale(res.data.defaultLanguage);
-			this.$i18n.locale = res.data.defaultLanguage;
+			const settings = res.data || {}
+			uni.setStorageSync('settings', settings)
+			uni.setStorageSync('defaultLanguage', settings.defaultLanguage || 'en')
+			const savedLanguage = uni.getStorageSync('Language') ||
+				uni.getStorageSync('defaultLanguage') || settings.defaultLanguage || 'en'
+			if (typeof document !== 'undefined') {
+				document.documentElement.setAttribute('lang', savedLanguage)
+			}
+			uni.setLocale(savedLanguage)
+			if (this.$i18n) {
+				this.$i18n.locale = savedLanguage
+			}
 		}).catch(err => {
 			console.log('request fail', err);
 			if (err.data?.code == 403) {

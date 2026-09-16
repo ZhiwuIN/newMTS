@@ -3,25 +3,35 @@ import en from './locale/en.json'
 import ru from './locale/ru.json'
 import es from './locale/es.json'
 import fr from './locale/fr.json'
+import zh from './locale/zh.json'
+import tv from './locale/tv.json'
 import music from './utils/music.js'
 
-// import zh from './locale/zh.json'
 import './uni.scss'
 
 import {
 	showMessage,
+	showWaitMessage,
 	getImToken
 } from './utils/utils.js'
 const messages = {
-	'en': en,
-	'ru': ru,
-	'es': es,
-	'fr': fr,
-	// 'zh': zh
+	'en': { ...en },
+	'ru': { ...ru },
+	'es': { ...es },
+	'fr': { ...fr },
+	'zh': { ...zh },
+	'tv': { ...tv },
 }
 
+const supportedLocales = Object.keys(messages)
+const storedLanguage = uni.getStorageSync('Language') || uni.getStorageSync('defaultLanguage')
+const platformLanguage = typeof uni.getLocale === 'function' ? uni.getLocale() : ''
+const initialLocale = supportedLocales.includes(storedLanguage)
+	? storedLanguage
+	: (supportedLocales.includes(platformLanguage) ? platformLanguage : 'en')
+
 let i18nConfig = {
-	locale: uni.getLocale() || 'en', // 获取已设置的语言
+	locale: initialLocale,
 	messages
 }
 // #ifndef VUE3
@@ -71,6 +81,7 @@ Vue.config.productionTip = false
 App.mpType = 'app'
 
 Vue.prototype.$showMessage = showMessage
+Vue.prototype.$showWaitMessage = showWaitMessage
 Vue.prototype.$music = music
 Vue.prototype.$getImToken = getImToken
 // Vue.prototype.$yeIM = YeIMUniSDK;
@@ -132,6 +143,7 @@ const i18n = createI18n(i18nConfig)
 export function createApp() {
 	const app = createSSRApp(App)
 	app.config.globalProperties.$showMessage = showMessage
+	app.config.globalProperties.$showWaitMessage = showWaitMessage
 	app.config.globalProperties.$getImToken = getImToken
 	// app.config.globalProperties.$yeIM = YeIMUniSDK;
 	app.config.globalProperties.$music = music

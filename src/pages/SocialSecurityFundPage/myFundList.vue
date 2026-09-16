@@ -63,7 +63,7 @@ export default {
                 const totalIssue = Math.floor(Number(item.validDays || 0) / Number(item.rebateCycleDays || 30)) || 0
                 return {
                     ...item,
-                    purchaseTime: this.formatDate(item.startTime),
+                    purchaseTime: this.formatDate(item?.startTime),
                     estimatedRevenue: this.formatNumber(item.currentPeriodEstimatedRevenue),
                     details: [
                         { label: 'Level Amount', value: `${this.formatNumber(item.marginAmount)} ${this.currency}` },

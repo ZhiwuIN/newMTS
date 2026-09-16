@@ -1,43 +1,51 @@
 import request from './request.js'
 
-// 任务统计
-export function taskInfoApi(params){
+// 获取任务列表
+export function getTaskLists() {
 	return request({
-		url: '/app/task/info',
-		method: 'get',
-	})
-}
-
-// 任务列表
-export function taskListApi(params){
-	return request({
-		url: '/app/task/list?pageNum='+params.pageNum+'&pageSize='+ params.pageSize,
+		url: '/app/task/lists',
 		method: 'get',
 	})
 }
 
 //任务详情
-export function taskDetailsApi(id){
+export function taskDetailsApi(id) {
 	return request({
-		url: '/app/task/detail/'+id,
+		url: '/app/task/detail/' + id,
 		method: 'get',
 	})
 }
 
-//答题
-export function questionApi(data){
+/// 获取当天任务配额
+export function getTheTaskQuotaOfTheDay() {
 	return request({
-		url: '/app/task/question/',
-		method: 'post',
+		url: '/app/task/getTheTaskQuotaOfTheDay',
+		method: 'GET',
+	})
+}
+
+// 提交
+export function paymentApi(data) {
+	return request({
+		url: '/app/task/payment',
+		method: 'POST',
 		data
 	})
 }
 
-// 点赞&取消点赞&收藏&取消收藏
-export function taskActionApi(data){
+// 购买记录
+export function purchaseRecordApi(id, params) {
 	return request({
-		url: '/app/task/action',
-		method: 'post',
+		url: '/app/task/purchaseRecord/' + id + '?pageNum=' + params.pageNum + '&pageSize=' + params.pageSize,
+		method: 'GET',
+	})
+}
+
+// 打开密码弹框前校验
+export function shopNowApi(data) {
+	return request({
+		url: '/app/task/shop-now',
+		method: 'POST',
 		data
 	})
 }

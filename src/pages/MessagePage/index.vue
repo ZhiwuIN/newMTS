@@ -1,5 +1,5 @@
 <template>
-	<customnavbar :title="$t('pages.Message')" :showBack="false">
+	<customnavbar :title="$t('pages.Message')">
 		<view class="msg_list">
 			<!-- <scroll-view scroll-y :refresher-enabled="true" :refresher-triggered="isRefreshing"
 				@refresherrefresh="onRefresh" :refresher-threshold="120" style="height: calc(100vh);"> -->
@@ -173,15 +173,6 @@ export default {
 				const res = await userInfoApi();
 				uni.setStorageSync('userInfo', res.data);
 				this.userInfo = res.data;
-				if (this.userInfo.hasMessage) {
-					uni.showTabBarRedDot({
-						index: 2
-					})
-				} else {
-					uni.hideTabBarRedDot({
-						index: 2
-					})
-				}
 				this.getImList()
 			} catch (err) {
 				console.error('getUserInfo error:', err);

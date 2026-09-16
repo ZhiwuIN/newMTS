@@ -1,7 +1,8 @@
 <template>
-	<customnavbar :title="$t('活动中心')" @mtop="mtop" backgroundStr="#1167d1" :whiteTitle="true">
+	<homenavbar :title="$t('活动中心')" @mtop="mtop" backgroundStr="''">
+		<view class="top-bg" :style="topStyle"></view>
 		<!-- :isLotteryRecord="true" -->
-		<view class="head" :style="topStyle">
+		<view class="head">
 			<view class="box" v-if="pointWheel">
 				<view class="title">
 					{{ $t('myBonusPoints') }}
@@ -14,7 +15,6 @@
 					<image src="/static/lottery/pointsMallLogo.png" mode="" class="head_img"></image>
 					{{ $t('去使用') }}
 				</view>
-				<image src="https://upload.cbc-app.com/store_img_1.png" mode="heightFix" class="store_img"></image>
 			</view>
 		</view>
 		<view class="bill-record">
@@ -37,17 +37,17 @@
 		<view class="enregistrer" @click="toPage('/pages/HomePage/tirageRecordPage')">
 			{{ $t('记录') }}
 		</view>
-	</customnavbar>
+	</homenavbar>
 </template>
 
 <script>
-import customnavbar from '@/component/custom-navbar/custom-navbar.vue'
+import homenavbar from '@/component/home-navbar/home-navbar.vue';
 import {
 	activityListApi
 } from '@/common/api/activity.js'
 export default {
 	components: {
-		customnavbar,
+		homenavbar,
 	},
 	data() {
 		return {
@@ -64,10 +64,10 @@ export default {
 	methods: {
 		mtop(e) {
 			// #ifdef H5
-			this.topStyle = "margin-top:-" + e + "rpx;padding-top:" + (e + 24) + "rpx"
+			this.topStyle = "margin-top:-" + e + "rpx;padding-top:" + (e + 88) + "rpx"
 			// #endif
 			// #ifdef APP-PLUS
-			this.topStyle = "margin-top:-" + e + "rpx;padding-top:" + (e + 24) + "rpx"
+			this.topStyle = "margin-top:-" + e + "rpx;padding-top:" + (e + 99) + "rpx"
 			// #endif
 		},
 		toPage(url) {
@@ -100,6 +100,19 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.top-bg {
+	position: absolute;
+	top: 0;
+	width: 100%;
+	height: 1076rpx;
+	background:
+		radial-gradient(circle at 0% 0%, #69d6ec 0%, rgba(105, 214, 236, 0.55) 34%, transparent 62%),
+		radial-gradient(circle at 100% 0%, #3aaff5 0%, rgba(58, 175, 245, 0.55) 36%, transparent 65%),
+		radial-gradient(circle at 50% 45%, rgba(245, 248, 255, 0.9) 0%, rgba(245, 248, 255, 0.25) 42%, transparent 72%),
+		linear-gradient(180deg, #b9e9f3 0%, rgba(234, 246, 248, 0.8) 55%, rgba(244, 245, 251, 0) 100%);
+	z-index: 1;
+}
+
 .enregistrer {
 	position: fixed;
 	right: -6rpx;
@@ -116,14 +129,18 @@ export default {
 	color: #FFFFFF;
 	// transform: rotate(90deg);
 	writing-mode: vertical-rl;
+	z-index: 1;
 }
 
 .head {
 	position: relative;
-	// padding: 80rpx 0 60rpx;
-	background: $themeColor;
-	color: #FFFFFF;
+	background-color: #fff;
 	padding-left: 32rpx;
+	z-index: 1;
+	margin: 24rpx;
+	margin-bottom: 0;
+	border-radius: 24rpx;
+	padding: 24rpx;
 
 	.box {
 		display: flex;
@@ -132,7 +149,9 @@ export default {
 	}
 
 	.title {
-		font-size: 32rpx;
+		font-family: Dela Gothic One;
+		font-size: 40rpx;
+		color: #0052D9;
 	}
 
 	.number {
@@ -148,10 +167,10 @@ export default {
 		padding: 8rpx 26rpx 8rpx 18rpx;
 		border-radius: 278rpx;
 		background: #000000;
+		color: #fff;
 		font-size: 28rpx;
 		font-weight: bold;
 		margin-top: 16rpx;
-		margin-bottom: 28rpx;
 
 		.head_img {
 			width: 42rpx;
@@ -174,12 +193,14 @@ export default {
 }
 
 .bill-record {
+	position: relative;
+	z-index: 1;
 	height: 100%;
 
 	.bill-record-content {
 		display: flex;
 		flex-direction: column;
-		padding: 24rpx 32rpx 40rpx 32rpx;
+		padding: 24rpx 24rpx 40rpx 24rpx;
 		padding-bottom: 0;
 
 		.list-content {
@@ -205,7 +226,7 @@ export default {
 				// // justify-content: space-between;
 				// align-items: center;
 				background: #FFFFFF;
-				box-shadow: 0rpx 22rpx 28rpx -6rpx #E9F3FF;
+				box-shadow: 0px 8rpx 20rpx 0px #E9F3FF;
 				border-radius: 24rpx;
 				border: 2rpx solid #F6F6F6;
 				// padding: 30rpx;

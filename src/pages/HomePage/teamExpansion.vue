@@ -1,518 +1,672 @@
 <template>
-	<customnavbar backgroundStr="url('/static/teamExpansion_bg.jpg') top left/100%  no-repeat" @mtop='mtop'
-		:whiteTitle="true">
+	<customnavbar backgroundStr="#0145f1" :title="pageTitle" @mtop='mtop' :whiteTitle="true">
 		<view class="team_expansion_container" :style="topStyle">
-			<!-- 二维码区域 -->
-
-			<view class="qr-section">
-				<view class="qr-section-box">
-					<canvas v-show="!this.isRestrictAccess" canvas-id="qrcode"
-						style="width: 149px; height:149px;"></canvas>
+			<view class="hero-copy">
+				<view class="hero-title">{{ $t('invitePage.buildTeam') }}</view>
+				<view class="hero-subtitle">{{ $t('invitePage.inviteSubTitle') }}</view>
+			</view>
+			<view class="invite-card" v-show="!isRestrictAccess">
+				<view class="scan-title">{{ $t('invitePage.scanQrJoin') }}</view>
+				<!-- 二维码 -->
+				<view class="qr-section">
+					<canvas canvas-id="qrcode" class="qr-canvas"></canvas>
+				</view>
+				<view class="invite-info">
+					<view class="info-copy">
+						<view class="info-label">{{ $t('invitePage.invitationCode') }}</view>
+						<view class="info-value">{{ code }}</view>
+					</view>
+					<view class="copy-action" @click="copyCode">
+						<view class="copy-icon"></view><text>{{ $t('invitePage.copy') }}</text>
+					</view>
+				</view>
+				<view class="invite-info">
+					<view class="info-copy">
+						<view class="info-label">{{ $t('invitePage.invitationLink') }}</view>
+						<view class="info-value link-value">{{ invitationLink }}</view>
+					</view>
+					<view class="copy-action" @click="copyLink">
+						<view class="copy-icon"></view><text>{{ $t('invitePage.copy') }}</text>
+					</view>
+				</view>
+				<view class="btn-group">
+					<button class="qr_btn save-btn" @click="generatePoster">{{ $t('invitePage.generatePoster')
+					}}</button>
 				</view>
 			</view>
-
-			<view class="qr_t1">
-				<text v-show="!this.isRestrictAccess">{{$t('qrpage.code')+'：'+code}}</text>
-			</view>
-			<!-- 链接文字区域 -->
-			<view class="qr_t2">
-				<text v-show="!this.isRestrictAccess">{{qrcodeUrl + '?InvitationCode=' + code}}</text>
-			</view>
-
-			<!-- 按钮区域 -->
-			<view class="btn-group" v-show="!this.isRestrictAccess">
-				<button class="qr_btn" @click="generatePoster">{{$t('qrpage.GeneratePoster')}}</button>
-				<button class="qr_btn" @click="copyLink">{{$t('qrpage.CopyLink')}}</button>
-			</view>
-
 			<!-- 海报区域 -->
 			<view class="mask" v-if="showPoster" @click="showPoster = false"></view>
 			<view class="poster-container" v-if="showPoster">
 				<view class="poster" id="poster">
-					<image :src="posterImage" mode="aspectFill" class="posterImage"></image>
-					<view class="main">
-						<view class="qr-section2">
-							<view class="qr-section-box2">
-								<canvas canvas-id="qrcode2" style="width: 100rpx;height: 100rpx;"></canvas>
-							</view>
+					<view class="poster-top">
+						<view class="poster-heading">{{ $t('invitePage.posterHeading') }}</view>
+						<view class="poster-description">{{ $t('invitePage.posterDesc') }}</view>
+					</view>
+					<view class="poster-bottom">
+						<view class="poster-scan-title">{{ $t('invitePage.posterScanTitle') }}</view>
+						<canvas canvas-id="qrcode2" class="poster-qr"></canvas>
+						<view class="poster-field">
+							<view class="field-label">{{ $t('invitePage.invitationCode') }}</view>
+							<view class="field-value">{{ code }}</view>
 						</view>
-						<view class="text">
-							<view>{{$t('home.InvitationCode')}}</view>
-							<view class="invitationCode">{{ code }}</view>
+						<view class="poster-field">
+							<view class="field-label">{{ $t('invitePage.invitationLink') }}</view>
+							<view class="field-value link">{{ invitationLink }}</view>
 						</view>
 					</view>
 				</view>
-				<view class="btn" @click="downloadPoster">
-					{{ $t('home.Download') }}
+				<view class="poster-close" @click="showPoster = false">
+					<view></view>
+					<view></view>
 				</view>
 			</view>
 		</view>
 	</customnavbar>
-	<canvas canvas-id="finalPosterCanvas" style="width: 375px; height: 600px; position: fixed; top: -9999px;"></canvas>
+	<canvas canvas-id="finalPosterCanvas"
+		style="width: 750rpx; height: 1200rpx; position: fixed; top: -19998rpx;"></canvas>
 	<uni-popup ref="promptpopup" type="center" :mask-click="false">
 		<view class="prompt_pop_page">
-			<view class="prompt_pop_top">{{$t('home.Prompt')}}</view>
-			<view class="prompt_pop_taps">{{this.$t("withdrawal.restrictedAccess")}}</view>
+			<view class="prompt_pop_top">{{ $t('invitePage.prompt') }}</view>
+			<view class="prompt_pop_taps">{{ $t("invitePage.restrictedAccess") }}</view>
 			<view class="prompt_pop_bottom">
-				<button class="prompt_confirm_btn" @click="prompt_confirm">{{$t('pay.yes')}}</button>
+				<button class="prompt_confirm_btn" @click="prompt_confirm">{{ $t('invitePage.yes') }}</button>
 			</view>
 		</view>
 	</uni-popup>
 </template>
-
 <script>
-	import UQRCode from '../../uni_modules/Sansnn-uQRCode/js_sdk/uqrcode/uqrcode.js';
-	import customnavbar from '@/component/custom-navbar/custom-navbar.vue'
-	import {
-		userInfoApi,
-		settingsApi
-	} from "@/common/api/users.js";
-	export default {
-		components: {
-			customnavbar
-		},
-		data() {
-			return {
-				showPoster: false,
-				topStyle: "",
-				pageH: 0,
-				code: "",
-				// qrcodeUrl: 'http://localhost:5173/#/',
-				qrcodeUrl: '',
-				userInfo: {},
-				posterImage: '',
-				isRestrictAccess: false,
-				settings: {}
-			}
-		},
-		onShow() {
-			settingsApi().then((res) => {
-				this.settings = res.data
-				uni.setStorageSync('settings', res.data)
-				// uni.setLocale(res.data.defaultLanguage);
-				// this.$i18n.locale = res.data.defaultLanguage;
-				userInfoApi().then((res) => {
-					this.userInfo = res.data
-					if (this.userInfo.levelCode == '0') {
-						this.$showMessage('warning', this.$t('实习生没有权限'))
-						uni.switchTab({
-							url: '/pages/HomePage/index'
-						})
-						return
-					}
-					if (this.userInfo.housekeeper == 1) {
-						this.isRestrictAccess = true
-						this.$refs.promptpopup.open()
-					}
-					this.qrcodeUrl = this.settings.regUrl + '/#/'
-					this.code = res.data.invitationCode;
-					uni.setStorageSync('userInfo', res.data)
-					this.generateQrCode()
-				}).catch((err) => {
-					console.log('request fail', err);
-					this.$showMessage('warning', err.msg);
-				})
-				uni.setLocale('en');
-				this.$i18n.locale = 'en';
-			}).catch(err => {
+import UQRCode from '../../uni_modules/Sansnn-uQRCode/js_sdk/uqrcode/uqrcode.js';
+import customnavbar from '@/component/custom-navbar/custom-navbar.vue'
+import {
+	userInfoApi,
+	settingsApi
+} from "@/common/api/users.js";
+export default {
+	components: {
+		customnavbar
+	},
+	data() {
+		return {
+			pageTitle: '',
+			showPoster: false,
+			topStyle: "",
+			pageH: 0,
+			code: "",
+			// qrcodeUrl: 'http://localhost:5173/#/',
+			qrcodeUrl: '',
+			userInfo: {},
+			posterImage: '',
+			isRestrictAccess: false,
+			settings: {}
+		}
+	},
+	computed: {
+		invitationLink() {
+			return this.qrcodeUrl + '?InvitationCode=' + this.code;
+		}
+	},
+	onShow() {
+		settingsApi().then((res) => {
+			this.settings = res.data
+			uni.setStorageSync('settings', res.data)
+			userInfoApi().then((res) => {
+				this.userInfo = res.data
+				// if (this.userInfo.levelCode == '0') {
+				//  this.$showMessage('warning', this.$t('实习生没有权限'))
+				//  uni.switchTab({
+				//      url: '/pages/HomePage/index'
+				//  })
+				//  return
+				// }
+				if (this.userInfo.housekeeper == 1) {
+					this.isRestrictAccess = true
+					this.$refs.promptpopup.open()
+				}
+				this.qrcodeUrl = this.settings.regUrl + '/#/'
+				this.code = res.data.invitationCode;
+				uni.setStorageSync('userInfo', res.data)
+				this.generateQrCode()
+			}).catch((err) => {
 				console.log('request fail', err);
-				if (err.data?.code == 403) {
-					this.$showMessage('warning', err.data?.msg);
-				} else {
-					this.$showMessage('warning', err.msg);
+				this.$showMessage('warning', err.msg);
+			})
+		}).catch(err => {
+			console.log('request fail', err);
+			if (err.data?.code == 403) {
+				this.$showMessage('warning', err.data?.msg);
+			} else {
+				this.$showMessage('warning', err.msg);
+			}
+		})
+	},
+	onReady() {
+		this.posterImage = uni.getLocale() == 'fr' ? '/static/posterFR.jpg' : '/static/posterEN.jpg';
+	},
+	methods: {
+		prompt_confirm() {
+			this.$refs.promptpopup.close()
+			uni.navigateBack()
+		},
+		generateQrCode() {
+			// 获取uQRCode实例
+			var qr = new UQRCode();
+			// 设置二维码内容
+			qr.data = this.qrcodeUrl + '?InvitationCode=' + this.code;
+			// 设置二维码大小，必须与canvas设置的宽高一致
+			qr.size = 148;
+			// 调用制作二维码方法
+			qr.make();
+			// 获取canvas上下文
+			var canvasContext = uni.createCanvasContext('qrcode', this); // 如果是组件，this必须传入
+			// 设置uQRCode实例的canvas上下文
+			qr.canvasContext = canvasContext;
+			// 调用绘制方法将二维码图案绘制到canvas上
+			qr.drawCanvas();
+		},
+		generateQrCode2() {
+			// 获取uQRCode实例
+			var qr = new UQRCode();
+			// 设置二维码内容
+			qr.data = this.qrcodeUrl + '?InvitationCode=' + this.code;
+			// 设置二维码大小，必须与canvas设置的宽高一致
+			qr.size = 148;
+			// 调用制作二维码方法
+			qr.make();
+			// 获取canvas上下文
+			var canvasContext = uni.createCanvasContext('qrcode2', this); // 如果是组件，this必须传入
+			// 设置uQRCode实例的canvas上下文
+			qr.canvasContext = canvasContext;
+			// 调用绘制方法将二维码图案绘制到canvas上
+			qr.drawCanvas();
+		},
+		generatePoster() {
+			// 实现生成海报的逻辑
+			this.showPoster = true;
+			setTimeout(() => {
+				this.generateQrCode2();
+			}, 100);
+		},
+		copyLink() {
+			uni.setClipboardData({
+				data: this.invitationLink,
+				success: () => {
+					this.$showMessage('success', this.$t('invitePage.copied'));
 				}
 			})
 		},
-		onReady() {
-			this.posterImage = uni.getLocale() == 'fr' ? '/static/posterFR.jpg' : '/static/posterEN.jpg';
-		},
-		methods: {
-			prompt_confirm() {
-				this.$refs.promptpopup.close()
-				uni.navigateBack()
-			},
-			generateQrCode() {
-				// 获取uQRCode实例
-				var qr = new UQRCode();
-				// 设置二维码内容
-				qr.data = this.qrcodeUrl + '?InvitationCode=' + this.code;
-				// 设置二维码大小，必须与canvas设置的宽高一致
-				qr.size = 149;
-				// 调用制作二维码方法
-				qr.make();
-				// 获取canvas上下文
-				var canvasContext = uni.createCanvasContext('qrcode', this); // 如果是组件，this必须传入
-				// 设置uQRCode实例的canvas上下文
-				qr.canvasContext = canvasContext;
-				// 调用绘制方法将二维码图案绘制到canvas上
-				qr.drawCanvas();
-			},
-			generateQrCode2() {
-				// 获取uQRCode实例
-				var qr = new UQRCode();
-				// 设置二维码内容
-				qr.data = this.qrcodeUrl + '?InvitationCode=' + this.code;
-				// 设置二维码大小，必须与canvas设置的宽高一致
-				qr.size = 58;
-				// 调用制作二维码方法
-				qr.make();
-				// 获取canvas上下文
-				var canvasContext = uni.createCanvasContext('qrcode2', this); // 如果是组件，this必须传入
-				// 设置uQRCode实例的canvas上下文
-				qr.canvasContext = canvasContext;
-				// 调用绘制方法将二维码图案绘制到canvas上
-				qr.drawCanvas();
-			},
-			generatePoster() {
-				// 实现生成海报的逻辑
-				this.showPoster = true;
-				setTimeout(() => {
-					this.generateQrCode2();
-				}, 100);
-			},
-			copyLink() {
-				uni.setClipboardData({
-					data: this.qrcodeUrl + '?InvitationCode=' + this.code,
-					success: () => {
-						this.$showMessage('success', this.$t('home.copied'));
-					}
-				})
-			},
-			mtop(e) {
-				uni.getSystemInfo({
-					success: (res) => {
-						this.pageH = res.windowHeight * 2
-						// #ifdef H5
-						this.topStyle = "margin-top:-" + e + "rpx;padding-top:" + (e + 88) +
-							"rpx;height:calc(100vh - " + (e + 88) + "rpx)"
-						// #endif
-						// #ifdef APP-PLUS
-						this.topStyle = "margin-top:-" + e + "rpx;padding-top:" + e +
-							"rpx;height:calc(100vh - " + e + "rpx)"
-						// #endif
-					}
-				});
-			},
-			// 下载海报方法
-			async downloadPoster() {
-				try {
-					// 显示加载中
-					uni.showLoading({
-						title: this.$t("home.poster"),
-						mask: true
-					});
-
-					// #ifdef APP-PLUS || H5
-					// 1. 确保二维码已生成
-					await new Promise(resolve => {
-						this.generateQrCode2(); // 生成海报中的小二维码
-						setTimeout(resolve, 300); // 等待canvas渲染完成
-					});
-
-					// 2. 获取二维码临时路径
-					const qrCodeRes = await new Promise((resolve, reject) => {
-						uni.canvasToTempFilePath({
-							canvasId: 'qrcode2',
-							success: resolve,
-							fail: reject
-						}, this);
-					});
-
-					// 3. 创建最终海报canvas
-					const ctx = uni.createCanvasContext('finalPosterCanvas', this);
-					const canvasWidth = 375; // 与你的海报宽度一致
-					const canvasHeight = 600; // 与你的海报高度一致
-
-					// 4. 绘制背景图
-					ctx.save();
-					ctx.drawImage('/static/posterEN.jpg', 0, 0, canvasWidth, canvasHeight);
-					ctx.restore();
-
-					// 5. 绘制二维码（位置需要根据实际布局调整）
-					const qrSize = 64; // 与你的样式一致
-					const qrX = 90; // 左间距
-					const qrY = canvasHeight - 44 - 54; // 底部间距（根据你的样式调整）
-
-					ctx.save();
-					ctx.drawImage(qrCodeRes.tempFilePath, qrX, qrY, qrSize, qrSize);
-					ctx.restore();
-
-					// 6. 绘制邀请码文本（位置需要根据实际布局调整）
-					ctx.save();
-					ctx.setFontSize(18);
-					ctx.setFillStyle('#000000');
-					ctx.fillText('Invitation Code', qrX + qrSize + 20, qrY + 20);
-
-					ctx.setFontSize(19);
-					ctx.setFillStyle('#000000');
-					ctx.fillText(this.code, qrX + qrSize + 20, qrY + 60);
-					ctx.restore();
-
-					// 7. 完成绘制
-					await new Promise((resolve, reject) => {
-						ctx.draw(false, () => {
-							setTimeout(() => {
-								uni.canvasToTempFilePath({
-									canvasId: 'finalPosterCanvas',
-									success: resolve,
-									fail: reject
-								}, this);
-							}, 300);
-						});
-					});
-
-					// 8. 获取最终图片路径
-					const tempFilePath = await new Promise((resolve, reject) => {
-						uni.canvasToTempFilePath({
-							canvasId: 'finalPosterCanvas',
-							success: resolve,
-							fail: reject
-						}, this);
-					});
-
-					// #ifdef APP-PLUS
-					// APP端保存到相册
-					await uni.saveImageToPhotosAlbum({
-						filePath: tempFilePath.tempFilePath
-					});
-					uni.showToast({
-						title: this.$t("home.PosterSS"),
-						icon: 'success'
-					});
-					// #endif
-
-					// #ifdef H5
-					// H5端创建下载链接
-					const link = document.createElement('a');
-					link.href = tempFilePath.tempFilePath;
-					link.download = 'poster.png';
-					document.body.appendChild(link);
-					link.click();
-					document.body.removeChild(link);
-					uni.showToast({
-						title: this.$t("home.PosterSS"),
-						icon: 'success'
-					});
-					// #endif
-
-					this.showPoster = false; // 关闭海报预览
-
-					// #endif
-				} catch (error) {
-					console.error('海报下载失败:', error);
-					uni.showToast({
-						title: this.$t("home.PosterDF"),
-						icon: 'none'
-					});
-				} finally {
-					uni.hideLoading();
+		copyCode() {
+			uni.setClipboardData({
+				data: this.code,
+				success: () => {
+					this.$showMessage('success', this.$t('invitePage.copied'));
 				}
+			})
+		},
+		mtop(e) {
+			uni.getSystemInfo({
+				success: (res) => {
+					this.pageH = res.windowHeight * 2
+					// #ifdef H5
+					this.topStyle = "margin-top:-" + e + "rpx;padding-top:" + (e + 88) + "rpx"
+					// #endif
+					// #ifdef APP-PLUS
+					this.topStyle = "margin-top:-" + e + "rpx;padding-top:" + e + "rpx"
+					// #endif
+				}
+			});
+		},
+		// 下载海报方法
+		async downloadPoster() {
+			try {
+				// 显示加载中
+				uni.showLoading({
+					title: this.$t("invitePage.posterLoading"),
+					mask: true
+				});
+				// #ifdef APP-PLUS || H5
+				// 1. 确保二维码已生成
+				await new Promise(resolve => {
+					this.generateQrCode2(); // 生成海报中的小二维码
+					setTimeout(resolve, 300); // 等待canvas渲染完成
+				});
+				// 2. 获取二维码临时路径
+				const qrCodeRes = await new Promise((resolve, reject) => {
+					uni.canvasToTempFilePath({
+						canvasId: 'qrcode2',
+						success: resolve,
+						fail: reject
+					}, this);
+				});
+				// 3. 创建最终海报canvas
+				const ctx = uni.createCanvasContext('finalPosterCanvas', this);
+				const canvasWidth = 375; // 与你的海报宽度一致
+				const canvasHeight = 600; // 与你的海报高度一致
+				// 4. 绘制背景图
+				ctx.save();
+				ctx.setFillStyle('#0145f1'); ctx.fillRect(0, 0, canvasWidth, 236);
+				ctx.setFillStyle('#ffffff'); ctx.fillRect(0, 226, canvasWidth, 374);
+				ctx.setFillStyle('#ffd400'); ctx.setFontSize(26);
+				ctx.fillText(this.$t('invitePage.posterHeading').replace('<br />', '\n'), 24, 44);
+				ctx.fillText('With Us', 24, 74);
+				ctx.setFillStyle('#ffffff'); ctx.setFontSize(14);
+				ctx.fillText('You’ve been invited to join the platform. Register now', 24, 116);
+				ctx.fillText('to explore products, activities, membership benefits,', 24, 138);
+				ctx.fillText('and team opportunities. Build your own network, stay', 24, 160);
+				ctx.fillText('active, and unlock more ways to participate and earn', 24, 182); ctx.fillText('rewards.', 24, 204);
+				ctx.setFillStyle('#0145f1'); ctx.setFontSize(19); ctx.fillText(this.$t('invitePage.posterScanTitle'), 91, 262);
+				ctx.restore();
+				// 5. 绘制二维码（位置需要根据实际布局调整）
+				const qrSize = 64; // 与你的样式一致
+				const qrX = 90; // 左间距
+				const qrY = 278;
+				ctx.save();
+				ctx.drawImage(qrCodeRes.tempFilePath, qrX, qrY, qrSize, qrSize);
+				ctx.restore();
+				// 6. 绘制邀请码文本（位置需要根据实际布局调整）
+				ctx.save();
+				ctx.setFontSize(18);
+				ctx.setFillStyle('#000000');
+				ctx.fillText(this.$t('invitePage.invitationCode'), 34, 484);
+				ctx.setFontSize(19);
+				ctx.setFillStyle('#000000');
+				ctx.fillText(this.code, 34, 510);
+				ctx.restore();
+				// 7. 完成绘制
+				await new Promise((resolve, reject) => {
+					ctx.draw(false, () => {
+						setTimeout(() => {
+							uni.canvasToTempFilePath({
+								canvasId: 'finalPosterCanvas',
+								success: resolve,
+								fail: reject
+							}, this);
+						}, 300);
+					});
+				});
+				// 8. 获取最终图片路径
+				const tempFilePath = await new Promise((resolve, reject) => {
+					uni.canvasToTempFilePath({
+						canvasId: 'finalPosterCanvas',
+						success: resolve,
+						fail: reject
+					}, this);
+				});
+				// #ifdef APP-PLUS
+				// APP端保存到相册
+				await uni.saveImageToPhotosAlbum({
+					filePath: tempFilePath.tempFilePath
+				});
+				uni.showToast({
+					title: this.$t("invitePage.posterSaveSuccess"),
+					icon: 'success'
+				});
+				// #endif
+				// #ifdef H5
+				// H5端创建下载链接
+				const link = document.createElement('a');
+				link.href = tempFilePath.tempFilePath;
+				link.download = 'poster.png';
+				document.body.appendChild(link);
+				link.click();
+				document.body.removeChild(link);
+				uni.showToast({
+					title: this.$t("invitePage.posterSaveSuccess"),
+					icon: 'success'
+				});
+				// #endif
+				this.showPoster = false; // 关闭海报预览
+				// #endif
+			} catch (error) {
+				console.error('海报下载失败:', error);
+				uni.showToast({
+					title: this.$t("invitePage.posterDownloadFail"),
+					icon: 'none'
+				});
+			} finally {
+				uni.hideLoading();
 			}
 		}
-	}
-</script>
-
-<style scoped lang="scss">
-	.mask {
-		position: fixed;
-		top: 0;
-		left: 0;
-		width: 100vw;
-		height: 100%;
-		background: #000000;
-		opacity: 0.6;
-		z-index: 9999;
-	}
-
-	.poster-container {
-		position: fixed;
-		top: 50%;
-		left: 50%;
-		transform: translate(-50%, -50%);
-		width: 650rpx;
-		height: 1040rpx;
-		z-index: 10000;
-
-		.btn {
-			width: 520rpx;
-			height: 96rpx;
-			margin: 0 auto;
-			margin-top: 38rpx;
-			background: linear-gradient(180deg, $gradualColor2 0%, $gradualColor1 100%);
-			border-radius: 24rpx;
-			font-family: PingFangSC, PingFang SC;
-			font-weight: 600;
-			font-size: 36rpx;
-			color: #FFFFFF;
-			line-height: 96rpx;
-			text-align: center;
-			font-style: normal;
-			text-transform: none;
+	},
+	onLoad(options) {
+		if (uni.getStorageSync('pageTitle')) {
+			this.pageTitle = uni.getStorageSync('pageTitle') || 'Invite Friends'
+		} else {
+			this.pageTitle = options.title || 'Invite Friends'
 		}
-	}
+
+	},
+}
+</script>
+<style scoped lang="scss">
+.mask {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: #000000;
+	opacity: 0.6;
+	z-index: 9999;
+}
+
+.poster-container {
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 678rpx;
+	z-index: 10000;
 
 	.poster {
 		position: relative;
 		width: 100%;
-		height: 100%;
+		border-radius: 30rpx;
+		overflow: hidden;
+		background: $themeColor;
 
-		.main {
-			position: absolute;
-			bottom: 54rpx;
-			left: 90rpx;
+		.poster-top {
+			padding: 38rpx 22rpx 24rpx;
+			box-sizing: border-box;
+			background: $themeColor;
+		}
+
+		.poster-heading {
+			font-family: DingTalk JinBuTi;
+			font-size: 48rpx;
+			line-height: 60rpx;
+			color: #ffd400;
+		}
+
+		.poster-description {
+			margin-top: 24rpx;
+			font-size: 24rpx;
+			line-height: normal;
+			color: #ffffff;
+		}
+
+		.poster-bottom {
+			padding: 44rpx 32rpx 34rpx;
+			box-sizing: border-box;
+			background: #ffffff;
+			border-radius: 30rpx 30rpx 0 0;
+		}
+
+		.poster-scan-title {
+			font-family: MiSans;
+			font-size: 36rpx;
+			color: $themeColor;
+			text-align: center;
+		}
+
+		.poster-qr {
+			display: block;
+			width: 148px;
+			height: 148px;
+			margin: 24rpx auto 28rpx;
+		}
+
+		.poster-field {
+			box-sizing: border-box;
+			min-height: 110rpx;
+			margin-top: 22rpx;
+			padding: 16rpx;
+			background: #f6f7f9;
+			border-radius: 12rpx;
+		}
+
+		.field-label {
+			font-family: Arial, sans-serif;
+			font-size: 24rpx;
+			line-height: 32rpx;
+			color: #747474;
+		}
+
+		.field-value {
+			margin-top: 4rpx;
+			font-family: Arial, sans-serif;
+			font-size: 30rpx;
+			font-weight: 600;
+			line-height: 38rpx;
+			color: #000000;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
+
+		.field-value.link {
+			font-size: 27rpx;
+		}
+	}
+
+	.poster-close {
+		position: relative;
+		width: 80rpx;
+		height: 80rpx;
+		margin: 36rpx auto 0;
+		border-radius: 50%;
+		background: #fff;
+	}
+
+	.poster-close view {
+		position: absolute;
+		top: 38rpx;
+		left: 17rpx;
+		width: 46rpx;
+		height: 5rpx;
+		background: #333;
+		border-radius: 4rpx;
+	}
+
+	.poster-close view:first-child {
+		transform: rotate(45deg);
+	}
+
+	.poster-close view:last-child {
+		transform: rotate(-45deg);
+	}
+}
+
+.team_expansion_container {
+	min-height: 100vh;
+	box-sizing: border-box;
+	padding: 70rpx 24rpx 80rpx;
+	background: linear-gradient(to bottom, $themeColor 0rpx, $themeColor 442rpx, #f1f4ff 442rpx, #f1f4ff 1334rpx);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+
+	.hero-copy {
+		width: 702rpx;
+		padding: 0 0 24rpx;
+		color: #ffffff;
+		text-align: center;
+
+		.hero-title {
+			font-family: Arial, sans-serif;
+			font-style: italic;
+			font-weight: 700;
+			font-size: 52rpx;
+			line-height: 68rpx;
+		}
+
+		.hero-subtitle {
+			margin-top: 22rpx;
+			font-family: Arial, sans-serif;
+			font-size: 30rpx;
+			line-height: 40rpx;
+		}
+	}
+
+	.qr-section {
+		margin: 24rpx auto 42rpx;
+		display: flex;
+		justify-content: center;
+		width: 148px;
+		height: 148px;
+		align-items: center;
+
+		.qr-canvas {
+			width: 148px;
+			height: 148px;
+		}
+	}
+
+	.invite-card {
+		box-sizing: border-box;
+		width: 702rpx;
+		padding: 48rpx 24rpx 54rpx;
+		background: #ffffff;
+		border-radius: 30rpx;
+
+		.scan-title {
+			font-family: Arial, sans-serif;
+			font-size: 38rpx;
+			font-weight: 600;
+			line-height: 50rpx;
+			color: $themeColor;
+			text-align: center;
+		}
+
+		.invite-info {
+			box-sizing: border-box;
+			width: 670rpx;
+			min-height: 110rpx;
+			padding: 18rpx 18rpx 16rpx;
+			margin-top: 24rpx;
 			display: flex;
-			gap: 32rpx;
+			align-items: center;
+			justify-content: space-between;
+			background: #f6f7f9;
+			border-radius: 12rpx;
 
-			.text {
-				display: flex;
-				flex-direction: column;
-				justify-content: space-between;
-				height: 120rpx;
-				font-family: PingFangSC, PingFang SC;
-				font-weight: 400;
-				font-size: 36rpx;
-				color: #000000;
-				text-align: left;
-				font-style: normal;
+			.info-copy {
+				min-width: 0;
+				flex: 1;
 
-				.invitationCode {
-					display: flex;
-					align-items: center;
-					padding-left: 20rpx;
-					width: 330rpx;
-					height: 62rpx;
-					background: rgba(255, 255, 255, 0.5);
-					border-radius: 12rpx;
-					font-family: DINPro, DINPro;
+				.info-label {
+					font-family: Arial, sans-serif;
+					font-size: 24rpx;
+					line-height: 32rpx;
+					color: #747474;
+				}
+
+				.info-value {
+					margin-top: 4rpx;
+					font-family: Arial, sans-serif;
+					font-size: 30rpx;
 					font-weight: 600;
-					font-size: 38rpx;
+					line-height: 38rpx;
 					color: #000000;
-					font-style: normal;
+
+					&.link-value {
+						font-size: 28rpx;
+					}
+				}
+			}
+
+			.copy-action {
+				flex: 0 0 136rpx;
+				display: flex;
+				align-items: center;
+				justify-content: flex-end;
+				gap: 20rpx;
+				font-family: Arial, sans-serif;
+				font-size: 32rpx;
+				font-weight: 600;
+				line-height: 40rpx;
+				color: $themeColor;
+
+				.copy-icon {
+					position: relative;
+					box-sizing: border-box;
+					width: 32rpx;
+					height: 36rpx;
+					border: 5rpx solid $themeColor;
+					border-radius: 5rpx;
+
+					&::before {
+						position: absolute;
+						content: '';
+						box-sizing: border-box;
+						width: 32rpx;
+						height: 36rpx;
+						top: -12rpx;
+						left: 8rpx;
+						border: 5rpx solid $themeColor;
+						border-radius: 5rpx;
+						background-color: #f6f7f9;
+					}
+				}
+			}
+		}
+
+		.btn-group {
+			margin-top: 32rpx;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+
+			.qr_btn {
+				width: 324rpx;
+				height: 70rpx;
+				margin: 0;
+				padding: 0;
+				border-radius: 10rpx;
+				font-family: Arial, sans-serif;
+				font-weight: 600;
+				font-size: 30rpx;
+				line-height: 70rpx;
+				text-align: center;
+				border: 0;
+
+				&::after {
+					border: 0;
+				}
+
+				&.save-btn {
+					background: #ffd400;
+					color: #000000;
+				}
+
+				&.share-btn {
+					background: $themeColor;
+					color: #ffffff;
 				}
 			}
 		}
 	}
+}
 
-	.posterImage {
-		width: 100%;
-		height: 100%;
-		display: block;
-	}
+.prompt_pop_page {
+	width: 570rpx;
+	background: #FFFFFF;
+	border-radius: 28rpx;
+	padding: 40rpx 54rpx 28rpx 54rpx;
 
-	.team_expansion_container {
-		height: 100%;
-		/* padding: 20px; */
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		background: url("/static/teamExpansion_bg.jpg") top left/100% no-repeat;
-	}
-
-	.qr-section {
-		margin: 30px 0;
-		display: flex;
-		justify-content: center;
-		width: 338rpx;
-		height: 338rpx;
-		background: #FFFFFF;
-		border-radius: 14rpx;
-		align-items: center;
-	}
-
-	.qr-section2 {
-		display: flex;
-		justify-content: center;
-		width: 120rpx;
-		height: 120rpx;
-		background: #FFFFFF;
-		border-radius: 14rpx;
-		align-items: center;
-	}
-
-	.qr-section-box {
-		width: 149px;
-		height: 149px;
-	}
-
-	.qr-section-box2 {
-		width: 100rpx;
-		height: 100rpx;
-	}
-
-	.btn-group {
-		width: 100%;
-		display: flex;
-		align-items: center;
-	}
-
-	.qr_btn {
-		width: 250rpx;
-		height: 72rpx;
-		background: #FFFFFF;
-		border-radius: 36rpx;
+	.prompt_pop_top {
 		font-family: "DINPro-Medium", sans-serif;
 		font-weight: 500;
-		font-size: 28rpx;
-		color: $themeColor;
-		line-height: 72rpx;
+		font-size: 32rpx;
+		color: #000000;
+		line-height: 42rpx;
 		text-align: center;
 		font-style: normal;
 	}
 
-	.qr_t1 {
+	.prompt_pop_taps {
 		font-family: "DINPro-Regular", sans-serif;
 		font-weight: 400;
-		font-size: 26rpx;
-		color: #FFFFFF;
-		line-height: 34rpx;
+		font-size: 28rpx;
+		color: #1C2D57;
+		line-height: 36rpx;
 		text-align: center;
 		font-style: normal;
 		margin-top: 40rpx;
 	}
 
-	.qr_t2 {
-		font-family: "DINPro-Regular", sans-serif;
-		font-weight: 400;
-		font-size: 26rpx;
-		color: #FFFFFF;
-		line-height: 36rpx;
-		text-align: center;
-		font-style: normal;
-		margin-top: 26rpx;
-		margin-bottom: 74rpx;
-	}
-
-	.prompt_pop_page {
-		width: 570rpx;
-		background: #FFFFFF;
-		border-radius: 28rpx;
-		padding: 40rpx 54rpx 28rpx 54rpx;
-
-		.prompt_pop_top {
-			font-family: "DINPro-Medium", sans-serif;
-			font-weight: 500;
-			font-size: 32rpx;
-			color: #000000;
-			line-height: 42rpx;
-			text-align: center;
-			font-style: normal;
-		}
-
-		.prompt_pop_taps {
-			font-family: "DINPro-Regular", sans-serif;
-			font-weight: 400;
-			font-size: 28rpx;
-			color: #1C2D57;
-			line-height: 36rpx;
-			text-align: center;
-			font-style: normal;
-			margin-top: 40rpx;
-		}
-
-		.prompt_pop_bottom {
-			display: flex;
-			margin-top: 54rpx;
-		}
+	.prompt_pop_bottom {
+		display: flex;
+		margin-top: 54rpx;
 
 		.prompt_confirm_btn {
 			width: 212rpx;
@@ -530,4 +684,5 @@
 			font-style: normal;
 		}
 	}
+}
 </style>
