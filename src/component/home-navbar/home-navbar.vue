@@ -17,10 +17,11 @@
 			<image src="/static/mine/application_record.png" :lazy-load="true" class="right-icon"
 				v-if="isPositionManage" @click="toApplication('/pages/MinePage/applicationRecord')">
 			</image>
-			<image :lazy-load="true" :src="messageSrc" class="right-icon message" v-if="isHome"
-				@click="toApplication('/pages/HomePage/messagePage')">
-				<!-- @click="toApplication('/pages/MessagePage/index')" -->
-			</image>
+			<!-- 消息入口：右上角消息图标，有未读时显示红点 -->
+			<view class="message-entry" v-if="isHome" @click="toMsg">
+				<image :lazy-load="true" :src="messageSrc" class="right-icon message"></image>
+				<view class="redDot" v-if="unreadCount > 0"></view>
+			</view>
 			<image :lazy-load="true" src="/static/home/Record.png" class="right-icon isFinancePage" v-if="isFinancePage"
 				@click="toApplication('/pages/MinePage/financePage')">
 			</image>
@@ -52,6 +53,7 @@
 import { getCurrentInstance } from 'vue'
 import { onPageScroll } from '@dcloudio/uni-app'
 import certificationPopup from '@/components/certificationPopup/index.vue'
+import { messageBadgeManager } from '@/common/api/messageBadge.js'
 
 export default {
 	components: {
@@ -141,7 +143,10 @@ export default {
 			currentScrollTop: 0,
 			mtop: 0,
 			pageH: 0,
-			webTitle: ''
+			webTitle: '',
+			// 未读消息总数（驱动右上角红点）
+			unreadCount: 0,
+			_unsubBadge: null
 		}
 	},
 	computed: {
@@ -167,7 +172,7 @@ export default {
 		},
 		toMsg() {
 			uni.navigateTo({
-				url: '/pages/HomePage/messagePage'
+				url: '/pages/MessagePage/index'
 			})
 		},
 		toApplication(url) {
@@ -216,9 +221,20 @@ export default {
 		},
 	},
 	mounted() {
-		this.webTitle = uni.getStorageSync('settings').webTitle
+		const settings = uni.getStorageSync('settings') || {}
+		this.webTitle = settings.webTitle
 		this.setNavBarInfo();
 		this.setNavbarBackground(this.currentScrollTop)
+		// 订阅未读消息总数，驱动右上角消息红点
+		this._unsubBadge = messageBadgeManager.subscribe((count) => {
+			this.unreadCount = count
+		})
+	},
+	beforeUnmount() {
+		if (this._unsubBadge) {
+			this._unsubBadge()
+			this._unsubBadge = null
+		}
 	},
 	watch: {
 		backgroundStr() {
@@ -229,14 +245,28 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.redDot {
+// 右上角消息入口（图标 + 未读红点）
+.message-entry {
 	position: absolute;
-	top: 26rpx;
-	right: 50rpx;
-	width: 18rpx;
-	height: 18rpx;
-	background-color: #FF0000;
-	border-radius: 50%;
+	right: 24rpx;
+	width: 76rpx;
+	height: 76rpx;
+
+	.right-icon.message {
+		position: static;
+		width: 76rpx;
+		height: 76rpx;
+	}
+
+	.redDot {
+		position: absolute;
+		top: 0;
+		right: 0;
+		width: 20rpx;
+		height: 20rpx;
+		background-color: #FF0000;
+		border-radius: 50%;
+	}
 }
 
 .custom-navbar {

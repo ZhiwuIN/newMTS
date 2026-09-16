@@ -1,10 +1,10 @@
 <template>
 	<customnavbar :title="$t('pages.Message')">
 		<view class="msg_list">
-			<!-- <scroll-view scroll-y :refresher-enabled="true" :refresher-triggered="isRefreshing"
-				@refresherrefresh="onRefresh" :refresher-threshold="120" style="height: calc(100vh);"> -->
-			<view class="msg_item" @click="toDetails('/pages/HomePage/messagePage', null)">
-				<image src="/static/massage/System2.png" alt="" class="msg_icon" />
+			<!-- 系统消息 -->
+			<view class="msg_item" @click="toDetails('/pages/HomePage/messagePage?type=system')">
+				<image :src="newSystemMessage?.isRead ? '/static/massage/System2.png' : '/static/massage/System1.png'"
+					alt="" class="msg_icon" />
 				<view class="main">
 					<view class="msg_list_head">
 						<view class="msg_title">
@@ -15,76 +15,49 @@
 						</view>
 					</view>
 					<view class="msg_title2" v-html="newSystemMessage?.title || $t('NoNewsYet')">
-
-					</view>
-					<view class="badge3" v-if="!newSystemMessage?.isRead">
 					</view>
 				</view>
 			</view>
 			<!-- 我的好友 -->
-			<view class="msg_item"
-				@click="toDetails('/pages/MessagePage/personMessagePage?id=' + item.userId + '&name=' + (item.userType == 'customer' ? $t('客服') : item.userType == 'business' ? $t('业务经理') : item?.userName), item.userId)"
-				v-for="(item, index) in friendList" :key="index">
-				<view class="msg_icon">
-					<!-- 客服 -->
-					<image :src="item?.avatar ? item?.avatar : '/static/massage/Customer service2.png'" alt=""
-						class="msg_icon" v-if="item?.userType == 'customer'" mode="aspectFill" />
-					<!-- 代理 -->
-					<image :src="item?.avatar ? item?.avatar : '/static/massage/Acting3.png'" alt="" class="msg_icon"
-						v-else-if="item.userType == 'business'" mode="aspectFill" />
-					<!-- 客服 -->
-					<image :src="item?.avatar" alt="" class="msg_icon" mode="aspectFill" v-else />
-				</view>
+			<view class="msg_item" @click="toDetails(buildChatUrl(item), item.userId)"
+				v-for="(item, index) in friendListView" :key="item.userId || index">
+				<image :src="displayAvatar(item)" alt="" class="msg_icon" mode="aspectFill" />
 				<view class="main">
 					<view class="msg_list_head">
-						<view class="msg_title" v-if="item?.userType == 'customer'">
-							{{ $t('客服') }}
-						</view>
-						<view class="msg_title" v-else-if="item?.userType == 'business'">
-							{{ $t('业务经理') }}
-						</view>
-						<view class="msg_title" v-else>
-							{{ item?.userName }}
+						<view class="msg_title">
+							{{ displayName(item) }}
 						</view>
 						<view class="msg_time">
-							{{ item.lastMessage?.time ? formatTimestamp(item.lastMessage?.time) : '' }}
+							{{ item.lastMessage?.sendTime ? timeFormat(item.lastMessage?.sendTime) : '' }}
 						</view>
 					</view>
-					<view class="msg_title2" v-if="!item.lastMessage?.isRevoke">
-						<view v-if="item.lastMessage?.type == 'image'">[{{ $t('图片') }}]</view>
-						<view v-html="item.lastMessage?.body.tips || item.lastMessage?.body.text || ''" v-else>
-						</view>
+					<view class="msg_title2" v-if="item?.lastMessage">
+						<view v-if="item?.lastMessage?.type == 1">[{{ $t('图片') }}]</view>
+						<view v-else v-html="isLoading ? $t('正在获取最新消息') : (item?.lastMessage?.content ?? '')"></view>
 					</view>
-					<view class="msg_title2" v-else>
-						<view>
-							{{ $t('recalled a message') }}
-						</view>
-					</view>
-					<view :class="item.unread?.toString().length > 1 ? 'badge2' : 'badge'" v-if="item?.unread">
-						{{ item.unread?.length > 2 ? '99+' : item?.unread }}
-					</view>
+					<view class="badge" v-if="item.haveNewMsg"></view>
 				</view>
 			</view>
-			<!-- </scroll-view> -->
 		</view>
-
 	</customnavbar>
 	<contactWay />
 </template>
 
 <script>
-import {
-	format
-} from 'date-fns';
+import { format } from 'date-fns';
 import customnavbar from '@/component/custom-navbar/custom-navbar.vue'
 import contactWay from '@/components/contactWay/contactWay.vue';
-import {
-	userInfoApi
-} from "@/common/api/users.js";
-import {
-	imListApi,
-	messageNewApi
-} from "@/common/api/message.js";
+import { userInfoApi } from "@/common/api/users.js";
+import { imListApi, messageNewApi, messageListApi } from "@/common/api/message.js";
+import { messageBadgeManager } from '@/common/api/messageBadge.js';
+
+// 好友默认头像（客服 / 代理 / 普通好友）
+const DEFAULT_AVATAR = {
+	customer: '/static/massage/Customer service2.png',
+	business: '/static/massage/Acting3.png',
+	direct: '/static/default-avatar.png'
+}
+
 export default {
 	components: {
 		customnavbar,
@@ -92,83 +65,105 @@ export default {
 	},
 	data() {
 		return {
+			isLoading: false,
 			friendList: [],
-			msgList: [],
-			page: {
-				pageNum: 1,
-				pageSize: 10
+			newSystemMessage: {
+				isRead: true
 			},
-			imToken: '',
-			newSystemMessage: {},
-			isRefreshing: false
+			// 有未读消息的用户 id 集合（来自 /app/im/messages/unread/exists）
+			unreadUserIdSet: new Set(),
+			_unsubBadge: null
 		}
 	},
-	onLoad() {
-		// this.$yeIM.getInstance().addEventListener(this.$yeIMDefines.EVENT.CONVERSATION_LIST_CHANGED, (list) => {
-		// 	setTimeout(() => {
-		// 		this.getNotice()
-		// 	}, 0)
-		// });
+	created() {
+		// 订阅：unreadUserIdSet 变化时（refresh / clearLocal 后）自动重渲染
+		this._unsubBadge = messageBadgeManager.onUnreadUsersChange((ids) => {
+			this.unreadUserIdSet = ids
+		})
+	},
+	beforeUnmount() {
+		if (this._unsubBadge) {
+			this._unsubBadge()
+			this._unsubBadge = null
+		}
+	},
+	computed: {
+		// 会话列表：把未读红点叠加到好友列表上
+		friendListView() {
+			const set = this.unreadUserIdSet
+			return (this.friendList || []).map((f) => ({
+				...f,
+				haveNewMsg: set.has(String(f.userId))
+			}))
+		}
 	},
 	onShow() {
 		this.getUserInfo()
-		// 撤回消息监听
-		// this.$yeIM.getInstance().addEventListener(this.$yeIMDefines.EVENT.MESSAGE_REVOKED, (res) => {
-		// 	this.$yeIM.getInstance().disConnect();
-
-		// 	setTimeout(() => {
-		// 		try {
-		// 			// 1. 使用 uni 跨端 API 获取所有存储键名（替代浏览器的 localStorage）
-		// 			const storageInfo = uni.getStorageInfoSync();
-		// 			const allKeys = storageInfo.keys; // 所有存储键的数组
-
-		// 			// 2. 遍历筛选出以 "yeim:messageList:" 开头的键
-		// 			allKeys.forEach(key => {
-		// 				if (key.startsWith('yeim:messageList:')) {
-		// 					uni.removeStorageSync(key); // 3. 删除目标缓存（跨端方法）
-		// 				}
-		// 			});
-
-		// 			// 4. 延迟调用 getMsgList()，确保缓存删除完成（避免时机过短）
-		// 			setTimeout(() => {
-		// 				this.getNotice();
-		// 			}, 300);
-		// 		} catch (err) {
-		// 			// 捕获存储操作异常（如权限问题）
-		// 			console.error('删除撤回消息缓存失败:', err);
-		// 		}
-		// 	}, 100)
-		// });
+		this.friendList = uni.getStorageSync('imList') ?? []
+		messageBadgeManager.refresh()
 	},
 	methods: {
-		// 下拉刷新
-		async onRefresh() {
-			this.isRefreshing = true
-			this.page.pageNum = 1
-			await this.getNotice()
-			setTimeout(() => {
-				this.isRefreshing = false
-			}, 500)
+		timeFormat(timestamp) {
+			if (!timestamp) return ''
+			return format(new Date(timestamp), 'yyyy-MM-dd HH:mm:ss')
+		},
+		// 会话标题：客服 / 业务经理 / 好友昵称
+		displayName(item) {
+			if (item?.userType == 'customer') return this.$t('客服')
+			if (item?.userType == 'business') return this.$t('业务经理')
+			return item?.userName || '--'
+		},
+		// 会话头像：优先用后端返回的头像，否则用角色默认图
+		displayAvatar(item) {
+			if (item?.avatar) return item.avatar
+			return DEFAULT_AVATAR[item?.userType] || DEFAULT_AVATAR.direct
+		},
+		// 进入聊天详情页，带上昵称与头像，避免详情页再查一次用户信息
+		buildChatUrl(item) {
+			const name = encodeURIComponent(this.displayName(item))
+			const avatar = encodeURIComponent(this.displayAvatar(item))
+			return `/pages/MessagePage/personMessagePage?id=${item.userId}&name=${name}&avatar=${avatar}`
 		},
 		getImList() {
-			imListApi(this.userInfo.userId).then(res => {
-				this.friendList = res.data.userList
-				this.imToken = res.data.token
-				uni.setStorageSync('imToken', res.data.token)
-				this.getNotice()
+			imListApi().then(res => {
+				this.isLoading = true
+				const userList = res.data?.userList || []
+				if (!userList.length) {
+					this.friendList = []
+					uni.setStorageSync('imList', [])
+					this.isLoading = false
+					return
+				}
+				const list = []
+				userList.forEach((user, i) => {
+					messageListApi({
+						friendId: user.userId,
+						page: 1,
+						size: 20
+					}).then(msg => {
+						list[i] = { ...user, lastMessage: (msg.rows || [])[0] }
+						const filled = list.filter(Boolean)
+						uni.setStorageSync('imList', filled)
+						this.friendList = filled
+						this.isLoading = false
+					}).catch(() => {
+						list[i] = { ...user, lastMessage: null }
+						const filled = list.filter(Boolean)
+						uni.setStorageSync('imList', filled)
+						this.friendList = filled
+						this.isLoading = false
+					})
+				})
+			}).catch(() => {
+				this.isLoading = false
 			})
 			messageNewApi().then(res => {
-				if (res.data) {
-					this.newSystemMessage = res.data
-				} else {
-					this.newSystemMessage.isRead = true
-				}
+				this.newSystemMessage = res.data || { isRead: true }
+			}).catch(() => {
+				this.newSystemMessage = { isRead: true }
 			})
 		},
 		async getUserInfo() {
-			uni.showLoading({
-				title: this.$t('loading.btn')
-			});
 			try {
 				const res = await userInfoApi();
 				uni.setStorageSync('userInfo', res.data);
@@ -179,107 +174,8 @@ export default {
 				this.$showMessage('warning', err.msg);
 			}
 		},
-		getNotice() {
-			// this.$yeIM.getInstance().getConversationList({
-			// 	page: 1, //页码
-			// 	limit: 999, //每页数量
-			// 	success: (res) => {
-			// 		console.log(res, '会话列表')
-			// 		if (res.code == 200) {
-			// 			this.msgList = res.data;
-			// 			if (this.msgList.length) {
-			// 				this.friendList.map(item => {
-			// 					this.msgList.forEach(i => {
-			// 						if (item.userId == i.conversationId) {
-			// 							item.lastMessage = i.lastMessage
-			// 							item.unread = i.unread
-			// 						}
-			// 					})
-			// 				})
-			// 				// 提取 friendList 中的 userId 并转为字符串（确保类型匹配）
-			// 				const friendUserIds = new Set(this.friendList.map(item => String(item
-			// 					.userId)));
-
-			// 				// 过滤 msgList，找出 conversationId 不在 friendUserIds 中的项
-			// 				const newConversations = this.msgList.filter(msg => {
-			// 					return !friendUserIds.has(msg.conversationId);
-			// 				});
-
-			// 				// console.log(newConversations)
-
-			// 				// 合并
-			// 				newConversations.forEach(item => {
-			// 					this.friendList.push({
-			// 						avatar: item.userInfo.avatarUrl,
-			// 						userName: item.userInfo.nickname,
-			// 						lastMessage: item.lastMessage,
-			// 						unread: item.unread,
-			// 						userType: 'direct',
-			// 						userId: +item.conversationId
-			// 					})
-			// 				})
-
-			// 				// 排序 friendList
-			// 				this.friendList.sort((a, b) => {
-			// 					const aTime = a.lastMessage?.time ? new Date(a.lastMessage?.time)
-			// 						.getTime() : -Infinity;
-			// 					const bTime = b.lastMessage?.time ? new Date(b.lastMessage?.time)
-			// 						.getTime() : -Infinity;
-			// 					return bTime - aTime;
-			// 				});
-			// 				uni.hideLoading();
-			// 			}
-			// 		} else {
-			// 			this.$showMessage('warning', this.$t('获取聊天记录失败请重试'));
-			// 			uni.hideLoading();
-			// 		}
-			// 	},
-			// 	fail: (err) => {
-			// 		console.log(err)
-			// 		if (err.code == 10003) {
-			// 			let token = this.imToken || uni.getStorageSync('imToken')
-			// 			this.$yeIM.getInstance().connect({
-			// 				userId: this.userInfo.userId,
-			// 				token,
-			// 				success: (response) => {
-			// 					if (response.code == 200) {
-			// 						this.getNotice()
-			// 					}
-			// 				},
-			// 				fail: (err) => {
-			// 					console.log(err);
-			// 					uni.hideLoading();
-			// 				}
-			// 			});
-			// 		}
-			// 	}
-			// });
-		},
-		async toDetails(url, id) {
-			if (id) {
-				// this.$yeIM.getInstance().clearConversationUnread(id)
-			}
-			uni.navigateTo({
-				url
-			})
-			// uni.navigateTo({
-			// 	url: '/pages/MessagePage/personMessagePage'
-			// })
-		},
-		// 时间格式化
-		formatTimestamp(timestamp) {
-			const date = new Date(timestamp);
-
-			// 转换为 Africa/Accra 时区（UTC+0）
-			const utcYear = date.getUTCFullYear();
-			const utcMonth = String(date.getUTCMonth() + 1).padStart(2, '0');
-			const utcDay = String(date.getUTCDate()).padStart(2, '0');
-			const utcHours = String(date.getUTCHours()).padStart(2, '0');
-			const utcMinutes = String(date.getUTCMinutes()).padStart(2, '0');
-			const utcSeconds = String(date.getUTCSeconds()).padStart(2, '0');
-
-			// 组合成 yyyy-MM-dd HH:mm:ss 格式
-			return `${utcYear}-${utcMonth}-${utcDay} ${utcHours}:${utcMinutes}:${utcSeconds}`;
+		toDetails(url) {
+			uni.navigateTo({ url })
 		}
 	}
 }
@@ -318,8 +214,8 @@ export default {
 		justify-content: center;
 		color: #FFFFFF;
 		background-color: #fa5151;
-		width: 40rpx;
-		height: 40rpx;
+		width: 30rpx;
+		height: 30rpx;
 		border-radius: 50%;
 		font-size: 20rpx;
 	}
@@ -364,7 +260,6 @@ export default {
 	height: 112rpx;
 	background: #EBF5FF;
 	border-radius: 50%;
-	/* margin-right: 30rpx; */
 }
 
 .msg_list_head {
@@ -381,10 +276,6 @@ export default {
 		text-align: left;
 		font-style: normal;
 		white-space: nowrap;
-		// display: -webkit-box;
-		// -webkit-box-orient: vertical;
-		// -webkit-line-clamp: 1;
-		// overflow: hidden;
 	}
 
 }

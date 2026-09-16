@@ -271,6 +271,8 @@ function requestWithAuth(params, resolve, reject, retried = false) {
 	});
 }
 
+export { base_url };
+
 export default (params) => {
 	return new Promise((resolve, reject) => {
 		requestWithAuth(params, resolve, reject, false);

@@ -5,6 +5,7 @@ import {
 import {
 	versionApi
 } from "@/common/api/home.js";
+import { messageBadgeManager } from '@/common/api/messageBadge.js';
 export default {
 	onLaunch: function (options) {
 		// #ifdef H5
@@ -65,6 +66,8 @@ export default {
 	},
 	onShow: function () {
 		console.log('App onShow')
+		// 刷新 IM 未读，驱动右上角消息红点 / 会话列表红点
+		messageBadgeManager.refresh()
 		settingsApi().then((res) => {
 			const settings = res.data || {}
 			uni.setStorageSync('settings', settings)
