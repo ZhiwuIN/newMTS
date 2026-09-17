@@ -42,9 +42,9 @@ export function incomeDetailApi() {
 }
 
 // 我的明细(下半部分)
-export function incomeMembersApi() {
+export function incomeMembersApi(page) {
 	return request({
-		url: '/app/team/income-members',
+		url: '/app/team/income-members?pageNum=' + page.pageNum + '&pageSize=' + page.pageSize,
 		method: 'get',
 	})
 }
@@ -58,9 +58,9 @@ export function incomeDetailSonApi(subordinateId) {
 }
 
 // 团队成员明细(下半部分)
-export function incomeMembersSonApi(subordinateId) {
+export function incomeMembersSonApi(subordinateId, page) {
 	return request({
-		url: `/app/team/income-members/${subordinateId}`,
+		url: `/app/team/income-members/${subordinateId}?pageNum=${page.pageNum}&pageSize=${page.pageSize}`,
 		method: 'get',
 	})
 }

@@ -69,6 +69,12 @@ export default {
 		return {
 			incomeDetail: {},
 			incomeMembers: [],
+			page: {
+				pageNum: 1,
+				pageSize: 10
+			},
+			loading: false,
+			hasMore: true,
 			themeColor: '#0145f1',
 			currency: '',
 		}
@@ -112,8 +118,16 @@ export default {
 	onLoad(options) {
 		this.uid = options.uid
 		this.getIncomeDetail()
+		this.page.pageNum = 1
+		this.hasMore = true
 		this.getIncomeMembers()
 		this.currency = (uni.getStorageSync('settings') || {}).currency || '';
+	},
+	onReachBottom() {
+		if (!this.loading && this.hasMore) {
+			this.page.pageNum++
+			this.getIncomeMembers()
+		}
 	},
 	methods: {
 		getIncomeDetail() {
@@ -122,8 +136,20 @@ export default {
 			})
 		},
 		getIncomeMembers() {
-			incomeMembersSonApi(this.uid).then(res => {
-				this.incomeMembers = res.data.rows
+			this.loading = true
+			incomeMembersSonApi(this.uid, this.page).then(res => {
+				const data = res.data || {}
+				const rows = data.rows || []
+				this.incomeMembers = this.page.pageNum === 1
+					? rows
+					: this.incomeMembers.concat(rows)
+				this.hasMore = data.total == null
+					? rows.length === this.page.pageSize
+					: this.incomeMembers.length < Number(data.total)
+			}).catch(() => {
+				if (this.page.pageNum > 1) this.page.pageNum--
+			}).finally(() => {
+				this.loading = false
 			})
 		}
 	}

@@ -1,7 +1,8 @@
 <template>
 	<customnavbar :title="pageTitle" backgroundStr="url('/static/task/background.png') top left/100%  no-repeat"
 		@mtop='mtop'>
-		<view class="task-page" :style="topStyle2">
+		<!-- :style="topStyle2" -->
+		<view class="task-page">
 			<!-- 顶部数据卡片 -->
 			<view class="task_top_card" :style="topStyle">
 				<view class="data_box">
@@ -250,12 +251,20 @@ export default {
 		background: #fff;
 
 		.uni-collapse-item__title {
+			position: relative;
 			flex-direction: column;
 			align-items: end;
-			padding-bottom: 30rpx;
+			padding-bottom: 0;
 		}
 
-		.uni-collapse-item--animation {}
+		.uni-collapse-item--animation {
+			position: absolute;
+			bottom: 140rpx;
+			right: 32rpx;
+			.uni-icons.uniui-bottom {
+				color: #246bfe !important;
+			}
+		}
 	}
 }
 
@@ -268,9 +277,11 @@ export default {
 		box-sizing: border-box;
 		// width: 100%;
 		// background: rgba(255, 255, 255, 0.8);
-		border-top: 2rpx solid #F4F4F4;
+		// border-top: 2rpx solid #F4F4F4;
+		background-color: #eef5ff;
 		margin: 40rpx;
 		margin-top: 0;
+		padding: 0 16rpx;
 		// padding-bottom: 80rpx;
 
 		.title {
@@ -280,7 +291,8 @@ export default {
 			color: #000000;
 			text-align: center;
 			font-style: normal;
-			margin: 20rpx 0 14rpx;
+			padding: 20rpx 0 14rpx;
+			background-color: #eef5ff;
 		}
 
 		.row {
@@ -334,7 +346,7 @@ export default {
 
 .postmanage_data_box {
 	padding: 40rpx;
-	padding-bottom: 20rpx;
+	padding-bottom: 0;
 
 	.postmanage_box {
 		display: flex;
@@ -379,7 +391,7 @@ export default {
 
 	.main_box {
 		background: #eef5ff;
-		border-radius: 10rpx;
+		border-radius: 10rpx 10rpx 0 0;
 		padding: 20rpx 30rpx;
 
 		.title {
@@ -438,6 +450,7 @@ export default {
 	display: flex;
 	flex-direction: column;
 	width: 100%;
+	padding-bottom: 32rpx;
 
 	.task_top_card {
 		width: 100%;

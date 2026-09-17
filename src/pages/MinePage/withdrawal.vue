@@ -762,10 +762,11 @@ export default {
 .account_box {
 	height: 112rpx;
 	background: #FFFFFF;
-	box-shadow: 0rpx 16rpx 32rpx 4rpx rgba(119, 154, 241, 0.2);
-	border-radius: 24rpx;
+	// box-shadow: 0rpx 16rpx 32rpx 4rpx rgba(119, 154, 241, 0.2);
+	border-radius: 16rpx;
 	display: flex;
 	align-items: center;
+	border: 2rpx solid rgb(228, 228, 228);
 	padding: 0 34rpx;
 	margin-top: 38rpx;
 	font-family: "DINPro-Medium", sans-serif;

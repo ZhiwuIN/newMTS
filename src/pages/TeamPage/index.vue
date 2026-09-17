@@ -2,24 +2,26 @@
 	<customnavbar :title="pageTitle" backgroundStr="#0145f1" :whiteTitle="true" @mtop="mtop">
 		<view class="team-page">
 			<view class="hero" :style="topStyle">
-				<view class="hero-copy">{{$t('teamPage.accumulatedRewards')}}</view>
+				<view class="hero-copy">{{ $t('teamPage.accumulatedRewards') }}</view>
 				<view class="hero-amount">{{ formatMoney(teamInfo.totalIncome) }}{{ currency }}<view class="today">
-						{{$t('teamPage.todayPlus', { amount: formatMoney(teamInfo.todayIncome) })}}</view>
+						{{ $t('teamPage.todayPlus', { amount: formatMoney(teamInfo.todayIncome) }) }}</view>
 				</view>
 				<view class="hero-actions">
-					<view class="invite-button" @click="toPage('/pages/HomePage/teamExpansion')">{{$t('teamPage.inviteFriends')}}</view>
-					<view class="detail-button" @click="toPage('/pages/TeamPage/RewardDetails')">{{$t('teamPage.rewardDetails')}}</view>
+					<view class="invite-button" @click="toPage('/pages/HomePage/teamExpansion')">
+						{{ $t('teamPage.inviteFriends') }}</view>
+					<view class="detail-button" @click="toPage('/pages/TeamPage/RewardDetails')">
+						{{ $t('teamPage.rewardDetails') }}</view>
 				</view>
 				<view class="tip-card" @click="showTeamExplain = true">
 					<view>
-						<view class="tip-title">{{$t('teamPage.increaseRevenue')}}</view>
-						<view class="tip-description">{{$t('teamPage.expandForRewards')}}</view>
+						<view class="tip-title">{{ $t('teamPage.increaseRevenue') }}</view>
+						<view class="tip-description">{{ $t('teamPage.expandForRewards') }}</view>
 					</view>
-					<view class="tip-link">{{$t('teamPage.goCheck')}}</view>
+					<view class="tip-link">{{ $t('teamPage.goCheck') }}</view>
 				</view>
 			</view>
 			<view class="page-body">
-				<view class="section-title">{{$t('teamPage.teamOverview')}}</view>
+				<view class="section-title">{{ $t('teamPage.teamOverview') }}</view>
 				<view class="overview-card">
 					<view class="chart-side">
 						<view class="donut" :style="donutStyle">
@@ -28,11 +30,12 @@
 								<text class="donut-total">{{ teamSize }}</text>
 								<!-- 今日团队新增 -->
 								<text class="donut-plus">+{{ newToday }}</text>
-								<text class="donut-label">{{$t('teamPage.myTeam')}}</text>
+								<text class="donut-label">{{ $t('teamPage.myTeam') }}</text>
 							</view>
 						</view>
-						<view class="chart-legend"><text class="member-color">{{ vipMemberCount }} {{$t('teamPage.vip')}}</text><text
-								class="intern-color">{{ ordinaryMemberCount }} {{$t('teamPage.ordinary')}}</text></view>
+						<view class="chart-legend"><text class="member-color">{{ vipMemberCount }}
+								{{ $t('teamPage.vip') }}</text><text class="intern-color">{{ ordinaryMemberCount }}
+								{{ $t('teamPage.ordinary') }}</text></view>
 					</view>
 					<view class="level-list">
 						<view class="level-item" v-for="item in levelItems" :key="item.name">
@@ -58,22 +61,32 @@
 					<view v-for="(tab, index) in tabs" :key="tab" class="tab" :class="{ active: currentTab === index }"
 						@click="switchTab(index)">{{ tab }}</view>
 				</view>
-				<view class="user-list">
+				<view class="user-list" v-if="memberList.length">
 					<view class="user-card" v-for="(user, index) in memberList" :key="user.uid || index"
 						@click="toDetails(user.uid)">
 						<image :src="user.image" class="user-avatar" mode="aspectFill" />
 						<view class="user-info">
 							<view class="user-name">{{ user.username }}</view>
-							<view class="user-tag" :class="tagClass(user.type)">{{ user.type || $t('teamPage.member') }}</view>
+							<view class="user-tag" :class="tagClass(user.type)">{{ user.type || $t('teamPage.member') }}
+							</view>
 						</view>
 						<view class="reward-badge" :class="tagClass(user.type)">
 							<view>{{ formatMoney(user.income) }}{{ currency }}</view>
-							<text>{{ user.teamLevel === 'A' ? $t('teamPage.directLevel', { level: 'A' }) : $t('teamPage.level', { level: user.teamLevel }) }}</text>
+							<text>{{ user.teamLevel === 'A' ? $t('teamPage.directLevel', { level: 'A' }) :
+								$t('teamPage.level', { level: user.teamLevel }) }}</text>
 						</view>
 					</view>
 					<listbottom :hasMore="hasMore" :loading="loading" :noData="nodata"
 						image="/static/default/No content.png" :title="$t('default.NoContent')"
 						:text="$t('default.NoContentText')" />
+				</view>
+				<view class="default_box" v-else>
+					<image src="/static/mine/applicationRecord/nullPositionManage.png" mode="" class="default_image">
+					</image>
+					<view class="text1">{{ $t('暂无成员') }}</view>
+					<view class="text2">{{ $t('团队越大, 奖励越丰富') }}</view>
+					<view class="btn" @click="toPage('/pages/HomePage/teamExpansion')">{{ $t('teamPage.inviteFriends')
+					}}</view>
 				</view>
 			</view>
 		</view>
@@ -88,7 +101,6 @@ import customnavbar from '@/component/custom-navbar/custom-navbar.vue';
 import teamExplainPopup from '@/components/teamExplainPopup/index.vue';
 import listbottom from '@/component/list-bottom/list_bottom.vue';
 import { teamApi, teamMemberApi } from '@/common/api/team.js'
-
 export default {
 	components: {
 		customnavbar,
@@ -183,6 +195,12 @@ export default {
 		this.getTeamInfo();
 		this.searchMember()
 	},
+	onReachBottom() {
+		if (!this.loading && this.hasMore) {
+			this.page.pageNum++;
+			this.getMember()
+		}
+	},
 	methods: {
 		formatMoney(v) {
 			let n = Number(v || 0);
@@ -206,7 +224,11 @@ export default {
 					l = d.rows || [];
 				this.memberList = this.page.pageNum === 1 ? l : this.memberList.concat(l);
 				this.nodata = d.total === 0;
-				this.hasMore = this.memberList.length < d.total
+				this.hasMore = d.total == null
+					? l.length === this.page.pageSize
+					: this.memberList.length < Number(d.total)
+			}).catch(() => {
+				if (this.page.pageNum > 1) this.page.pageNum--
 			}).finally(() => {
 				this.loading = false
 			})
@@ -225,12 +247,6 @@ export default {
 		},
 		toDetails(uid) {
 			if (uid) uni.navigateTo({ url: '/pages/TeamPage/details?uid=' + uid })
-		},
-		onReachBottom() {
-			if (!this.loading && this.hasMore) {
-				this.page.pageNum++;
-				this.getMember()
-			}
 		},
 		tagClass(t) {
 			return String(t || '').toLowerCase().includes('intern') ? 'intern' : 'member'
@@ -617,6 +633,41 @@ export default {
 					color: #ff6c26;
 				}
 			}
+		}
+	}
+
+	.default_box {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 24rpx;
+
+		.default_image {
+			width: 466rpx;
+			height: 466rpx;
+		}
+
+		.text1 {
+			font-family: MiSans;
+			font-size: 32rpx;
+			font-weight: 500;
+		}
+
+		.text2 {
+			font-family: MiSans;
+			font-size: 28rpx;
+			color: #A1A1A1;
+		}
+
+		.btn {
+			font-family: MiSans;
+			font-size: 24rpx;
+			padding: 16rpx 24rpx;
+			min-width: 442rpx;
+			border-radius: 8rpx;
+			background: #0145F1;
+			text-align: center;
+			color: #fff;
 		}
 	}
 }

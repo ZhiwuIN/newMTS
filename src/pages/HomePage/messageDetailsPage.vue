@@ -79,7 +79,7 @@
 			font-family: DINPro, DINPro;
 			font-weight: 400;
 			font-size: 28rpx;
-			color: #1C2D57;
+			color: #000;
 			line-height: 36rpx;
 			text-align: justify;
 			font-style: normal;

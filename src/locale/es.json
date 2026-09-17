@@ -1079,5 +1079,8 @@
 	"invitePage.copied": "Copiado",
 	"invitePage.posterLoading": "póster",
 	"invitePage.posterSaveSuccess": "Póster guardado",
-	"invitePage.posterDownloadFail": "Error al descargar póster"
+	"invitePage.posterDownloadFail": "Error al descargar póster",
+	"暂无成员": "No members",
+	"团队越大, 奖励越丰富": "Larger team brings more rewards",
+	"chat": "chat"
 }

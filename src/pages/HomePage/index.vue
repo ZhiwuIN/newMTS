@@ -77,7 +77,7 @@
 								</view>
 								<view class="growth-meta">
 									<view class="meta-item"><text class="meta-value">{{ item.totalRevenue || '--'
-											}}</text><text class="meta-label">{{ $t('home.productDeadline') }}</text>
+									}}</text><text class="meta-label">{{ $t('home.productDeadline') }}</text>
 									</view>
 									<view class="meta-item"><text class="meta-value">{{
 										getStartingAmount(item.startingAmount, 0) }}{{ currency
@@ -240,16 +240,25 @@
 
 		<!-- 联系方式弹窗 -->
 		<contactWay ref="contactWay" />
+
+		<!-- 顶部弹出消息 -->
+		<messagePopup v-model:isShow="isShowMessage" :data="msgData" @getMessageNoticeApi="getMessageNoticeApi">
+		</messagePopup>
+
+		<!-- 悬浮聊天 -->
+		 <suspensionMsg />
 	</view>
 </template>
 
 <script>
 import homenavbar from '@/component/home-navbar/home-navbar.vue'
 import contactWay from '@/components/contactWay/contactWay.vue';
+import suspensionMsg from '@/components/suspension_msg/index.vue';
 import { getArticleList } from '@/common/api/article.js'
 import { productRecommendApi } from '@/common/api/product.js'
 import ArticlePostCard from '@/components/article-post-card/article-post-card.vue'
 import { getFirstTextTagWithEllipsis, showMessage } from '@/utils/utils'
+import messagePopup from '@/component/message-popup/message-popup.vue';
 import {
 	activityCenterApi
 } from '@/common/api/activity.js'
@@ -266,7 +275,8 @@ import {
 import {
 	settingsPopupsApi,
 	activeCenterTopApi,
-	menuListApi
+	menuListApi,
+	messageNoticeApi
 } from "@/common/api/home.js";
 import {
 	formatRichText,
@@ -276,7 +286,9 @@ export default {
 	components: {
 		homenavbar,
 		ArticlePostCard,
-		contactWay
+		contactWay,
+		messagePopup,
+		suspensionMsg
 	},
 	data() {
 		return {
@@ -329,10 +341,22 @@ export default {
 			bigGGScrolledToBottom: false, // 是否滚动到底部
 			bigGGContainerHeight: 0, // 公告容器可视高度
 			popWindowContent: '',
-			activeCenterTop: []
+			activeCenterTop: [],
+			// 顶部弹出消息
+			msgData: {},
+			isShowMessage: false
 		}
 	},
 	methods: {
+		// 顶部消息通知
+		getMessageNoticeApi() {
+			messageNoticeApi().then(res => {
+				if (res.data?.id) {
+					this.msgData = res.data
+					this.isShowMessage = true
+				}
+			})
+		},
 		prompt_confirm2() {
 			this.$refs.promptpopup2.close()
 		},
@@ -785,6 +809,7 @@ export default {
 				this.$showMessage('warning', err.msg);
 			}
 		})
+		this.getMessageNoticeApi()
 	},
 	mounted() {
 		this.currency = uni.getStorageSync('settings').currency || ''
@@ -1181,6 +1206,7 @@ export default {
 	border: 2rpx solid $themeColor;
 	font-size: 24rpx;
 	color: $themeColor;
+
 	&.Recharge {
 		color: #fff;
 		background-color: #000;

@@ -7,8 +7,8 @@
                 <rich-text :nodes="teamDescription" class="common-info"></rich-text>
             </view>
             <view class="btn_box">
-                <view class="btn1" @click="toPage('/pages/HomePage/teamExpansion')">Invite Friends</view>
-                <view class="btn2" @click="toTabBarPage('/pages/LevelPage/index')">Upgrade Benefits</view>
+                <view class="btn1" @click="toPage('/pages/HomePage/teamExpansion')">{{ $t('Invite Friends') }}</view>
+                <!-- <view class="btn2" @click="toTabBarPage('/pages/LevelPage/index')">Upgrade Benefits</view> -->
             </view>
         </view>
     </view>
@@ -132,7 +132,7 @@ export default {
             left: 0;
             bottom: 0;
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(1, 1fr);
             gap: 14rpx;
             width: 100vw;
             padding: 24rpx;

@@ -2,20 +2,20 @@
     <customnavbar :title="$t('teamPage.rewardDetails')" white-title :background-str="themeColor">
         <view class="page">
             <view class="summary">
-                <view class="summary__subtitle">{{$t('teamPage.accumulatedRewards')}}</view>
+                <view class="summary__subtitle">{{ $t('teamPage.accumulatedRewards') }}</view>
                 <view class="summary__amount">{{ formatMoney(teamInfo.totalIncome) }}{{ currency }}</view>
             </view>
 
             <view class="report-card">
                 <view class="report-card__metrics">
                     <view class="metric">
-                        <view class="metric__title">{{$t('teamPage.sevenDayRevenue')}}</view>
+                        <view class="metric__title">{{ $t('teamPage.sevenDayRevenue') }}</view>
                         <view class="metric__value">{{ incomeDetail?.lastSevenDaysIncome }}
                             <!-- <text>+18.6%</text> -->
                         </view>
                     </view>
                     <view class="metric">
-                        <view class="metric__title">{{$t('teamPage.monthlyIncome')}}</view>
+                        <view class="metric__title">{{ $t('teamPage.monthlyIncome') }}</view>
                         <view class="metric__value">{{ incomeDetail?.currentMonthIncome }}
                             <!--  <text>+18.6%</text> -->
                         </view>
@@ -26,8 +26,8 @@
             </view>
 
             <view class="dynamics_box">
-                <view class="dynamics-title">{{$t('teamPage.teamDynamics')}}</view>
-                <view class="dynamics-list">
+                <view class="dynamics-title">{{ $t('teamPage.teamDynamics') }}</view>
+                <view class="dynamics-list" v-if="incomeMembers.length">
                     <view class="dynamics-item" v-for="(item, index) in incomeMembers" :key="index">
                         <view>
                             <view class="dynamics-item__name">{{ item.username }} ({{ item.teamLevel }})</view>
@@ -38,6 +38,12 @@
                             <view class="dynamics-item__time">{{ item.joinTime }}</view>
                         </view>
                     </view>
+                </view>
+                <view class="default_box" v-else>
+                    <image src="/static/mine/applicationRecord/nullPositionManage.png" mode="" class="default_image">
+                    </image>
+                    <view class="text1">{{ $t('暂无成员') }}</view>
+                    <view class="text2">{{ $t('团队越大, 奖励越丰富') }}</view>
                 </view>
             </view>
         </view>
@@ -64,6 +70,12 @@ export default {
         return {
             incomeDetail: {},
             incomeMembers: [],
+            page: {
+                pageNum: 1,
+                pageSize: 10
+            },
+            loading: false,
+            hasMore: true,
             themeColor: '#0145f1',
             currency: '',
             teamInfo: {}
@@ -108,8 +120,16 @@ export default {
     onShow() {
         this.getTeamInfo()
         this.getIncomeDetail()
+        this.page.pageNum = 1
+        this.hasMore = true
         this.getIncomeMembers()
         this.currency = (uni.getStorageSync('settings') || {}).currency || '';
+    },
+    onReachBottom() {
+        if (!this.loading && this.hasMore) {
+            this.page.pageNum++
+            this.getIncomeMembers()
+        }
     },
     methods: {
         getTeamInfo() {
@@ -123,8 +143,20 @@ export default {
             })
         },
         getIncomeMembers() {
-            incomeMembersApi().then(res => {
-                this.incomeMembers = res.data.rows
+            this.loading = true
+            incomeMembersApi(this.page).then(res => {
+                const data = res.data || {}
+                const rows = data.rows || []
+                this.incomeMembers = this.page.pageNum === 1
+                    ? rows
+                    : this.incomeMembers.concat(rows)
+                this.hasMore = data.total == null
+                    ? rows.length === this.page.pageSize
+                    : this.incomeMembers.length < Number(data.total)
+            }).catch(() => {
+                if (this.page.pageNum > 1) this.page.pageNum--
+            }).finally(() => {
+                this.loading = false
             })
         },
         formatMoney(v) {
@@ -266,6 +298,41 @@ export default {
             font-size: 32rpx;
             line-height: 42rpx;
             white-space: nowrap;
+        }
+    }
+
+    .default_box {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 24rpx;
+
+        .default_image {
+            width: 466rpx;
+            height: 466rpx;
+        }
+
+        .text1 {
+            font-family: MiSans;
+            font-size: 32rpx;
+            font-weight: 500;
+        }
+
+        .text2 {
+            font-family: MiSans;
+            font-size: 28rpx;
+            color: #A1A1A1;
+        }
+
+        .btn {
+            font-family: MiSans;
+            font-size: 24rpx;
+            padding: 16rpx 24rpx;
+            min-width: 442rpx;
+            border-radius: 8rpx;
+            background: #0145F1;
+            text-align: center;
+            color: #fff;
         }
     }
 }

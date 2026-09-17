@@ -20,7 +20,7 @@
 			<!-- 消息入口：右上角消息图标，有未读时显示红点 -->
 			<view class="message-entry" v-if="isHome" @click="toMsg">
 				<image :lazy-load="true" :src="messageSrc" class="right-icon message"></image>
-				<view class="redDot" v-if="unreadCount > 0"></view>
+				<!-- <view class="redDot" v-if="unreadCount > 0"></view> -->
 			</view>
 			<image :lazy-load="true" src="/static/home/Record.png" class="right-icon isFinancePage" v-if="isFinancePage"
 				@click="toApplication('/pages/MinePage/financePage')">
@@ -172,7 +172,8 @@ export default {
 		},
 		toMsg() {
 			uni.navigateTo({
-				url: '/pages/MessagePage/index'
+				// url: '/pages/MessagePage/index'
+				url: '/pages/HomePage/messagePage?type=system'
 			})
 		},
 		toApplication(url) {

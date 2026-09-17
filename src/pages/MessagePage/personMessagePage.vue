@@ -695,7 +695,7 @@ export default {
 	align-items: center;
 	gap: 12rpx;
 	color: $themeColor;
-	background-color: $themeColor2;
+	background-color: #e9f3ff;
 	border-radius: 40rpx 0rpx 0rpx 40rpx;
 	padding: 12rpx;
 	font-size: 26rpx;

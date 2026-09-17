@@ -2,7 +2,7 @@
 	<customnavbar :title="$t('pages.Message')">
 		<view class="msg_list">
 			<!-- 系统消息 -->
-			<view class="msg_item" @click="toDetails('/pages/HomePage/messagePage?type=system')">
+			<!-- <view class="msg_item" @click="toDetails('/pages/HomePage/messagePage?type=system')">
 				<image :src="newSystemMessage?.isRead ? '/static/massage/System2.png' : '/static/massage/System1.png'"
 					alt="" class="msg_icon" />
 				<view class="main">
@@ -17,7 +17,7 @@
 					<view class="msg_title2" v-html="newSystemMessage?.title || $t('NoNewsYet')">
 					</view>
 				</view>
-			</view>
+			</view> -->
 			<!-- 我的好友 -->
 			<view class="msg_item" @click="toDetails(buildChatUrl(item), item.userId)"
 				v-for="(item, index) in friendListView" :key="item.userId || index">
@@ -196,9 +196,9 @@ export default {
 .msg_item {
 	position: relative;
 	background: #FFFFFF;
-	box-shadow: 0rpx 22rpx 28rpx -6rpx #E9F3FF;
+	// box-shadow: 0rpx 22rpx 28rpx -6rpx #E9F3FF;
 	border-radius: 24rpx;
-	border: 2rpx solid #F6F6F6;
+	border: 2rpx solid rgb(228, 228, 228);
 	padding: 40rpx;
 	margin-bottom: 30rpx;
 	display: flex;
