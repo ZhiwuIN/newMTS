@@ -23,7 +23,7 @@
 					<view class="list_item" @click="toPage(item.url)" v-for="item in info?.list">
 						<view class="item_img_box">
 							<image :src="item.image" mode="widthFix" class="item_img"></image>
-							<view class="img_productName">{{ item.name }}</view>
+							<!-- <view class="img_productName">{{ item.name }}</view> -->
 						</view>
 						<view class="item_bottom">
 							<view class="item-productName">{{ item.name }}</view>

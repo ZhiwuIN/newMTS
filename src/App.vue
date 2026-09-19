@@ -39,7 +39,7 @@ export default {
 				data.edition_force = res.data.editionForce
 				if (Number(res.data.editionNumber) > Number(inf.versionCode)) {
 					setTimeout(() => {
-						console.log('跳转更新')
+						// console.log('跳转更新')
 						uni.reLaunch({
 							url: '/uni_modules/rt-uni-update/components/rt-uni-update/rt-uni-update?obj=' +
 								JSON.stringify(data),

@@ -11,7 +11,8 @@
       <image class="hero-art" v-else src="/static/level/suspension_img.png" />
     </view>
 
-    <scroll-view class="level-tabs" scroll-x :scroll-into-view="scrollIntoId" scroll-with-animation>
+    <scroll-view class="level-tabs" :class="{ 'is-dragging': tabsDragging }" scroll-x
+      :scroll-into-view="scrollIntoId" scroll-with-animation @mousedown="startTabsDrag">
       <view v-for="(item, index) in tabs" :id="`level-tab-${index}`" :key="item.code" class="level-tab"
         :class="{ active: index === activeIndex }" @click="selectLevel(item.code, index)">
         <text>{{ item.name }}</text><text v-if="index === activeIndex" class="now">{{ $t('levelPage.now') }}</text>
@@ -89,7 +90,17 @@ export default {
       selectedLevelCode: '',
       scrollIntoId: '',
       isLoading: false,
-      currency: ''
+      currency: '',
+      tabsDragging: false,
+      tabsDragMoved: false,
+      tabsDragStartX: 0,
+      tabsDragStartScrollLeft: 0,
+      tabsDragElement: null,
+      suppressTabClick: false,
+      tabsDragMoveHandler: null,
+      tabsDragEndHandler: null,
+      tabsDragRoot: null,
+      tabsDragMouseDownHandler: null
     }
   },
   computed: {
@@ -199,10 +210,118 @@ export default {
     this.initData();
     this.currency = uni.getStorageSync('settings').currency
   },
+  mounted() {
+    this.bindTabsDragListener();
+  },
+  beforeUnmount() {
+    this.unbindTabsDragListener();
+    this.removeTabsDragListeners();
+  },
   methods: {
     selectLevel(code, index) {
+      // A mouse drag also emits click on the tab under the cursor. Do not
+      // change the selected level after the user has just scrolled the tabs.
+      if (this.suppressTabClick) return;
       this.selectedLevelCode = code;
       this.scrollIntoId = `level-tab-${index}`;
+    },
+    bindTabsDragListener() {
+      const root = this.$el?.querySelector?.('.level-tabs');
+      if (!root || this.tabsDragRoot) return;
+
+      this.tabsDragRoot = root;
+      this.tabsDragMouseDownHandler = (event) => this.startTabsDrag(event);
+      // Bind directly to the rendered H5 element. This avoids relying on
+      // scroll-view's component event forwarding, which differs by platform.
+      root.addEventListener('mousedown', this.tabsDragMouseDownHandler);
+    },
+    unbindTabsDragListener() {
+      if (this.tabsDragRoot && this.tabsDragMouseDownHandler) {
+        this.tabsDragRoot.removeEventListener('mousedown', this.tabsDragMouseDownHandler);
+      }
+      this.tabsDragRoot = null;
+      this.tabsDragMouseDownHandler = null;
+    },
+    startTabsDrag(event) {
+      // Only handle the primary mouse button; touch scrolling keeps using the
+      // native scroll-view behavior on phones and tablets.
+      if (event.button !== undefined && event.button !== 0) return;
+      if (this.tabsDragging) return;
+
+      const element = this.getTabsScrollElement(event);
+      if (!element) return;
+
+      this.tabsDragging = true;
+      this.tabsDragMoved = false;
+      this.tabsDragStartX = event.clientX;
+      this.tabsDragStartScrollLeft = element.scrollLeft;
+      this.tabsDragElement = element;
+
+      if (typeof document !== 'undefined') {
+        this.tabsDragMoveHandler = this.moveTabsDrag.bind(this);
+        this.tabsDragEndHandler = this.endTabsDrag.bind(this);
+        document.addEventListener('mousemove', this.tabsDragMoveHandler);
+        document.addEventListener('mouseup', this.tabsDragEndHandler);
+      }
+    },
+    getTabsScrollElement(event) {
+      const source = event.currentTarget || event.target;
+      const root = source?.matches?.('.level-tabs')
+        ? source
+        : source?.closest?.('.level-tabs') || event.target?.closest?.('.level-tabs');
+      if (!root) return null;
+
+      // uni-app H5 renders scroll-view as a custom element containing a
+      // nested .uni-scroll-view div. The nested div is the actual element
+      // whose scrollLeft must be changed during a desktop drag.
+      const candidates = [root, ...(root.querySelectorAll?.('.uni-scroll-view') || [])];
+      const scrollElement = candidates.reverse().find((candidate) => {
+        const overflowX = typeof getComputedStyle === 'function'
+          ? getComputedStyle(candidate).overflowX
+          : '';
+        return overflowX === 'auto' || overflowX === 'scroll';
+      });
+
+      return scrollElement || root;
+    },
+    moveTabsDrag(event) {
+      if (!this.tabsDragging || !this.tabsDragElement) return;
+
+      const deltaX = event.clientX - this.tabsDragStartX;
+      if (Math.abs(deltaX) > 3) this.tabsDragMoved = true;
+      this.tabsDragElement.scrollLeft = this.tabsDragStartScrollLeft - deltaX;
+
+      if (this.tabsDragMoved) event.preventDefault();
+    },
+    endTabsDrag() {
+      if (!this.tabsDragging) return;
+
+      const wasMoved = this.tabsDragMoved;
+      this.removeTabsDragListeners();
+      this.tabsDragging = false;
+      this.tabsDragElement = null;
+
+      if (wasMoved) {
+        this.suppressTabClick = true;
+        // Let the click event generated by mouseup be ignored, then restore
+        // normal tab selection for the next click.
+        setTimeout(() => {
+          this.suppressTabClick = false;
+        }, 0);
+      }
+    },
+    removeTabsDragListeners() {
+      if (typeof document !== 'undefined') {
+        if (this.tabsDragMoveHandler) {
+          document.removeEventListener('mousemove', this.tabsDragMoveHandler);
+        }
+        if (this.tabsDragEndHandler) {
+          document.removeEventListener('mouseup', this.tabsDragEndHandler);
+        }
+      }
+      this.tabsDragMoveHandler = null;
+      this.tabsDragEndHandler = null;
+      this.tabsDragging = false;
     },
     async initData() {
       try {
@@ -378,6 +497,8 @@ export default {
     position: relative;
     z-index: 2;
     white-space: nowrap;
+    cursor: grab;
+    user-select: none;
     padding: 14rpx 24rpx 18rpx;
     padding-right: 0;
     padding-left: 0;
@@ -416,6 +537,10 @@ export default {
       .now {
         font-size: 20rpx;
       }
+    }
+
+    &.is-dragging {
+      cursor: grabbing;
     }
   }
 

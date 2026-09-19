@@ -9,7 +9,7 @@
 			</view>
 			<scroll-view scroll-y :refresher-enabled="true" :refresher-triggered="isRefreshing"
 				@scrolltolower="onReachBottom" @refresherrefresh="onRefresh" :refresher-threshold="120"
-				class="scroll-view-box">
+				class="scroll-view-box" v-if="productList.length">
 				<view class="product-list">
 					<view class="product-item" v-for="(item, index) in productList" :key="index">
 						<!-- @click="toProduct(item.productId)" -->
@@ -66,6 +66,10 @@
 				<listbottom :hasMore="hasMore" :loading="loading" :noData='nodata' image="/static/default/No order.png">
 				</listbottom>
 			</scroll-view>
+			<view v-else class="default_box">
+				<image src="/static/mine/applicationRecord/nullPositionManage.png" mode="" class="default_image">
+				</image>
+			</view>
 		</view>
 	</customnavbar>
 </template>
@@ -181,6 +185,16 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.default_box {
+	display: flex;
+	justify-content: center;
+
+	.default_image {
+		width: 466rpx;
+		height: 466rpx;
+	}
+}
+
 .scroll-view-box {
 	flex: 1; // 自动填充剩余高度
 	overflow-y: auto; // 确保滚动生效

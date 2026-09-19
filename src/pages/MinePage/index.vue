@@ -712,11 +712,12 @@ export default {
 	}
 
 	.guide-title {
+		max-width: 224rpx;
 		font-size: 32rpx;
 		line-height: 36rpx;
 		font-weight: 700;
 		color: #000;
-		white-space: nowrap;
+		word-break: break-all;
 	}
 
 	.guide-subtitle {

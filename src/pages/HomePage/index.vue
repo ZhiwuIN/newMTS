@@ -8,7 +8,7 @@
 						<view>
 							<view class="avatar_box">
 								<image class="avatar" :src="userInfo?.avatar || '/static/default-avatar.png'"></image>
-								<view class="text">
+								<view class="text" @click="toPage3('/pages/LevelPage/index')">
 									{{ $t('Hi') }}, {{ userInfo?.levelName }}
 								</view>
 							</view>
@@ -884,6 +884,8 @@ export default {
 
 // 菜单
 .home_center_box {
+	position: relative;
+	z-index: 2;
 	margin: 24rpx;
 
 	// .center_item_box:nth-child(2) {
@@ -918,7 +920,7 @@ export default {
 	}
 
 	.center_item_t {
-		height: 48rpx;
+		// height: 48rpx;
 		font-family: "DINPro-Regular", sans-serif;
 		font-weight: 400;
 		font-size: 20rpx;
@@ -1512,19 +1514,23 @@ export default {
 
 	.news-card,
 	.publish-card {
-		height: 204rpx;
+		// height: 204rpx;
 		border-radius: 20rpx;
 		overflow: hidden;
 	}
 
 	.news-card {
+		display: flex;
+		flex-direction: column;
+		align-items: start;
 		flex: 1;
 		padding: 20rpx 24rpx;
 		background: #0b49f3;
 		color: #fff;
 
 		.latest {
-			width: 148rpx;
+			// width: 148rpx;
+			padding: 0 24rpx;
 			height: 30rpx;
 			border: 2rpx solid #ffde00;
 			border-radius: 17rpx;
