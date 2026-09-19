@@ -1,5 +1,5 @@
 <template>
-	<customnavbar backgroundStr="#0145f1" :title="pageTitle" @mtop='mtop' :whiteTitle="true">
+	<customnavbar backgroundStr="#000" :title="pageTitle" @mtop='mtop' :whiteTitle="true">
 		<view class="team_expansion_container" :style="topStyle">
 			<view class="hero-copy">
 				<view class="hero-title">{{ $t('invitePage.buildTeam') }}</view>

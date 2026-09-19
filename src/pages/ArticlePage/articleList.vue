@@ -297,7 +297,7 @@ onUnmounted(() => {
     .news-card {
       flex: 1;
       padding: 20rpx 24rpx;
-      background: #0b49f3;
+      background: $themeColor;
       color: #fff;
 
       .latest {

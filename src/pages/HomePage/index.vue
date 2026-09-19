@@ -246,7 +246,7 @@
 		</messagePopup>
 
 		<!-- 悬浮聊天 -->
-		 <suspensionMsg />
+		<suspensionMsg />
 	</view>
 </template>
 
@@ -1202,12 +1202,23 @@ export default {
 }
 
 .withdrawal_btn {
+	// display: flex;
+	// align-items: center;
+	// justify-content: center;
 	border-radius: 8rpx;
-	padding: 13rpx 24rpx;
+	width: 170rpx;
+	padding: 13rpx 0;
 	background: rgba(1, 69, 241, .06);
 	border: 2rpx solid $themeColor;
 	font-size: 24rpx;
 	color: $themeColor;
+	overflow: hidden;
+	white-space: nowrap;
+	text-align: center;
+	text-overflow: ellipsis;
+	display: -webkit-box;
+	-webkit-line-clamp: 1;
+	-webkit-box-orient: vertical;
 
 	&.Recharge {
 		color: #fff;
@@ -1525,7 +1536,7 @@ export default {
 		align-items: start;
 		flex: 1;
 		padding: 20rpx 24rpx;
-		background: #0b49f3;
+		background: $themeColor;
 		color: #fff;
 
 		.latest {

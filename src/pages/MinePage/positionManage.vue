@@ -1,6 +1,6 @@
 <template>
 	<view>
-		<customnavbar :title="pageTitle" backgroundStr="#0145F1" @mtop="mtop" :showBack="true" :whiteTitle="true"
+		<customnavbar :title="pageTitle" backgroundStr="#000" @mtop="mtop" :showBack="true" :whiteTitle="true"
 			:isPositionManage="true">
 			<uv-skeletons :loading="isLoading" :skeleton="skeleton" :style="isLoading ? 'margin: 0 40rpx;' : ''">
 				<view class="positionManage_heradBox" :style="topStyle">

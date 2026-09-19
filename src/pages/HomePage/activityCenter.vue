@@ -151,7 +151,7 @@ export default {
 	.title {
 		font-family: Dela Gothic One;
 		font-size: 40rpx;
-		color: #0052D9;
+		color: $themeColor;
 	}
 
 	.number {

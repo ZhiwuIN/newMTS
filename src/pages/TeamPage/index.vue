@@ -1,5 +1,5 @@
 <template>
-	<customnavbar :title="pageTitle" backgroundStr="#0145f1" :whiteTitle="true" @mtop="mtop">
+	<customnavbar :title="pageTitle" backgroundStr="#000" :whiteTitle="true" @mtop="mtop">
 		<view class="team-page">
 			<view class="hero" :style="topStyle">
 				<view class="hero-copy">{{ $t('teamPage.accumulatedRewards') }}</view>

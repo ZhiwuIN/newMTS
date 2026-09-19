@@ -1,5 +1,5 @@
 <template>
-	<customnavbar :title="pageTitle" backgroundStr="url('/static/task/background.png') top left/100%  no-repeat"
+	<customnavbar backgroundStr="url('/static/task/background.png') top left/100%  no-repeat"
 		@mtop='mtop'>
 		<!-- :style="topStyle2" -->
 		<view class="task-page">

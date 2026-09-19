@@ -141,7 +141,7 @@ export default {
 						page: 1,
 						size: 20
 					}).then(msg => {
-						list[i] = { ...user, lastMessage: (msg.rows || [])[0] }
+						list[i] = { ...user, lastMessage: (msg.data.rows || [])[0] }
 						const filled = list.filter(Boolean)
 						uni.setStorageSync('imList', filled)
 						this.friendList = filled

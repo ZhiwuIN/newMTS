@@ -1,5 +1,5 @@
 <template>
-	<customnavbar :title="pageTitle" @mtop="mtop">
+	<customnavbar @mtop="mtop">
 		<view class="product-container" :style="topStyle">
 			<view class="tabs">
 				<view v-for="(item, index) in tabs" :key="index"

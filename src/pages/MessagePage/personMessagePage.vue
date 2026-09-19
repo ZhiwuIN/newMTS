@@ -229,7 +229,7 @@ export default {
 				size: this.pageSize
 			})
 			// 该接口可能返回 { total, rows }，也可能带 code 包装，这里只取 rows
-			const rows = msg?.rows || []
+			const rows = msg?.data.rows || []
 			const existingIds = new Set((this.msgList || []).map((m) => m.id))
 			const newMsgs = rows.filter((m) => m.id != null && !existingIds.has(m.id))
 			if (newMsgs.length === 0) return
@@ -478,7 +478,7 @@ export default {
 			}).then((res) => {
 				this.total = res.total
 				// 按 id 升序，保证 scrollToBottom 拿到的最后一条是最新消息
-				this.msgList = (res.rows || []).slice().sort((a, b) => a.id - b.id)
+				this.msgList = (res.data.rows || []).slice().sort((a, b) => a.id - b.id)
 				this.$nextTick(() => {
 					this.scrollToBottom();
 				});
@@ -500,7 +500,7 @@ export default {
 				page: Math.ceil(this.msgList.length / this.pageSize) + 1,
 				size: this.pageSize
 			}).then((res) => {
-				const list = res.rows || []
+				const list = res.data.rows || []
 				// 合并列表（按 id 去重）
 				this.msgList.unshift(...list.filter((v) => !this.msgList.some((v2) => v2.id == v.id)))
 			}).catch((err) => {

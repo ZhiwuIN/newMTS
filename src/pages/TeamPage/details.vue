@@ -1,5 +1,5 @@
 <template>
-	<customnavbar :title="$t('teamPage.memberDetails')" white-title :background-str="themeColor">
+	<customnavbar :title="$t('teamPage.memberDetails')" white-title :background-str="'#000'">
 		<view class="page">
 			<view class="summary">
 				<view class="summary_left">

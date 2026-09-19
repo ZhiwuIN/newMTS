@@ -1,5 +1,5 @@
 <template>
-    <customnavbar :title="$t('teamPage.rewardDetails')" white-title :background-str="themeColor">
+    <customnavbar :title="$t('teamPage.rewardDetails')" white-title :background-str="'#000'">
         <view class="page">
             <view class="summary">
                 <view class="summary__subtitle">{{ $t('teamPage.accumulatedRewards') }}</view>

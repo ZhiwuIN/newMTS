@@ -528,7 +528,7 @@ export default {
         flex-direction: column;
         align-items: center;
         color: #fff;
-        background: #1453ed;
+        background: $themeColor;
         font-family: MiSans;
         font-size: 24rpx;
         font-weight: 600;
@@ -605,7 +605,7 @@ export default {
       }
 
       .upgrade-card {
-        background: #1150ed;
+        background: $themeColor;
         color: #fff;
         border-radius: 16rpx;
         padding: 24rpx;
@@ -669,7 +669,7 @@ export default {
         .upgrade-btn {
           height: 62rpx;
           line-height: 62rpx;
-          color: #1150ed;
+          color: $themeColor;
           background: #fff;
           border: 0;
           border-radius: 8rpx;
@@ -751,7 +751,7 @@ export default {
           }
 
           strong {
-            color: #1453ed;
+            color: $themeColor;
           }
         }
       }
@@ -795,7 +795,7 @@ export default {
 
         &.confirm {
           color: #fff;
-          background: #1453ed;
+          background: $themeColor;
         }
       }
     }
