@@ -205,7 +205,7 @@ export default {
             background: #f6f4ef;
             justify-content: center;
             padding: 16rpx;
-            border-radius: 24rpx;
+            border-radius: 12rpx;
 
             .tab-item {
                 position: relative;
@@ -218,14 +218,14 @@ export default {
                 font-style: normal;
                 height: 92rpx;
                 width: 315rpx;
-                border-radius: 24rpx;
+                border-radius: 12rpx;
 
                 &.active {
                     color: #FFFFFF;
                     font-weight: bold;
                     background: $themeColor;
                     // box-shadow: 0rpx 4rpx 16rpx 0rpx #B2C8FB;
-                    border-radius: 24rpx;
+                    border-radius: 12rpx;
                 }
             }
         }

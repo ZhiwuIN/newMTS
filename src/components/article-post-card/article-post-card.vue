@@ -91,7 +91,7 @@ export default {
 	display: flex;
 	align-items: center;
 	position: relative;
-	margin: 0 32rpx;
+	margin: 0 14rpx;
 }
 
 .avatar_img {
@@ -171,7 +171,7 @@ export default {
 	color: #000;
 	font-size: 28rpx;
 	line-height: 40rpx;
-	margin: 16rpx 32rpx 0;
+	margin: 16rpx 14rpx 0;
 }
 
 .media {
@@ -211,7 +211,7 @@ export default {
 	display: inline-block;
 	max-width: 392rpx;
 	// height: 364rpx;
-	margin-right: 16rpx;
+	margin-right: 14rpx;
 	border-radius: 12rpx;
 
 	&:last-child {
@@ -220,7 +220,7 @@ export default {
 }
 
 .post-img:nth-child(1) {
-	margin-left: 32rpx;
+	margin-left: 14rpx;
 }
 
 .image-list.single-image .post-img {

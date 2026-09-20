@@ -871,7 +871,7 @@ export default {
 			width: 112rpx;
 			height: 112rpx;
 			background-color: #f2f2f2;
-			border-radius: 24rpx;
+			border-radius: 12rpx;
 
 			.functionImg {
 				width: 52rpx;

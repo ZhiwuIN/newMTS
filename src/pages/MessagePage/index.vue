@@ -197,7 +197,7 @@ export default {
 	position: relative;
 	background: #FFFFFF;
 	// box-shadow: 0rpx 22rpx 28rpx -6rpx #E9F3FF;
-	border-radius: 24rpx;
+	border-radius: 12rpx;
 	border: 2rpx solid rgb(228, 228, 228);
 	padding: 40rpx;
 	margin-bottom: 30rpx;

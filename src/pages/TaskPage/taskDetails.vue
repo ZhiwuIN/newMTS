@@ -521,7 +521,7 @@ export default {
 .swiper_img_box {
 	width: 702rpx !important;
 	height: 702rpx !important;
-	border-radius: 48rpx;
+	border-radius: 12rpx;
 	background-color: #e6e9f0;
 	display: flex;
 	align-items: center;
@@ -579,8 +579,8 @@ export default {
 		width: 212rpx;
 		height: 72rpx;
 		background: $themeColor;
-		// box-shadow: 0rpx 4rpx 16rpx 0rpx #B2C8FB;
-		border-radius: 16rpx;
+		// // box-shadow: 0rpx 4rpx 16rpx 0rpx #B2C8FB;
+		border-radius: 12rpx;
 		font-family: "DINPro-Black", sans-serif;
 		font-family: DINPro, DINPro;
 		font-weight: 500;
@@ -659,7 +659,7 @@ export default {
 	.pay_confirm_btn {
 		height: 96rpx;
 		background: $themeColor;
-		border-radius: 24rpx;
+		border-radius: 12rpx;
 		margin-top: 34rpx;
 		font-family: "DINPro-Bold", sans-serif;
 		font-weight: bold;
@@ -740,7 +740,7 @@ export default {
 	width: 212rpx;
 	height: 72rpx;
 	background: #EBEBEB;
-	border-radius: 16rpx;
+	border-radius: 12rpx;
 	font-family: "DINPro-Medium", sans-serif;
 	font-weight: 500;
 	font-size: 32rpx;
@@ -755,7 +755,7 @@ export default {
 	height: 72rpx;
 	background: $themeColor;
 	// box-shadow: 0rpx 4rpx 16rpx 0rpx #B2C8FB;
-	border-radius: 16rpx;
+	border-radius: 12rpx;
 	font-family: "DINPro-Black", sans-serif;
 	font-family: DINPro, DINPro;
 	font-weight: 500;

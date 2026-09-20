@@ -157,7 +157,7 @@
 		display: flex;
 		justify-content: center;
 		background: linear-gradient(180deg, $gradualColor2 0%, $gradualColor1 100%);
-		border-radius: 24rpx;
+		border-radius: 12rpx;
 		font-family: PingFangSC, PingFang SC;
 		font-weight: 600;
 		font-size: 36rpx;
@@ -175,7 +175,7 @@
 	.language_item {
 		background: #FFFFFF;
 		box-shadow: 0rpx 22rpx 28rpx -6rpx #E9F3FF;
-		border-radius: 24rpx;
+		border-radius: 12rpx;
 		border: 2rpx solid #F6F6F6;
 		padding: 40rpx;
 		margin-bottom: 30rpx;

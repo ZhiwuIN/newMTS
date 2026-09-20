@@ -591,7 +591,7 @@ export default {
 .mine-container {
 	position: relative;
 	z-index: 1;
-	padding: 26rpx 24rpx 40rpx;
+	padding: 26rpx 12rpx 40rpx;
 }
 
 .mine-top-bg {

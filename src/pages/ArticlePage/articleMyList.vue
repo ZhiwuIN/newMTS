@@ -406,7 +406,7 @@ onUnmounted(() => {
     flex-direction: column;
     background-color: #fff;
     z-index: 2;
-    border-radius: 24rpx;
+    border-radius: 12rpx;
     border: 2rpx solid #EBEEF5;
     padding: 6rpx 0;
 

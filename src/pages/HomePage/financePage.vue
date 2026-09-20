@@ -172,11 +172,11 @@ export default {
 	.content {
 		position: relative;
 		z-index: 1;
-		padding: 24rpx 24rpx 130rpx;
+		padding: 24rpx 14rpx 130rpx;
 
 		.account-card {
 			padding: 42rpx 24rpx 28rpx;
-			border-radius: 24rpx;
+			border-radius: 12rpx;
 			color: #fff;
 			background: #1049eb;
 			margin-bottom: 16rpx;
@@ -269,7 +269,7 @@ export default {
 		.product-card {
 			margin-bottom: 24rpx;
 			padding: 32rpx;
-			border-radius: 24rpx;
+			border-radius: 12rpx;
 			background: #fff;
 			color: #000;
 

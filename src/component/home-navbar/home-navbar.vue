@@ -249,7 +249,7 @@ export default {
 // 右上角消息入口（图标 + 未读红点）
 .message-entry {
 	position: absolute;
-	right: 24rpx;
+	right: 14rpx;
 	width: 76rpx;
 	height: 76rpx;
 
@@ -322,7 +322,7 @@ export default {
 
 .logo_text {
 	position: absolute;
-	left: 48rpx;
+	left: 14rpx;
 	font-size: 52rpx;
 	font-weight: bold;
 	color: #000000;

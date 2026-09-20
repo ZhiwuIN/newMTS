@@ -139,7 +139,7 @@ export default {
 	z-index: 1;
 	margin: 24rpx;
 	margin-bottom: 0;
-	border-radius: 24rpx;
+	border-radius: 12rpx;
 	padding: 24rpx;
 
 	.box {
@@ -227,7 +227,7 @@ export default {
 				// align-items: center;
 				background: #FFFFFF;
 				box-shadow: 0px 8rpx 20rpx 0px #E9F3FF;
-				border-radius: 24rpx;
+				border-radius: 12rpx;
 				border: 2rpx solid #F6F6F6;
 				// padding: 30rpx;
 				margin-bottom: 26rpx;

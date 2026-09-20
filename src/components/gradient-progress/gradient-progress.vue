@@ -44,7 +44,7 @@ export default {
 
 <style lang="scss" scoped>
 .progress-wrap {
-	border-radius: 24rpx;
+	border-radius: 12rpx;
 	width: 100%;
 	// padding-left: 34rpx;
 	box-sizing: border-box;
@@ -67,7 +67,7 @@ export default {
 		height: 38rpx;
 		background: rgba(255, 255, 255, 0.55);
 		filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.22));
-		border-radius: 24rpx;
+		border-radius: 12rpx;
 		z-index: 1;
 		overflow: hidden;
 
@@ -81,7 +81,7 @@ export default {
 			top: 0;
 			/* 背景色线性渐变 */
 			background: linear-gradient(180deg, $gradualColor2 0%, $gradualColor1 100%);
-			border-radius: 24rpx;
+			border-radius: 12rpx;
 			box-shadow: 0 14px 28px rgba(33, 150, 243, 0), 0 10px 10px rgba(9, 188, 215, 0.08);
 
 			/* 滤镜设置色调旋转 */

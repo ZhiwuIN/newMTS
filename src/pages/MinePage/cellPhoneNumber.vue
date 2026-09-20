@@ -89,7 +89,7 @@
 		margin-top: 90rpx;
 		height: 96rpx;
 		background: $themeColor;
-		border-radius: 24rpx;
+		border-radius: 12rpx;
 		font-family: "DINPro-Blod", sans-serif;
 		font-weight: bold;
 		font-size: 36rpx;
@@ -143,7 +143,7 @@
 		height: 112rpx;
 		background: #FFFFFF;
 		box-shadow: 0rpx 16rpx 32rpx 4rpx rgba(119, 154, 241, 0.2);
-		border-radius: 24rpx;
+		border-radius: 12rpx;
 		display: flex;
 		align-items: center;
 		padding: 0 34rpx;

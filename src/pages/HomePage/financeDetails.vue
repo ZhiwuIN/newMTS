@@ -11,28 +11,36 @@
 					<view class="design-progress">
 						<view class="design-progress-fill" :style="{ width: remainingProgress + '%' }"></view>
 					</view>
-					<view class="design-remaining">{{ $t('product.RemainingColon') }} <text>{{ productDetails.remaining || '--' }}</text></view>
+					<view class="design-remaining">{{ $t('product.RemainingColon') }} <text>{{ productDetails.remaining
+						|| '--' }}</text></view>
 				</view>
 
 				<view class="design-card">
 					<view class="design-card-title">{{ $t('product.Information') }}</view>
-					<view class="design-info-row"><text>{{ $t('product.InvestmentHorizon') }}</text><b>{{ productDetails.totalRevenue ||
+					<view class="design-info-row"><text>{{ $t('product.InvestmentHorizon') }}</text><b>{{
+						productDetails.totalRevenue ||
 						'--' }}</b></view>
-					<view class="design-info-row"><text>{{ $t('product.MinimumInvestment') }}</text><b>{{ minAmount }} {{ currency }}</b>
+					<view class="design-info-row"><text>{{ $t('product.MinimumInvestment') }}</text><b>{{ minAmount }}
+							{{ currency }}</b>
 					</view>
-					<view class="design-info-row"><text>{{ $t('product.HighestInvestment') }}</text><b>{{ maxAmount }} {{ currency }}</b>
+					<view class="design-info-row"><text>{{ $t('product.HighestInvestment') }}</text><b>{{ maxAmount }}
+							{{ currency }}</b>
 					</view>
-					<view class="design-info-row"><text>{{ $t('product.RiskLevel') }}</text><b>{{ $t('product.ReturnUponExpiration') }}</b></view>
+					<view class="design-info-row"><text>{{ $t('product.RiskLevel') }}</text><b>{{
+						$t('product.ReturnUponExpiration') }}</b></view>
 				</view>
 
 				<view class="design-card">
 					<view class="design-card-title">{{ $t('product.ProfitCalculation') }}</view>
-					<view class="design-info-row"><text>{{ $t('product.PrincipalInvestment') }}</text><b>{{ displayPrincipal }} {{ currency
-					}}</b></view>
-					<view class="design-info-row"><text>{{ $t('product.EstimatedReturn') }}</text><b>{{ displayProfit }} {{ currency }}</b>
+					<view class="design-info-row"><text>{{ $t('product.PrincipalInvestment') }}</text><b>{{
+						displayPrincipal }} {{ currency
+							}}</b></view>
+					<view class="design-info-row"><text>{{ $t('product.EstimatedReturn') }}</text><b>{{ displayProfit }}
+							{{ currency }}</b>
 					</view>
-					<view class="design-info-row"><text>{{ $t('product.DueAndCredited') }}</text><b>{{ displayTotal }} {{
-						currency }}</b></view>
+					<view class="design-info-row"><text>{{ $t('product.DueAndCredited') }}</text><b>{{ displayTotal }}
+							{{
+								currency }}</b></view>
 				</view>
 
 				<view class="design-card design-rules-card">
@@ -132,7 +140,7 @@
 			</view>
 
 		</customnavbar>
-		<uni-popup ref="popup" type="bottom" border-radius="40rpx 40rpx 0 0" style="z-index: 10002;">
+		<uni-popup ref="popup" type="bottom" border-radius="40rpx 40rpx 0 0" style="z-index: 992;">
 			<view class="financeDetails_pop_page">
 				<view class="financeDetails_pop_top">{{ $t('product.Buy') }}</view>
 				<view class="financeDetails_pop_content">
@@ -343,7 +351,7 @@ export default {
 		getProductBuyDetails() {
 			productBuyApi(this.productId).then((res) => {
 				this.productBuyDetails = res.data || {}
-			}).catch(() => {})
+			}).catch(() => { })
 		},
 		buyNow() {
 			productBuyApi(this.productId).then((res) => {
@@ -441,14 +449,14 @@ export default {
 
 .design-details-page {
 	min-height: 100vh;
-	padding: 42rpx 32rpx 0;
+	padding: 24rpx 14rpx 0;
 	background: #f1f4ff;
 	color: #080808;
 }
 
 .design-hero {
 	padding: 24rpx;
-	border-radius: 24rpx;
+	border-radius: 12rpx;
 	background: linear-gradient(110deg, #102d63 0%, #0759dc 100%);
 	color: #fff;
 }
@@ -503,9 +511,9 @@ export default {
 }
 
 .design-card {
-	margin-top: 32rpx;
+	margin-top: 14rpx;
 	padding: 24rpx;
-	border-radius: 24rpx;
+	border-radius: 12rpx;
 	background: #fff;
 }
 
@@ -561,7 +569,7 @@ export default {
 	left: 32rpx;
 	z-index: 10;
 	height: 90rpx;
-	border-radius: 24rpx;
+	border-radius: 12rpx;
 	background: linear-gradient(97deg, #4183ff 0%, #0052d9 100%);
 	box-shadow: 0px 18rpx 44rpx 0px rgba(73, 102, 255, 0.25);
 	color: #fff;
@@ -658,7 +666,7 @@ export default {
 	text-align: center;
 	height: 96rpx;
 	background: linear-gradient(180deg, $gradualColor2 0%, $gradualColor1 100%);
-	border-radius: 24rpx;
+	border-radius: 12rpx;
 	font-family: "DINPro-Bold", sans-serif;
 	font-weight: bold;
 	font-size: 36rpx;
@@ -765,7 +773,7 @@ export default {
 	height: 96rpx;
 	background: linear-gradient(98deg, #4183ff 0%, #0052d9 100%);
 	box-shadow: 0px 18rpx 44rpx 0px rgba(73, 102, 255, 0.25);
-	border-radius: 24rpx;
+	border-radius: 12rpx;
 	font-size: 34rpx;
 	font-weight: bold;
 	color: #FFFFFF;
@@ -842,7 +850,7 @@ export default {
 .pay_confirm_btn {
 	height: 96rpx;
 	background: linear-gradient(180deg, $gradualColor2 0%, $gradualColor1 100%);
-	border-radius: 24rpx;
+	border-radius: 12rpx;
 	margin-top: 44rpx;
 	font-family: "DINPro-Bold", sans-serif;
 	font-weight: bold;
@@ -889,8 +897,8 @@ export default {
 	width: 212rpx;
 	height: 72rpx;
 	background: $themeColor;
-	box-shadow: 0rpx 4rpx 16rpx 0rpx #B2C8FB;
-	border-radius: 16rpx;
+	// box-shadow: 0rpx 4rpx 16rpx 0rpx #B2C8FB;
+	border-radius: 12rpx;
 	font-family: "DINPro-Medium", sans-serif;
 	font-weight: 500;
 	font-size: 32rpx;
@@ -953,7 +961,8 @@ export default {
 ::v-deep .uni-numbox-btns {
 	padding: 0 24rpx
 }
+
 ::v-deep .uni-numbox--text {
-margin-bottom: 4rpx;
+	margin-bottom: 4rpx;
 }
 </style>

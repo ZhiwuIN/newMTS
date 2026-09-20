@@ -562,7 +562,7 @@ export default {
     width: 100%;
     padding: 34rpx 30rpx 30rpx;
     border: 1rpx solid rgba(107, 174, 255, .5);
-    border-radius: 24rpx;
+    border-radius: 12rpx;
     background: linear-gradient(180deg, #102E7A 0%, #07173D 100%);
     box-shadow: 0 18rpx 60rpx rgba(0, 0, 0, .42), inset 0 1rpx 0 rgba(255, 255, 255, .12);
 }

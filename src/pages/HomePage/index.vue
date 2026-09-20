@@ -56,7 +56,7 @@
 				</view> -->
 
 				<!-- 滚动公告 -->
-				<view class="noticebar" style="margin-bottom: 34rpx;" v-if="isShowMessage2">
+				<view class="noticebar" v-if="isShowMessage2">
 					<l-notice-bar :marquee="true" :vertical="false" leftIcon="/static/home/horn.svg" :iconSize="40"
 						:text="[rollContent]" />
 				</view>
@@ -892,7 +892,7 @@ export default {
 .home_center_box {
 	position: relative;
 	z-index: 2;
-	margin: 24rpx;
+	margin: 14rpx;
 
 	// .center_item_box:nth-child(2) {
 	// 	margin-top: 24rpx;
@@ -917,7 +917,7 @@ export default {
 		width: 96rpx;
 		height: 96rpx;
 		background: #fff;
-		border-radius: 24rpx;
+		border-radius: 12rpx;
 		box-shadow: 0px 12px 16px 0px #E9F3FF;
 	}
 
@@ -941,8 +941,9 @@ export default {
 }
 
 ::v-deep .l-notice-bar {
-	border-radius: 24rpx;
-	padding-right: 0;
+	border-radius: 12rpx;
+	padding: 12rpx !important;
+	padding-right: 0 !important;
 }
 
 ::v-deep .l-notice-bar__left {
@@ -1087,8 +1088,8 @@ export default {
 .home_top_center {
 	position: relative;
 	z-index: 1;
-	margin: 24rpx 0;
-	padding: 0 24rpx;
+	margin: 24rpx 0 14rpx;
+	padding: 0 14rpx;
 	display: flex;
 	gap: 14rpx;
 }
@@ -1099,7 +1100,7 @@ export default {
 	justify-content: space-between;
 	width: 100%;
 	padding: 24rpx;
-	border-radius: 24rpx;
+	border-radius: 12rpx;
 	background: #fff;
 
 	.avatar_box {
@@ -1134,7 +1135,7 @@ export default {
 	flex: 1;
 	min-height: 210rpx;
 	overflow: hidden;
-	border-radius: 24rpx;
+	border-radius: 12rpx;
 	background: #fff;
 }
 
@@ -1241,15 +1242,16 @@ export default {
 	box-sizing: border-box;
 	width: 100%;
 	height: 80rpx;
-	padding: 0 24rpx;
+	padding: 0 14rpx;
+	margin-bottom: 8rpx;
 }
 
 .growth-card {
 	position: relative;
 	z-index: 1;
-	margin: 0 24rpx;
+	margin: 0 14rpx;
 	padding: 40rpx 24rpx 28rpx;
-	border-radius: 24rpx;
+	border-radius: 12rpx;
 	background: #15191f;
 	color: #fff;
 }
@@ -1437,7 +1439,7 @@ export default {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	padding: 0 24rpx;
+	padding: 0 12rpx;
 }
 
 .section-title {
@@ -1462,7 +1464,7 @@ export default {
 .activity-grid {
 	display: flex;
 	gap: 8rpx;
-	padding: 20rpx 24rpx 0;
+	padding: 20rpx 14rpx 0;
 	position: relative;
 	z-index: 2;
 }
@@ -1470,7 +1472,7 @@ export default {
 .activity-big {
 	width: 352rpx;
 	height: 304rpx;
-	border-radius: 24rpx;
+	border-radius: 12rpx;
 }
 
 .activity-side {
@@ -1483,7 +1485,7 @@ export default {
 .activity-side image {
 	width: 100%;
 	height: 145rpx;
-	border-radius: 24rpx;
+	border-radius: 12rpx;
 }
 
 .community-head {
@@ -1529,7 +1531,7 @@ export default {
 	z-index: 1;
 	display: flex;
 	gap: 14rpx;
-	padding: 0 24rpx 0;
+	padding: 0 14rpx 0;
 
 	.news-card,
 	.publish-card {
@@ -1683,8 +1685,8 @@ export default {
 		width: 212rpx;
 		height: 72rpx;
 		background: $themeColor;
-		box-shadow: 0rpx 4rpx 16rpx 0rpx #B2C8FB;
-		border-radius: 16rpx;
+		// box-shadow: 0rpx 4rpx 16rpx 0rpx #B2C8FB;
+		border-radius: 12rpx;
 		font-family: "DINPro-Black", sans-serif;
 		font-family: DINPro, DINPro;
 		font-weight: 500;

@@ -549,7 +549,7 @@ export default {
 		margin-top: 46rpx;
 		height: 96rpx;
 		background: #1349f4;
-		border-radius: 24rpx;
+		border-radius: 12rpx;
 		font-family: 'DINPro-Bold', sans-serif;
 		font-weight: bold;
 		font-size: 36rpx;
@@ -637,7 +637,7 @@ export default {
 .pay_confirm_btn {
 	height: 96rpx;
 	background: linear-gradient(180deg, $gradualColor2 0%, $gradualColor1 100%);
-	border-radius: 24rpx;
+	border-radius: 12rpx;
 	margin-top: 34rpx;
 	font-family: "DINPro-Bold", sans-serif;
 	font-weight: bold;

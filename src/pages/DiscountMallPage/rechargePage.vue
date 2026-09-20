@@ -408,7 +408,7 @@ export default {
 		position: relative;
 		background: #f6f4ef;
 		padding: 16rpx;
-		border-radius: 24rpx;
+		border-radius: 12rpx;
 
 		input {
 			height: 84rpx;
@@ -718,8 +718,8 @@ export default {
 	width: 212rpx;
 	height: 72rpx;
 	background: $themeColor;
-	box-shadow: 0rpx 4rpx 16rpx 0rpx #B2C8FB;
-	border-radius: 16rpx;
+	// box-shadow: 0rpx 4rpx 16rpx 0rpx #B2C8FB;
+	border-radius: 12rpx;
 	font-weight: 500;
 	font-size: 32rpx;
 	color: #FFFFFF;
@@ -817,7 +817,7 @@ export default {
 	height: 112rpx;
 	background: #FFFFFF;
 	box-shadow: 0rpx 16rpx 32rpx 4rpx rgba(119, 154, 241, 0.2);
-	border-radius: 24rpx;
+	border-radius: 12rpx;
 	display: flex;
 	align-items: center;
 	padding: 0 34rpx;

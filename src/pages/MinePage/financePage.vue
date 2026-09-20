@@ -257,7 +257,7 @@ export default {
 .product-item {
 	background: #FFFFFF;
 	box-shadow: 0rpx 22rpx 28rpx -6rpx #E9F3FF;
-	border-radius: 24rpx;
+	border-radius: 12rpx;
 	border: 2rpx solid #F6F6F6;
 	margin-bottom: 24rpx;
 	padding: 24rpx;
@@ -387,7 +387,7 @@ export default {
 	justify-content: center;
 
 	background: linear-gradient(180deg, $gradualColor2 0%, $gradualColor1 100%);
-	border-radius: 24rpx;
+	border-radius: 12rpx;
 	font-family: "DINPro-Bold", sans-serif;
 	font-weight: bold;
 	font-size: 36rpx;

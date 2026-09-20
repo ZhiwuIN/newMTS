@@ -223,7 +223,7 @@
 		justify-content: center;
 
 		background: linear-gradient(180deg, $gradualColor2 0%, $gradualColor1 100%);
-		border-radius: 24rpx;
+		border-radius: 12rpx;
 		font-family: "DINPro-Bold", sans-serif;
 		font-weight: bold;
 		font-size: 36rpx;

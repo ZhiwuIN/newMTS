@@ -3,8 +3,10 @@
 		<view class="waterfalls-flow-column" ref="column1">
 			<view v-for="(item, index) in data1" :key="item?.taskId" class="waterfalls-item" @click="pushInfo(item)"
 				@load="onImageLoaded(item)" :data-task-id="item.taskId">
-				<image :lazy-load="true" :src="item?.image" mode="widthFix" class="waterfalls-image"
-					:data-task-id="item.taskId"></image>
+				<view class="waterfalls-image_box">
+					<image :lazy-load="true" :src="item?.image" mode="aspectFit" class="waterfalls-image"
+						:data-task-id="item.taskId"></image>
+				</view>
 				<view class="item">
 					<view class="one">
 						<view class="tag">{{ item?.content }}</view>
@@ -27,8 +29,10 @@
 		<view class="waterfalls-flow-column" ref="column2">
 			<view v-for="(item, index) in data2" :key="item?.taskId" class="waterfalls-item" @click="pushInfo(item)"
 				@load="onImageLoaded(item)" :data-task-id="item.taskId">
-				<image :lazy-load="true" :src="item?.image" mode="widthFix" class="waterfalls-image"
-					:data-task-id="item.taskId"></image>
+				<view class="waterfalls-image_box">
+					<image :lazy-load="true" :src="item?.image" mode="aspectFit" class="waterfalls-image"
+						:data-task-id="item.taskId"></image>
+				</view>
 				<view class="item">
 					<view class="one">
 						<view class="tag">{{ item?.content }}</view>
@@ -178,7 +182,7 @@ export default {
 .waterfalls-flow {
 	display: flex;
 	justify-content: space-between;
-	padding: 24rpx;
+	padding: 24rpx 14rpx;
 	padding-top: 0;
 	// margin-top: 40rpx;
 	gap: 14rpx;
@@ -193,13 +197,18 @@ export default {
 		.waterfalls-item {
 			width: 100%;
 			background: #FFFFFF;
-			border-radius: 24rpx;
+			border-radius: 12rpx;
 			overflow: hidden;
+
+			.waterfalls-image_box {
+				padding: 8rpx;
+			}
 
 			.waterfalls-image {
 				width: 100%;
+				height: 280rpx;
 				display: block;
-				background-color: #e6e9f0;
+				background-color: #fff;
 			}
 
 			.item {

@@ -214,7 +214,7 @@ export default {
 	height: 112rpx;
 	background: #FFFFFF;
 	/* box-shadow: 0rpx 8rpx 20rpx 0rpx #2E9FC5; */
-	border-radius: 24rpx;
+	border-radius: 12rpx;
 	font-family: 'DINPro-Bold', sans-serif;
 	font-weight: bold;
 	font-size: 36rpx;

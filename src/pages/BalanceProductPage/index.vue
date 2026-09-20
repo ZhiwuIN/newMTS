@@ -160,7 +160,7 @@ export default {
 .account-card {
     height: 292rpx;
     padding: 28rpx 24rpx;
-    border-radius: 24rpx;
+    border-radius: 12rpx;
     color: #fff;
     background: $themeColor;
     margin-bottom: 16rpx;
@@ -214,7 +214,7 @@ export default {
     display: block;
     width: 100%;
     margin-bottom: 32rpx;
-    border-radius: 24rpx;
+    border-radius: 12rpx;
     box-shadow: 0px 8rpx 20rpx 0px rgba(64, 195, 255, 0.3);
 }
 
@@ -252,7 +252,7 @@ export default {
 .product-card {
     margin-bottom: 24rpx;
     padding: 28rpx 32rpx 24rpx;
-    border-radius: 24rpx;
+    border-radius: 12rpx;
     background: linear-gradient(180deg, #ddfff5 0%, #fff 46%);
 }
 

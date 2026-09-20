@@ -399,7 +399,7 @@ export default {
 		position: relative;
 		z-index: 1;
 		width: 100%;
-		padding: 24rpx;
+		padding: 14rpx;
 
 		.text_box {
 			position: relative;
@@ -422,7 +422,7 @@ export default {
 			position: relative;
 			padding: 24rpx;
 			background: #fff;
-			border-radius: 24rpx;
+			border-radius: 12rpx;
 			z-index: 2;
 
 			.tag_img {
@@ -579,8 +579,7 @@ export default {
 		width: 212rpx;
 		height: 72rpx;
 		background: $themeColor;
-		box-shadow: 0rpx 4rpx 16rpx 0rpx #B2C8FB;
-		border-radius: 16rpx;
+		border-radius: 12rpx;
 		font-family: "DINPro-Black", sans-serif;
 		font-family: DINPro, DINPro;
 		font-weight: 500;

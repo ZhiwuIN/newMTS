@@ -402,7 +402,7 @@ export default {
 
 .headline-item.active {
 	color: #fff;
-	border-radius: 24rpx;
+	border-radius: 12rpx;
 	background: #0145F1;
 
 	.tag {

@@ -194,7 +194,7 @@
 		width: 650rpx;
 		height: 96rpx;
 		background: $themeColor;
-		border-radius: 24rpx;
+		border-radius: 12rpx;
 		text-align: center;
 		line-height: 96rpx;
 		font-family: "DINPro-Bold", sans-serif;

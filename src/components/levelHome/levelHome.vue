@@ -547,7 +547,7 @@ export default {
   .content {
     position: relative;
     z-index: 2;
-    padding: 0 24rpx;
+    padding: 0 14rpx;
 
     .panel {
       background: #fff;

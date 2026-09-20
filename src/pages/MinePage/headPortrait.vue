@@ -294,7 +294,7 @@
 		display: flex;
 		justify-content: center;
 		background: $themeColor;
-		border-radius: 24rpx;
+		border-radius: 12rpx;
 		font-family: PingFangSC, PingFang SC;
 		font-weight: 600;
 		font-size: 36rpx;

@@ -242,8 +242,8 @@ export default {
 		width: 212rpx;
 		height: 72rpx;
 		background: $themeColor;
-		// box-shadow: 0rpx 4rpx 16rpx 0rpx #B2C8FB;
-		border-radius: 16rpx;
+		// // box-shadow: 0rpx 4rpx 16rpx 0rpx #B2C8FB;
+		border-radius: 12rpx;
 		font-family: "DINPro-Black", sans-serif;
 		font-family: DINPro, DINPro;
 		font-weight: 500;

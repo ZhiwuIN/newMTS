@@ -444,7 +444,7 @@ export default {
 		display: flex;
 		justify-content: center;
 		background: $themeColor;
-		border-radius: 24rpx;
+		border-radius: 12rpx;
 		font-family: PingFangSC, PingFang SC;
 		font-weight: 600;
 		font-size: 36rpx;
@@ -467,8 +467,8 @@ export default {
 	margin-bottom: 40rpx;
 
 	.positionManage-image {
-		width: 466rpx;
-		height: 466rpx;
+		width: 126rpx;
+		height: 126rpx;
 		margin-bottom: 10rpx;
 	}
 

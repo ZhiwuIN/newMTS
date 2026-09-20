@@ -211,7 +211,7 @@
 		margin-top: 90rpx;
 		height: 96rpx;
 		background: $themeColor;
-		border-radius: 24rpx;
+		border-radius: 12rpx;
 		font-family: "DINPro-Blod", sans-serif;
 		font-weight: bold;
 		font-size: 36rpx;

@@ -170,7 +170,7 @@ export default {
 		// justify-content: space-between;
 		background: #FFFFFF;
 		// box-shadow: 0rpx 22rpx 28rpx -6rpx #E9F3FF;
-		border-radius: 24rpx;
+		border-radius: 12rpx;
 		border: 2rpx solid #F6F6F6;
 		padding: 26rpx 40rpx 24rpx;
 

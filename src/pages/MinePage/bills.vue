@@ -380,9 +380,8 @@ export default {
 				justify-content: space-between;
 				align-items: center;
 				background: #FFFFFF;
-				box-shadow: 0rpx 22rpx 28rpx -6rpx #E9F3FF;
-				border-radius: 32rpx;
-				border: 2rpx solid #F6F6F6;
+				// border-radius: 32rpx;
+				border-bottom: 2rpx solid #e8e8e8;
 				padding: 34rpx 40rpx 42rpx;
 				margin-bottom: 30rpx;
 
