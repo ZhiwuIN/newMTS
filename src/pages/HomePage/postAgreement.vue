@@ -48,7 +48,7 @@
 	export default {
 		components: {
 			customnavbar,
-			listbottom: listbottom
+			listbottom
 		},
 		data() {
 			return {
@@ -103,7 +103,7 @@
 				uni.showLoading({
 					title: this.$t('loading.btn')
 				});
-				positionApplyApi(this.details.pid).then((res) => {
+				positionApplyApi(this.details.pId).then((res) => {
 					// this.$refs.popup.open('center')
 					this.$showMessage('success', res.msg);
 					setTimeout(() => {
@@ -122,7 +122,7 @@
 			},
 			// handleAgree() {
 			// 	uni.navigateTo({
-			// 		url: `/pages/HomePage/contractSigning?pid=${this.details.pid}`,
+			// 		url: `/pages/HomePage/contractSigning?pid=${this.details.pId}`,
 			// 	})
 			// },
 			getUserInfo() {
@@ -139,7 +139,7 @@
 			confirm2() {
 				this.$refs.popup.close()
 				uni.navigateTo({
-					url: '/pages/MinePage/applicationRecord'
+					url: '/pages/HomePage/postManage'
 				})
 			},
 			mtop(e) {
@@ -193,7 +193,7 @@
 	.agreement-apply-btn {
 		width: 650rpx;
 		height: 96rpx;
-		background: linear-gradient(180deg, $gradualColor2 0%, $gradualColor1 100%);
+		background: $themeColor;
 		border-radius: 24rpx;
 		text-align: center;
 		line-height: 96rpx;
@@ -256,7 +256,7 @@
 		width: 212rpx;
 		/* height: 72rpx; */
 		background: $themeColor;
-		box-shadow: 0rpx 4rpx 16rpx 0rpx #B2C8FB;
+		// box-shadow: 0rpx 4rpx 16rpx 0rpx #B2C8FB;
 		border-radius: 16rpx;
 		font-family: "DINPro-Black", sans-serif;
 		font-family: DINPro, DINPro;

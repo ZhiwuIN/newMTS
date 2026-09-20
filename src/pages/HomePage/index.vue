@@ -276,7 +276,8 @@ import {
 	settingsPopupsApi,
 	activeCenterTopApi,
 	menuListApi,
-	messageNoticeApi
+	messageNoticeApi,
+	settingsRollApi
 } from "@/common/api/home.js";
 import {
 	formatRichText,
@@ -774,6 +775,15 @@ export default {
 				return t.split(' ').join(newline);
 			}
 		},
+		getSettingsRoll() {
+			settingsRollApi().then(res => {
+				// 滚动消息开启
+				if (res.data.rollSwitch) {
+					this.rollContent = htmlToPlainText(res.data.rollContent)
+					this.isShowMessage2 = true
+				}
+			})
+		}
 	},
 	onShow() {
 		// activityCenterApi().then(res => {
@@ -793,11 +803,6 @@ export default {
 		settingsApi().then((res) => {
 			uni.setStorageSync('settings', res.data)
 			this.currency = uni.getStorageSync('settings').currency
-			// 是否有滚动消息
-			if (uni.getStorageSync('settings').rollSwitch == 1) {
-				this.rollContent = htmlToPlainText(uni.getStorageSync('settings').rollContent)
-				this.isShowMessage2 = true
-			}
 			// 标记 settings 已就绪，等 getUserInfo 也返回后统一判断弹窗
 			this._settingsReady = true;
 			// this.tryStartPopupChain();
@@ -822,6 +827,7 @@ export default {
 			this.$nextTick(() => this.observeCommunitySection())
 			this.$nextTick(() => this.observeCommunityBottom())
 		}, 1000)
+		this.getSettingsRoll()
 	},
 	beforeUnmount() {
 		this.communityObserver?.disconnect()
@@ -896,6 +902,7 @@ export default {
 .center_item_box {
 	display: grid;
 	grid-template-columns: repeat(4, 1fr);
+	margin-top: 24rpx;
 
 	.center_item {
 		display: flex;
@@ -929,6 +936,7 @@ export default {
 		display: flex;
 		align-items: center;
 		justify-content: center;
+		margin-top: 10rpx;
 	}
 }
 

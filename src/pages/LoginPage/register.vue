@@ -91,8 +91,8 @@ import {
 export default {
 	data() {
 		return {
-			areaCodes: ['233'],
-			selectedAreaCode: '233',
+			areaCodes: ['225'],
+			selectedAreaCode: '225',
 			phone: '',
 			password: '',
 			confirmPassword: '',
@@ -126,7 +126,7 @@ export default {
 			this.phone = this.phone.replace(/\s/g, '')
 			const cleanedPhone = this.phone
 
-			if (this.selectedAreaCode != '233') {
+			if (this.selectedAreaCode != '225') {
 				return true
 			}
 

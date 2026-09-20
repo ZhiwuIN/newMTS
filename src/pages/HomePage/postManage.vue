@@ -1,13 +1,12 @@
 <template>
-	<customnavbar backgroundStr="url('/static/task/background.png') top left/100%  no-repeat"
-		@mtop='mtop'>
+	<customnavbar :title="$t('home.Postmanage')"
+		backgroundStr="url('/static/task/background.png') top left/100%  no-repeat" @mtop='mtop'>
 		<!-- :style="topStyle2" -->
 		<view class="task-page">
 			<!-- 顶部数据卡片 -->
 			<view class="task_top_card" :style="topStyle">
 				<view class="data_box">
-					<image class="my_postmanage"
-						:src="postList?.find(item => item.pid == userInfo?.position)?.image ?? ''" mode=""></image>
+					<image class="my_postmanage" :src="userInfo?.image" mode=""></image>
 					<view class="top_tag">{{ $t('当前职位') }}:
 						{{ userInfo?.positionName || '--' }}
 					</view>
@@ -23,28 +22,46 @@
 			<!-- 列表 -->
 			<uni-collapse ref="collapse" v-model="value">
 				<view v-for="(item, index) in postList">
-					<uni-collapse-item title-border="none" :border="false">
+					<uni-collapse-item title-border="none" :border="false" :show-arrow="false">
 						<template v-slot:title>
 							<view class="postmanage_data_box">
 								<view class="postmanage_box">
-									<image class="postmanage_img" :src="item?.image" mode=""></image>
+									<view class="postmanage_img_box">
+										<image class="postmanage_img" :src="item?.image" mode=""></image>
+									</view>
 									<view class="postmanage_name_box">
 										<view class="postmanage_name">{{ item?.positionName }}</view>
-										<view class="tag tag1" v-if="item?.isItDone">{{ $t('已达成') }}
+										<view class="tag tag1" v-if="idx >= 0 && index === idx">{{ $t('当前职位') }}
+										</view>
+										<view class="tag tag1" v-else-if="idx >= 0 && index < idx">{{ $t('当前职位大于此职位') }}
+										</view>
+										<view class="tag tag1" v-else-if="item?.isItDone">{{ $t('已达成') }}
 										</view>
 										<view class="tag" v-else>{{ $t('未达成') }}
 										</view>
 									</view>
+
+									<!-- 申请按钮 -->
+									<view class="bottom_btn" v-if="item?.isItDone && index > idx"
+										@click="toApply(item)">
+										<view class="join_btn">{{ $t('post.apply') }}</view>
+									</view>
 								</view>
 								<view class="main_box">
-									<view class="title">{{ $t('职位要求') }}</view>
+									<view class="title">
+										{{ $t('职位要求') }}
+										<view class="details_toggle">
+											{{ $t('View Details') }}
+											<uni-icons class="uniui-bottom" :class="{ expanded: value.includes(String(index)) }" type="bottom" size="14" color="#246bfe" />
+										</view>
+									</view>
 									<view class="condition_box" v-if="item?.applicationType == 'aLevel'">
 										<view class="tag_box">
 											<image class="icon" src="/static/positions/subordinate.png" mode=""></image>
 											<view>{{ $t('A级下属人数') }}: {{ item?.numberAchievements }}</view>
 										</view>
 										<view class="progress_box">
-											<t-progress :color="'#8ada9b'" style="width: 506rpx;" :label="false"
+											<t-progress :color="'#246bfe'" style="width: 506rpx;" :label="false"
 												:percentage="item.completed / item.numberAchievements * 100" />
 											<view>
 												<text class="themeColor">{{ item?.completed }}</text>/{{
@@ -75,7 +92,7 @@
 							<view>
 								<view class="info_box">
 									<view class="title">
-										Job Benefits
+										{{ $t('post.jobBenefits') }}
 									</view>
 									<view>
 										<view class="row">
@@ -102,10 +119,6 @@
 												{{ weekList[item?.assessmentDay] }}
 											</view>
 										</view>
-									</view>
-									<view class="bottom_btn" v-if="item?.isItDone && index > idx"
-										@click="toApply(item)">
-										<view class="join_btn">{{ $t('post.apply') }}</view>
 									</view>
 								</view>
 							</view>
@@ -180,7 +193,7 @@ export default {
 			this.postList = res.data
 			subordinateInformationApi(uni.getStorageSync('userInfo').userId).then((res) => {
 				this.userInfo = res.data
-				this.idx = this.postList?.findIndex(item => item?.pid == this.userInfo?.position) ?? -1
+				this.idx = this.postList?.findIndex(item => item?.pId == this.userInfo?.position) ?? -1
 				// if (res.data.housekeeper == 1) {
 				// 	this.pop_message = this.$t("withdrawal.restrictedAccess")
 				// 	this.$refs.promptpopup.open()
@@ -214,9 +227,9 @@ export default {
 		},
 		toApply(item) {
 
-			// positionApplyApi(item.pid).then((res) => {
+			// positionApplyApi(item.pId).then((res) => {
 			uni.navigateTo({
-				url: '/pages/HomePage/postAgreement?id=' + item.pid
+				url: '/pages/HomePage/postAgreement?id=' + item.pId
 			})
 			// }).catch((err) => {
 			// 	this.pop_message = err.msg
@@ -249,6 +262,7 @@ export default {
 
 	.uni-collapse-item {
 		background: #fff;
+		padding-bottom: 24rpx;
 
 		.uni-collapse-item__title {
 			position: relative;
@@ -257,19 +271,16 @@ export default {
 			padding-bottom: 0;
 		}
 
-		.uni-collapse-item--animation {
-			position: absolute;
-			bottom: 140rpx;
-			right: 32rpx;
-			.uni-icons.uniui-bottom {
-				color: #246bfe !important;
-			}
-		}
 	}
 }
 
 ::v-deep .t-progress__bar {
 	background-color: #fff;
+	height: 12rpx;
+}
+
+::v-deep .t-progress__inner {
+	background: repeating-linear-gradient(135deg, #246bfe 0, #246bfe 8rpx, #77bdff 8rpx, #77bdff 12rpx) !important;
 }
 
 .content {
@@ -279,9 +290,10 @@ export default {
 		// background: rgba(255, 255, 255, 0.8);
 		// border-top: 2rpx solid #F4F4F4;
 		background-color: #eef5ff;
-		margin: 40rpx;
+		margin: 24rpx;
 		margin-top: 0;
 		padding: 0 16rpx;
+		padding-bottom: 24rpx;
 		// padding-bottom: 80rpx;
 
 		.title {
@@ -327,35 +339,49 @@ export default {
 			}
 		}
 
-		.bottom_btn {
-			margin: 40rpx 0 20rpx;
-			padding: 20rpx 0;
-			background: $themeColor;
-			font-family: PingFangSC, PingFang SC;
-			font-weight: 500;
-			font-size: 32rpx;
-			color: #FFFFFF;
-			text-align: center;
-			font-style: normal;
-			text-transform: none;
-			border-radius: 1998rpx;
-		}
 	}
 
 }
 
 .postmanage_data_box {
-	padding: 40rpx;
+	padding: 24rpx;
 	padding-bottom: 0;
 
 	.postmanage_box {
+		position: relative;
 		display: flex;
 		gap: 20rpx;
+		margin-bottom: 20rpx;
+
+		.bottom_btn {
+			position: absolute;
+			top: 0;
+			right: 0;
+			padding: 8rpx 28rpx;
+			border-radius: 8rpx;
+			background: #0145f1;
+			font-family: MiSans;
+			font-size: 24rpx;
+			font-weight: 500;
+			color: #FFFFFF;
+			text-align: center;
+			font-style: normal;
+			text-transform: none;
+		}
+
+		.postmanage_img_box {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			width: 104rpx;
+			height: 104rpx;
+			border-radius: 24rpx;
+			background: #EAEAEA;
+		}
 
 		.postmanage_img {
-			width: 128rpx;
-			height: 128rpx;
-			margin-bottom: 20rpx;
+			width: 90rpx;
+			height: 90rpx;
 		}
 
 		.postmanage_name_box {
@@ -377,7 +403,7 @@ export default {
 			}
 
 			.postmanage_name {
-				margin-top: 16rpx;
+				// margin-top: 16rpx;
 				margin-bottom: 20rpx;
 			}
 
@@ -395,6 +421,9 @@ export default {
 		padding: 20rpx 30rpx;
 
 		.title {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
 			font-family: PingFangSC, PingFang SC;
 			font-weight: 400;
 			font-size: 24rpx;
@@ -402,6 +431,21 @@ export default {
 			line-height: 34rpx;
 			text-align: left;
 			font-style: normal;
+
+			.details_toggle {
+				display: flex;
+				align-items: center;
+				gap: 10rpx;
+				color: #246bfe;
+			}
+
+			.uniui-bottom {
+				transition: transform 0.2s;
+			}
+
+			.uniui-bottom.expanded {
+				transform: rotate(180deg);
+			}
 		}
 
 		.condition_box {
@@ -430,6 +474,7 @@ export default {
 			.progress_box {
 				display: flex;
 				align-items: center;
+				justify-content: space-between;
 				font-family: PingFangSC, PingFang SC;
 				font-weight: 400;
 				font-size: 24rpx;
@@ -463,8 +508,8 @@ export default {
 			color: #fff;
 
 			.my_postmanage {
-				width: 160rpx;
-				height: 160rpx;
+				width: 180rpx;
+				height: 180rpx;
 			}
 
 			.top_tag {

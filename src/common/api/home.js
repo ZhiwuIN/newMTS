@@ -327,7 +327,7 @@ export function honorCustomDrawResultApi() {
 }
 
 // 语言包
-export function languageApi(){
+export function languageApi() {
 	return request({
 		url: '/app/language',
 		method: 'get'
@@ -335,9 +335,17 @@ export function languageApi(){
 }
 
 // 用户指南
-export function userNoticeApi(){
+export function userNoticeApi() {
 	return request({
 		url: '/app/settings/user-notice',
+		method: 'get'
+	})
+}
+
+// 滚动消息
+export function settingsRollApi() {
+	return request({
+		url: '/app/settings/roll',
 		method: 'get'
 	})
 }

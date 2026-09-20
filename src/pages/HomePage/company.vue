@@ -4,16 +4,16 @@
 			<view class="top_box">
 				<image src="/static/home/company_bgi.png" mode="widthFix" class="bgi_img"></image>
 				<view class="text_box">
-					<view class="title">关于我们的平台</view>
-					<view class="desc">一个值得信赖的全球营销平台，助力用户共同赚钱。</view>
+					<view class="title">{{ $t('company.aboutPlatform') }}</view>
+					<view class="desc">{{ $t('company.trustedPlatform') }}</view>
 					<view class="line"></view>
-					<view class="desc">全球用户</view>
+					<view class="desc">{{ $t('company.globalUsers') }}</view>
 					<view class="number">1.26M+</view>
 				</view>
 			</view>
 			<view class="title_box">
 				<view class="line"></view>
-				Official information
+				{{ $t('Official information') }}
 			</view>
 			<view class="bill-record-content" :style="topStyle">
 				<view class="scroll-view-box list">
@@ -214,7 +214,7 @@ export default {
 		top: 48rpx;
 		left: 32rpx;
 		color: #fff;
-		max-width: 367rpx;
+		max-width: 447rpx;
 
 		.title {
 			font-size: 48rpx;

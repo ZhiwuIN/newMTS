@@ -88,7 +88,7 @@
 				nationalityValue: 0,
 				nationalityList: [{
 						value: 0,
-						text: this.$t("nationality.Ghana"),
+						text: this.$t("nationality.Nigeria"),
 					},
 					{
 						value: 1,

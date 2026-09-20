@@ -260,7 +260,7 @@ export default {
 	},
 	onShow() {
 		this.getProductDetails()
-		this.getProductBuyDetails()
+		// this.getProductBuyDetails()
 	},
 	watch: {
 		buyPurchase(newVal) {
