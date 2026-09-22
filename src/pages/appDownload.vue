@@ -181,6 +181,7 @@
 					height: 67rpx;
 					background: $themeColor;
 					// box-shadow: 5rpx 0rpx 4rpx 0rpx #1F68BF;
+					
 					border-radius: 34rpx;
 					font-family: PingFangSC, PingFang SC;
 					font-weight: 400;
