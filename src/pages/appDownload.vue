@@ -7,7 +7,7 @@
 					<image class="icon" src="@/static/1024.png" mode=""></image>
 					<view>IOS</view>
 				</view>
-				<div class="btn" @click="showMask = true">Download</div>
+				<div class="btn" @click="showMask = true">{{ $t('home.Download') }}</div>
 			</view>
 			<view class="line"></view>
 			<view class="download_item">
@@ -15,11 +15,11 @@
 					<image class="icon" src="@/static/1024.png" mode=""></image>
 					<view>Android</view>
 				</view>
-				<div class="btn" @click="onDownloadAnd()">Download</div>
+				<div class="btn" @click="onDownloadAnd()">{{ $t('home.Download') }}</div>
 			</view>
 		</view>
 
-		<view class="title">iOS Installation process</view>
+		<view class="title">{{ $t('iOS Installation process') }}</view>
 		<view class="step_box">
 			<view v-for="(item, index) in 10" class="step_item">
 				<view class="sequence">{{index + 1}}</view>
@@ -31,10 +31,10 @@
 		<view class="link_box" v-if="showMask">
 			<image class="bigIcon" src="/static/appDownload/big.png" mode=""></image>
 			<view class="text">
-				<view>Copy the link and open it in Safari</view>
+				<view>{{ $t('Copy the link and open it in Safari') }}</view>
 				<image src="/static/appDownload/111.png" class="icon" mode=""></image>
 			</view>
-			<div class="btn" @click="copyLink">Copy Now</div>
+			<div class="btn" @click="copyLink">{{ $t('Copy Now') }}</div>
 		</view>
 	</view>
 </template>
@@ -124,8 +124,8 @@
 			margin-top: 74rpx;
 			width: 520rpx;
 			height: 80rpx;
-			background: linear-gradient(45deg, #3A89E8, #2169C4 60%, #03459B);
-			box-shadow: 5rpx 0rpx 4rpx 0rpx #1F68BF;
+			background: $themeColor;
+			// box-shadow: 5rpx 0rpx 4rpx 0rpx #1F68BF;
 			border-radius: 40rpx;
 			font-family: PingFangSC, PingFang SC;
 			font-weight: 400;
@@ -138,7 +138,7 @@
 	}
 
 	.appDownload_box {
-		background-color: #3684e3;
+		background-color: $themeColor;
 		padding: 36rpx;
 
 		.left-icon {
@@ -179,8 +179,8 @@
 				.btn {
 					width: 180rpx;
 					height: 67rpx;
-					background: linear-gradient(45deg, #3A89E8, #2169C4 60%, #03459B);
-					box-shadow: 5rpx 0rpx 4rpx 0rpx #1F68BF;
+					background: $themeColor;
+					// box-shadow: 5rpx 0rpx 4rpx 0rpx #1F68BF;
 					border-radius: 34rpx;
 					font-family: PingFangSC, PingFang SC;
 					font-weight: 400;
