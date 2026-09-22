@@ -11,8 +11,8 @@
       <image class="hero-art" v-else src="/static/level/suspension_img.png" />
     </view>
 
-    <scroll-view class="level-tabs" :class="{ 'is-dragging': tabsDragging }" scroll-x
-      :scroll-into-view="scrollIntoId" scroll-with-animation @mousedown="startTabsDrag">
+    <scroll-view class="level-tabs" :class="{ 'is-dragging': tabsDragging }" scroll-x :scroll-into-view="scrollIntoId"
+      scroll-with-animation @mousedown="startTabsDrag">
       <view v-for="(item, index) in tabs" :id="`level-tab-${index}`" :key="item.code" class="level-tab"
         :class="{ active: index === activeIndex }" @click="selectLevel(item.code, index)">
         <text>{{ item.name }}</text><text v-if="index === activeIndex" class="now">{{ $t('levelPage.now') }}</text>
@@ -32,7 +32,7 @@
         </view>
         <view class="upgrade-card" v-if="showUpgradeCard">
           <view class="upgrade-meta"><text>{{ $t('levelPage.oneTimeActivation') }}</text><text>{{ $t('levelPage.reward')
-              }}</text></view>
+          }}</text></view>
           <view class="upgrade-title">
             <view class="title_left">{{ $t('levelPage.upgrade') }} {{ userLevelName }} -> {{ upgradeLevelName }}</view>
             <text>{{ amountText }} {{ currency }}</text>
@@ -45,7 +45,7 @@
             </view>
           </view>
           <button class="upgrade-btn" @click="handleJoin">{{ $t('levelPage.upgradeTo') }} {{ upgradeLevelName
-            }}</button>
+          }}</button>
         </view>
         <view v-if="activeIndex < userLevelIndex" class="upgrade-btn_none">{{ $t('levelPage.higherLevelUnlocked') }}
         </view>
@@ -433,7 +433,7 @@ export default {
         font-size: 76rpx;
         line-height: 82rpx;
         font-weight: 800;
-        color: #2454ef;
+        color: #000;
         width: 390rpx;
         word-break: break-all;
       }
@@ -641,7 +641,7 @@ export default {
           .reward-item {
             display: flex;
             flex-direction: column;
-            background: #376bec;
+            background: #fff;
             border-radius: 14rpx;
             padding: 14rpx 10rpx;
             font-size: 20rpx;
@@ -654,12 +654,12 @@ export default {
             .number {
               font-size: 28rpx;
               font-weight: 600;
-              color: #fff;
+              color: #000;
               margin: 12rpx 0 8rpx;
             }
 
             .lvse {
-              color: #00f0b0;
+              color: #000;
               font-family: MiSans;
               font-size: 24rpx;
             }
@@ -703,7 +703,7 @@ export default {
       .commission-row {
         display: flex;
         align-items: center;
-        background: #e9f3ff;
+        background: $themeColor2;
         border-radius: 10rpx;
         padding: 12rpx;
         margin-top: 12rpx;

@@ -1,6 +1,6 @@
 <template>
 	<view>
-		<customnavbar :title="pageTitle" backgroundStr="#000" @mtop="mtop" :showBack="true" :whiteTitle="true"
+		<customnavbar :title="pageTitle" backgroundStr="#004f56" @mtop="mtop" :showBack="true" :whiteTitle="true"
 			:isPositionManage="true">
 			<uv-skeletons :loading="isLoading" :skeleton="skeleton" :style="isLoading ? 'margin: 0 40rpx;' : ''">
 				<view class="positionManage_heradBox" :style="topStyle">
@@ -13,7 +13,7 @@
 									<view class="row-item">
 										<view class="positionManage-info-title">{{ $t('mine.ElectronicContract') }}
 										</view>
-										<view class="positionManage-info-value" style="color: #0145F1;"
+										<view class="positionManage-info-value" style="color: #004f56;"
 											@click="toPush()">
 											{{ $t('positionManage.ViewContract') }}
 										</view>
@@ -142,7 +142,7 @@
 							<!-- 审核中 -->
 							<view class="positionManage_info" v-if="audit" style="padding-left: 0;padding-right: 0;">
 								<image src="/static/mine/applicationRecord/audit.png" mode=""
-									class="positionManage-image">
+									class="positionManage-image-null">
 								</image>
 								<view class="positionManage-name">{{ $t('positionManage.audit') }}</view>
 								<view class="positionManage-text">{{ $t('positionManage.ApplicationUnderReview') }}</view>
@@ -150,7 +150,7 @@
 							<!-- 没有职位 -->
 							<view class="positionManage_info" v-else>
 								<image src="/static/mine/applicationRecord/nullPositionManage.png" mode=""
-									class="positionManage-image"></image>
+									class="positionManage-image-null"></image>
 								<view class="positionManage-name">{{ $t('positionManage.NoPosition') }}</view>
 								<view class="positionManage-text">{{ $t('positionManage.Apply') }}</view>
 							</view>
@@ -469,6 +469,12 @@ export default {
 	.positionManage-image {
 		width: 126rpx;
 		height: 126rpx;
+		margin-bottom: 10rpx;
+	}
+
+	.positionManage-image-null {
+		width: 466rpx;
+		height: 466rpx;
 		margin-bottom: 10rpx;
 	}
 

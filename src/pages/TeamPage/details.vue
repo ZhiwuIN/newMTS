@@ -1,5 +1,5 @@
 <template>
-	<customnavbar :title="$t('teamPage.memberDetails')" white-title :background-str="'#000'">
+	<customnavbar :title="$t('teamPage.memberDetails')" white-title :background-str="'#004f56'">
 		<view class="page">
 			<view class="summary">
 				<view class="summary_left">
@@ -75,7 +75,7 @@ export default {
 			},
 			loading: false,
 			hasMore: true,
-			themeColor: '#0145f1',
+			themeColor: '#004f56',
 			currency: '',
 		}
 	},
@@ -109,8 +109,8 @@ export default {
 					smooth: true,
 					showSymbol: false,
 					data: dailyIncomeList.map(item => Number(item.income) || 0),
-					lineStyle: { width: 5, color: '#0145f1', shadowBlur: 12, shadowColor: '#71bbff' },
-					itemStyle: { color: '#0145f1' }
+					lineStyle: { width: 5, color: '#004f56', shadowBlur: 12, shadowColor: '#004f56' },
+					itemStyle: { color: '#004f56' }
 				}]
 			}
 		}

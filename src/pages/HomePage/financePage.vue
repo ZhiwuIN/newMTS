@@ -178,7 +178,7 @@ export default {
 			padding: 42rpx 24rpx 28rpx;
 			border-radius: 12rpx;
 			color: #fff;
-			background: #1049eb;
+			background: $themeColor;
 			margin-bottom: 16rpx;
 
 			.Mybtn_box {
@@ -194,7 +194,7 @@ export default {
 
 			.account-label {
 				font-size: 24rpx;
-				color: #c9d7ff;
+				color: $themeColor2;
 			}
 
 			.account-total {
@@ -226,7 +226,7 @@ export default {
 
 					text {
 						font-size: 23rpx;
-						color: #c9d7ff;
+						color: $themeColor2;
 					}
 
 					b {
@@ -355,7 +355,7 @@ export default {
 							width: 79%;
 							height: 100%;
 							border-radius: inherit;
-							background: linear-gradient(90deg, #43d6ff 0%, #0052d9 100%);
+							background: linear-gradient(90deg, #43d6ff 0%, $themeColor 100%);
 						}
 					}
 
@@ -374,7 +374,7 @@ export default {
 					padding: 0;
 					border: 0;
 					border-radius: 34rpx;
-					background: #084cf0;
+					background: $themeColor;
 					color: #fff;
 					font-size: 28rpx;
 					font-weight: 700;

@@ -17,7 +17,7 @@
 			<slot v-else>
 				<text v-if="!isRichText" ref="itemRef" class="l-notice-bar__content"
 					@transitionend="handleTransitionend" :class="contentClass"
-					style="color: #0145f1 !important;">{{ textContent }}</text>
+					style="color: #004f56 !important;">{{ textContent }}</text>
 				<rich-text v-else ref="itemRef" class="l-notice-bar__content" @transitionend="handleTransitionend"
 					:class="contentClass" :nodes="richTextContent"></rich-text>
 			</slot>

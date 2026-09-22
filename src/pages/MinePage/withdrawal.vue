@@ -486,7 +486,7 @@ export default {
 			min-height: 26rpx;
 			border-radius: 50%;
 			margin-right: 20rpx;
-			background: linear-gradient(180deg, $gradualColor2 0%, $gradualColor1 100%);
+			background: linear-gradient(180deg, $themeColor 0%, $themeColor2 100%);
 
 			.line {
 				position: absolute;
@@ -548,7 +548,7 @@ export default {
 	.withdrawal-btn {
 		margin-top: 46rpx;
 		height: 96rpx;
-		background: #1349f4;
+		background: $themeColor;
 		border-radius: 12rpx;
 		font-family: 'DINPro-Bold', sans-serif;
 		font-weight: bold;
@@ -791,7 +791,7 @@ export default {
 		// font-family: "DINPro-Black", sans-serif;
 		font-weight: 500;
 		font-size: 30rpx;
-		color: #4C69FF;
+		color: $themeColor;
 	}
 }
 

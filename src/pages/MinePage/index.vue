@@ -967,7 +967,7 @@ export default {
 	line-height: 70rpx;
 	text-align: center;
 	color: #fff;
-	background: #000;
+	background: $themeColor;
 }
 
 .info-card {

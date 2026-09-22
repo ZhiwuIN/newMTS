@@ -1,5 +1,5 @@
 {
-    "name" : "TEST",
+    "name" : "VCIC",
     "appid" : "__UNI__C393130",
     "description" : "",
     "versionName" : "1.8.6",
@@ -143,7 +143,7 @@
     "vueVersion" : "3",
     "locale" : "en",
     "h5" : {
-        "title" : "TEST",
+        "title" : "VCIC",
         "template" : "",
         "devServer" : {
             "https" : false,

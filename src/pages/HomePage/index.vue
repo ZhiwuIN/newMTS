@@ -1355,7 +1355,7 @@ export default {
 }
 
 .dot.active {
-	background: #2274ff;
+	background: $themeColor;
 }
 
 .customCycleOverview_box {
@@ -1457,7 +1457,7 @@ export default {
 }
 
 .more-link {
-	color: #006dff;
+	color:  $themeColor;
 	font-size: 24rpx;
 }
 

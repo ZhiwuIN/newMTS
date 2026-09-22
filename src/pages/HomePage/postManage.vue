@@ -52,7 +52,7 @@
 										{{ $t('职位要求') }}
 										<view class="details_toggle">
 											{{ $t('View Details') }}
-											<uni-icons class="uniui-bottom" :class="{ expanded: value.includes(String(index)) }" type="bottom" size="14" color="#246bfe" />
+											<uni-icons class="uniui-bottom" :class="{ expanded: value.includes(String(index)) }" type="bottom" size="14" color="#004f56" />
 										</view>
 									</view>
 									<view class="condition_box" v-if="item?.applicationType == 'aLevel'">
@@ -359,7 +359,7 @@ export default {
 			right: 0;
 			padding: 8rpx 28rpx;
 			border-radius: 8rpx;
-			background: #0145f1;
+			background: $themeColor;
 			font-family: MiSans;
 			font-size: 24rpx;
 			font-weight: 500;
@@ -408,7 +408,7 @@ export default {
 			}
 
 			.tag1 {
-				color: #246bfe;
+				color: $themeColor;
 			}
 		}
 
@@ -436,7 +436,7 @@ export default {
 				display: flex;
 				align-items: center;
 				gap: 10rpx;
-				color: #246bfe;
+				color: $themeColor;
 			}
 
 			.uniui-bottom {
@@ -484,7 +484,7 @@ export default {
 
 				.themeColor {
 					margin-left: 30rpx;
-					color: #5385FA;
+					color: $themeColor;
 				}
 			}
 		}

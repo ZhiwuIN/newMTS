@@ -324,7 +324,7 @@ export default {
 					color: #FFFFFF;
 					font-weight: 600;
 					background: $themeColor;
-					box-shadow: 0rpx 4rpx 16rpx 0rpx #B2C8FB;
+					// box-shadow: 0rpx 4rpx 16rpx 0rpx #B2C8FB;
 					border-radius: 36rpx;
 				}
 			}

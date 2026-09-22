@@ -403,7 +403,7 @@ export default {
 .headline-item.active {
 	color: #fff;
 	border-radius: 12rpx;
-	background: #0145F1;
+	background: $themeColor;
 
 	.tag {
 		color: #fff;

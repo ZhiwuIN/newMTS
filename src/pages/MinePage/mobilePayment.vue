@@ -281,7 +281,7 @@
 	.right_arrow {
 		width: 18rpx;
 		height: 18rpx;
-		border: 5rpx solid #4C69FF;
+		border: 5rpx solid $themeColor;
 		border-left: none;
 		border-bottom: none;
 		transform: rotate(45deg);

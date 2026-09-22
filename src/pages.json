@@ -566,7 +566,7 @@
 		"iconfontSrc": "static/fonts/DINPRO-Regular.otf",
 		"color": "#BEBEBE",
 		// "selectedColor": "#5385fa",
-		"selectedColor": "#467afe",
+		"selectedColor": "#004f56",
 		"backgroundColor": "#fff",
 		// "height": "176rpx",
 		// "fontSize": "24rpx",
@@ -627,7 +627,7 @@
 	},
 	"globalStyle": {
 		"navigationBarBackgroundColor": "#F8F8F8",
-		"navigationBarTitleText": "TEST",
+		"navigationBarTitleText": "VCIC",
 		"backgroundColor": "#F8F8F8",
 		"app-plus": {
 			"bounce": "none",

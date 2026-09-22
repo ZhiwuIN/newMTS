@@ -235,7 +235,7 @@
 							#fff 0%,
 							#fff 52%,
 							#fff 100%),
-						linear-gradient(180deg, $gradualColor1, $gradualColor2);
+						linear-gradient(180deg, $themeColor, $themeColor2);
 				}
 
 			}

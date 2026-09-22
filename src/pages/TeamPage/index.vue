@@ -1,5 +1,5 @@
 <template>
-	<customnavbar :title="pageTitle" backgroundStr="#000" :whiteTitle="true" @mtop="mtop">
+	<customnavbar :title="pageTitle" backgroundStr="#004f56" :whiteTitle="true" @mtop="mtop">
 		<view class="team-page">
 			<view class="hero" :style="topStyle">
 				<view class="hero-copy">{{ $t('teamPage.accumulatedRewards') }}</view>
@@ -158,7 +158,7 @@ export default {
 			let t = this.teamSize,
 				p = t ? Math.min(100, Math.round(this.vipMemberCount / t * 100)) : 0;
 			return {
-				background: `conic-gradient(#ffd000 0 ${p}%,#0145f1 ${p}% 100%)`
+				background: `conic-gradient(#ffd000 0 ${p}%,#004f56 ${p}% 100%)`
 			}
 		},
 		levelItems() {
@@ -329,7 +329,7 @@ export default {
 		padding: 0 16rpx;
 		border: 2rpx solid #94c3ff;
 		border-radius: 24rpx 24rpx 0 0;
-		background: linear-gradient(90deg, #0449e0 0%, #458ffb 100%);
+		background: linear-gradient(90deg, $themeColor 0%, #34eeff 100%);
 		box-sizing: border-box;
 
 		.tip-title {
@@ -665,7 +665,7 @@ export default {
 			padding: 16rpx 24rpx;
 			min-width: 442rpx;
 			border-radius: 8rpx;
-			background: #0145F1;
+			background: $themeColor;
 			text-align: center;
 			color: #fff;
 		}

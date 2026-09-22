@@ -457,7 +457,8 @@ export default {
 .design-hero {
 	padding: 24rpx;
 	border-radius: 12rpx;
-	background: linear-gradient(110deg, #102d63 0%, #0759dc 100%);
+	// background: linear-gradient(110deg, #102d63 0%, #0759dc 100%); 
+	background: $themeColor;
 	color: #fff;
 }
 
@@ -476,7 +477,7 @@ export default {
 .design-rate {
 	font-family: DingTalk JinBuTi;
 	font-size: 48rpx;
-	color: #07E192;
+	color: #fff;
 }
 
 .design-rate-label {
@@ -496,7 +497,7 @@ export default {
 .design-progress-fill {
 	height: 100%;
 	border-radius: inherit;
-	background: #42d2f0;
+	background: $themeColor2;
 }
 
 .design-remaining {
@@ -570,8 +571,8 @@ export default {
 	z-index: 10;
 	height: 90rpx;
 	border-radius: 12rpx;
-	background: linear-gradient(97deg, #4183ff 0%, #0052d9 100%);
-	box-shadow: 0px 18rpx 44rpx 0px rgba(73, 102, 255, 0.25);
+	background: $themeColor;
+	// box-shadow: 0px 18rpx 44rpx 0px rgba(73, 102, 255, 0.25);
 	color: #fff;
 	font-size: 34rpx;
 	font-weight: 700;
@@ -771,7 +772,7 @@ export default {
 .financeDetails_pop_bottom_btn {
 	width: 100%;
 	height: 96rpx;
-	background: linear-gradient(98deg, #4183ff 0%, #0052d9 100%);
+	background: $themeColor;
 	box-shadow: 0px 18rpx 44rpx 0px rgba(73, 102, 255, 0.25);
 	border-radius: 12rpx;
 	font-size: 34rpx;
