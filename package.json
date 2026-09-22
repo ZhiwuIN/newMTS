@@ -21,7 +21,7 @@
     "date-fns": "^4.1.0",
     "date-fns-tz": "^1.0.0",
     "echarts": "^6.1.0",
-    "pinia": "^2.2.4",
+    "pinia": "2.2.6",
     "sass": "1.77.8",
     "tdesign-mobile-vue": "^1.10.1",
     "vue": "3.4.21",
