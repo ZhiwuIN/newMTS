@@ -111,9 +111,9 @@
             "splashscreen" : {
                 "androidStyle" : "default",
                 "android" : {
-                    "hdpi" : "C:/Users/11/Desktop/IOS打包/安卓启动页/res/drawable-hdpi/outline.9.png",
-                    "xhdpi" : "C:/Users/11/Desktop/IOS打包/安卓启动页/res/drawable-xhdpi/outline.9.png",
-                    "xxhdpi" : "C:/Users/11/Desktop/IOS打包/安卓启动页/res/drawable-xxhdpi/outline.9.png"
+                    "hdpi" : "D:/秘钥/vcic/IOS打包/安卓启动页/res/drawable-hdpi/chatgpt_image_2026922_17_42_44.9.png",
+                    "xhdpi" : "D:/秘钥/vcic/IOS打包/安卓启动页/res/drawable-xhdpi/chatgpt_image_2026922_17_42_44.9.png",
+                    "xxhdpi" : "D:/秘钥/vcic/IOS打包/安卓启动页/res/drawable-xxhdpi/chatgpt_image_2026922_17_42_44.9.png"
                 }
             }
         }

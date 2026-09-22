@@ -6,7 +6,7 @@ export async function s3upload(file) {
     const blob = await pathToBlob(file)
     formData.append('file', blob, `image.jpg`)
 
-    const base_url = import.meta.env.VITE_API_URL ?? 'https://api.cwpc.cc'
+    const base_url = import.meta.env.VITE_API_URL ?? 'https://app.back-system.link'
     const token = uni.getStorageSync('token') || ''
 
     const res = await fetch(`${base_url}/s3/upload`, {
@@ -30,7 +30,7 @@ export async function s3uploads(files) {
         formData.append('file', blob, `image_${i}.jpg`)
     }
 
-    const base_url = import.meta.env.VITE_API_URL ?? 'https://api.cwpc.cc'
+    const base_url = import.meta.env.VITE_API_URL ?? 'https://app.back-system.link'
     const token = uni.getStorageSync('token') || ''
 
     const res = await fetch(`${base_url}/s3/uploads`, {

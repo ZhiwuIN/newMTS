@@ -192,10 +192,12 @@ export default {
 		flex-direction: column;
 		gap: 16rpx;
 		flex: 1;
+		min-width: 0;
 		// max-width: 48%;
 
 		.waterfalls-item {
 			width: 100%;
+			min-width: 0;
 			background: #FFFFFF;
 			border-radius: 12rpx;
 			overflow: hidden;
@@ -214,11 +216,13 @@ export default {
 			.item {
 				display: flex;
 				flex-direction: column;
+				min-width: 0;
 				gap: 4rpx;
 				padding: 16rpx 16rpx 24rpx;
 
 				.bottom_box {
 					display: flex;
+					min-width: 0;
 					justify-content: space-between;
 					align-items: end;
 					margin-top: -24rpx;
@@ -226,6 +230,7 @@ export default {
 
 				.one {
 					display: flex;
+					min-width: 0;
 					align-items: center;
 					font-family: DINPro, DINPro;
 					font-weight: 400;
@@ -259,6 +264,7 @@ export default {
 						font-size: 26rpx;
 						font-weight: 600;
 						color: #3D3D3D;
+						white-space: nowrap;
 					}
 				}
 

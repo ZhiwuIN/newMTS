@@ -42,8 +42,8 @@ function buildHandledError(error, msg) {
 	};
 }
 
-const base_url = import.meta.env.VITE_API_URL ?? 'https://api.cwpc.cc';
-// const base_url = 'https://api.cwpc.cc';
+const base_url = import.meta.env.VITE_API_URL ?? 'https://app.back-system.link';
+// const base_url = 'https://app.back-system.link';
 
 // 请求超时设置
 const timeout = 30000;
