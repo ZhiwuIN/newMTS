@@ -23,13 +23,13 @@
 		<view class="step_box">
 			<view v-for="(item, index) in 10" class="step_item">
 				<view class="sequence">{{index + 1}}</view>
-				<image class="image-center" :src="`/static/appDownload/${index + 1}.png`" mode="widthFix"></image>
+				<image class="image-center" :src="`/static/appDownload/${index + 1}.jpg`" mode="widthFix"></image>
 			</view>
 		</view>
 
 		<view class="mask" @click="showMask = false" v-if="showMask"></view>
 		<view class="link_box" v-if="showMask">
-			<image class="bigIcon" src="/static/appDownload/big.png" mode=""></image>
+			<image class="bigIcon" src="/static/1024.png" mode=""></image>
 			<view class="text">
 				<view>{{ $t('Copy the link and open it in Safari') }}</view>
 				<image src="/static/appDownload/111.png" class="icon" mode=""></image>
@@ -181,7 +181,7 @@
 					height: 67rpx;
 					background: $themeColor;
 					// box-shadow: 5rpx 0rpx 4rpx 0rpx #1F68BF;
-					
+
 					border-radius: 34rpx;
 					font-family: PingFangSC, PingFang SC;
 					font-weight: 400;
@@ -235,6 +235,7 @@
 
 				.image-center {
 					width: 560rpx;
+					border-radius: 18rpx;
 				}
 			}
 		}
