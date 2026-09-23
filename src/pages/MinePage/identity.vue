@@ -91,14 +91,14 @@
 						value: 0,
 						text: this.$t("nationality.CotedIvoire"),
 					},
-					{
-						value: 1,
-						text: this.$t("nationality.Nigeria"),
-					},
-					{
-						value: 2,
-						text: this.$t("other"),
-					},
+					// {
+					// 	value: 1,
+					// 	text: this.$t("nationality.Nigeria"),
+					// },
+					// {
+					// 	value: 1,
+					// 	text: this.$t("other"),
+					// },
 				]
 			}
 		},
