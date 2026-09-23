@@ -136,7 +136,9 @@ export default {
 			isRefreshing: false,
 			levelCode: '',
 			preLoadScrollTop: 0,
-			taskCardHeight: 298, // 顶部卡片固定高度（rpx）
+			taskCardHeight: 298, // 顶部卡片基线高度（rpx，手工调校值）
+			textBoxExtraHeight: 0, // 长文案换行后卡片额外增加的高度（rpx）
+			navHeight: 0, // 导航栏高度（rpx），用于重算列表高度
 			taskCardCollapseOffset: 0,
 			taskCardCollapseMax: 220,
 			windowWidth: 375,
@@ -166,7 +168,13 @@ export default {
 		});
 		this.isShow = true;
 	},
+	onReady() {
+		// 首屏渲染完成后量一次标题区高度（长语言会换行，卡片随之变高）
+		this.measureTextBoxHeight();
+	},
 	async onShow() {
+		// 语言可能在设置页切换过，每次显示重新量一次
+		this.measureTextBoxHeight();
 		this.getUserInfo();
 		const completedId = uni.getStorageSync('isTodayCompletedId');
 		// await this.theTaskQuotaOfTheDay();
@@ -247,22 +255,50 @@ export default {
 			})
 		},
 		mtop(e) {
-			// 计算可用高度 = 屏幕高度 - 导航栏高度 - 顶部卡片高度
-			const navHeight = e; // 导航栏高度（从组件获取）
+			// 导航栏高度（从组件获取），供 updateScrollViewHeight 复用
+			this.navHeight = e;
 
 			// #ifdef H5
 			// H5端：额外减去底部可能的留白
 			this.topStyle = "margin-top:-" + e + "rpx;padding-top:" + (e + 88) + "rpx"
-			// 固定scroll-view高度：屏幕高度 - 导航栏高度 - 顶部卡片高度 - 额外留白
-			this.scrollViewBaseHeight = `100vh - ${navHeight}rpx - ${this.taskCardHeight}rpx - 300rpx`;
 			// #endif
 
 			// #ifdef APP-PLUS
 			// APP端：更紧凑的计算
 			this.topStyle = "margin-top:-" + e + "rpx;padding-top:" + (e + 99) + "rpx"
-			// 固定scroll-view高度：屏幕高度 - 导航栏高度 - 顶部卡片高度
-			this.scrollViewBaseHeight = `100vh - ${navHeight}rpx - ${this.taskCardHeight}rpx - 128rpx`;
 			// #endif
+
+			this.updateScrollViewHeight();
+		},
+		// 列表可用高度 = 屏幕高度 - 导航栏高度 - 顶部卡片实际高度
+		// 卡片实际高度 = 基线高度 + 长文案换行带来的额外高度
+		updateScrollViewHeight() {
+			if (!this.navHeight) return;
+			const cardHeight = this.taskCardHeight + this.textBoxExtraHeight;
+
+			// #ifdef H5
+			// H5端：额外减去底部可能的留白
+			this.scrollViewBaseHeight = `100vh - ${this.navHeight}rpx - ${cardHeight}rpx - 300rpx`;
+			// #endif
+
+			// #ifdef APP-PLUS
+			this.scrollViewBaseHeight = `100vh - ${this.navHeight}rpx - ${cardHeight}rpx - 128rpx`;
+			// #endif
+		},
+		// 量一次标题区高度：fr/ru/tv 等长文案会换行使卡片变高，
+		// 把增量补进列表高度，避免下方瀑布流被挤出屏幕
+		measureTextBoxHeight() {
+			this.$nextTick(() => {
+				uni.createSelectorQuery().in(this).select('.text_box').boundingClientRect((rect) => {
+					if (!rect || !rect.height) return;
+					const heightRpx = rect.height * 750 / this.windowWidth;
+					// 不换行时基线 = 94(标题) + 94(标题) + 32(小字) = 220rpx
+					const extra = heightRpx - 220;
+					// 只有真正换行（超过半行）才计入，保证 en/zh/es 等不换行的语言布局不变
+					this.textBoxExtraHeight = extra >= 47 ? Math.round(extra) : 0;
+					this.updateScrollViewHeight();
+				}).exec();
+			});
 		},
 		getUserInfo() {
 			userInfoApi().then((res) => {
@@ -404,6 +440,10 @@ export default {
 		.text_box {
 			position: relative;
 			z-index: 2;
+			// 右侧给装饰图 tag_img 让位：图宽 338rpx、right:-24rpx，左缘落在 422rpx，
+			// 这里把文案限制在 736-320=416rpx 以内，长文案（fr/ru/tv）换行避让，
+			// 而不是压到图上或被图遮住
+			padding-right: 320rpx;
 			font-size: 64rpx;
 			font-weight: bold;
 			line-height: 94rpx;

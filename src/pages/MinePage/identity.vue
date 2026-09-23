@@ -86,19 +86,12 @@
 					idCard: '',
 				},
 				nationalityValue: 0,
+				// 国籍只保留科特迪瓦，尼日利亚等其他选项已移除
 				nationalityList: [
 					{
 						value: 0,
 						text: this.$t("nationality.CotedIvoire"),
 					},
-					// {
-					// 	value: 1,
-					// 	text: this.$t("nationality.Nigeria"),
-					// },
-					// {
-					// 	value: 1,
-					// 	text: this.$t("other"),
-					// },
 				]
 			}
 		},
