@@ -146,7 +146,7 @@ async function getCommunityMyQueryApi(type: string | number | null) {
     hasMore.value = list.value.length < (res.data?.total ?? 0)
   }
   catch (err: any) {
-    showToast(err.msg || t('request.systemMaintenance'))
+    showToast(err.msg || t('systemMaintenance'))
   }
   finally {
     uni.hideLoading()

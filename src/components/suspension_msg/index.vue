@@ -1,7 +1,7 @@
 <template>
     <view class="suspension_msg_box" :class="{ hidden: isHidden }" @click="unShow">
         <view>{{ $t('chat') }}</view>
-        <view class="redDot" v-if="unreadCount > 0"></view>
+        <!-- <view class="redDot" v-if="unreadCount > 0"></view> -->
     </view>
 </template>
 
@@ -20,7 +20,7 @@ export default {
     methods: {
         unShow() {
             uni.navigateTo({
-                url: '/pages/MessagePage/index'
+                url: '/pages/MessagePage/personMessagePage?id=' + uni.getStorageSync('userInfo').agentId
             })
         },
         handleScroll() {

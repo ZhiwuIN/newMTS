@@ -38,10 +38,10 @@
 				<!-- 长按消息操作菜单 -->
 				<view v-if="actionTarget" class="action_sheet_mask" @click="closeActionSheet">
 					<view class="action_sheet" @click.stop>
-						<view v-if="actionTarget.type != 1" class="action_item"
-							@click="quoteMessage(actionTarget)">{{ $t('MessagePage.quote') }}</view>
-						<view v-if="actionTarget.type != 1" class="action_item"
-							@click="copyContent">{{ $t('MessagePage.copy') }}</view>
+						<view v-if="actionTarget.type != 1" class="action_item" @click="quoteMessage(actionTarget)">{{
+							$t('MessagePage.quote') }}</view>
+						<view v-if="actionTarget.type != 1" class="action_item" @click="copyContent">{{
+							$t('MessagePage.copy') }}</view>
 					</view>
 				</view>
 
@@ -107,6 +107,7 @@ import { messageBadgeManager } from '@/common/api/messageBadge.js';
 import { base_url } from '@/common/api/request.js';
 
 const DEFAULT_AVATAR = '/static/default-avatar.png'
+const DEFAULT_AVATAR2 = '/static/1024.png'
 
 // URL query 里带过来的昵称 / 头像可能已被解码，这里做一次安全解码
 function safeDecode(value) {
@@ -128,7 +129,7 @@ export default {
 			proxyId: '',
 			userId: '',
 			userName: '--',
-			peerAvatar: DEFAULT_AVATAR,
+			peerAvatar: DEFAULT_AVATAR2,
 			myAvatar: DEFAULT_AVATAR,
 			isFunction: false, // 展示功能面板
 			message: '',
@@ -170,8 +171,8 @@ export default {
 	},
 	onLoad(options) {
 		this.proxyId = options.id
-		this.userName = safeDecode(options.name) || '--'
-		this.peerAvatar = safeDecode(options.avatar) || DEFAULT_AVATAR
+		this.userName = this.$t('业务经理')
+		this.peerAvatar = DEFAULT_AVATAR2
 		const userInfo = uni.getStorageSync('userInfo') || {}
 		this.userId = userInfo.userId
 		this.myAvatar = userInfo.avatar || DEFAULT_AVATAR

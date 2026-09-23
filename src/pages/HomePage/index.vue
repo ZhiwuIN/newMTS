@@ -245,6 +245,8 @@
 		<messagePopup v-model:isShow="isShowMessage" :data="msgData" @getMessageNoticeApi="getMessageNoticeApi">
 		</messagePopup>
 
+		<unreadPopup ref="unreadPopup" />
+
 		<!-- 悬浮聊天 -->
 		<suspensionMsg />
 	</view>
@@ -253,6 +255,7 @@
 <script>
 import homenavbar from '@/component/home-navbar/home-navbar.vue'
 import contactWay from '@/components/contactWay/contactWay.vue';
+import unreadPopup from '@/components/unread_popup/index.vue';
 import suspensionMsg from '@/components/suspension_msg/index.vue';
 import { getArticleList } from '@/common/api/article.js'
 import { productRecommendApi } from '@/common/api/product.js'
@@ -289,7 +292,8 @@ export default {
 		ArticlePostCard,
 		contactWay,
 		messagePopup,
-		suspensionMsg
+		suspensionMsg,
+		unreadPopup
 	},
 	data() {
 		return {
@@ -361,7 +365,12 @@ export default {
 		prompt_confirm2() {
 			this.$refs.promptpopup2.close()
 		},
+		// 跳转发帖
 		toArticleCreation() {
+			if (this.userInfo.levelCode == '0') {
+				this.$showMessage('warning', this.$t('home.internNoPermission'))
+				return
+			}
 			uni.navigateTo({
 				url: '/pages/ArticlePage/articleCreation',
 			})
@@ -546,7 +555,7 @@ export default {
 				this.postLoaded = true
 			}
 			catch (err) {
-				showMessage('warning', err?.msg || this.$t('request.systemMaintenance'))
+				showMessage('warning', err?.msg || this.$t('systemMaintenance'))
 			}
 			finally {
 				this.postLoading = false
@@ -786,11 +795,7 @@ export default {
 		}
 	},
 	onShow() {
-		// activityCenterApi().then(res => {
-		// 	this.activityCenter = res.data
-		// })
-		// 灵活活动
-		// this.getActivityData()
+		this.$nextTick(() => this.$refs.unreadPopup?.checkUnread())
 		this.getActiveCenterTop()
 		this.getUserInfo()
 		this.getMenuListApi()
@@ -815,6 +820,9 @@ export default {
 			}
 		})
 		this.getMessageNoticeApi()
+	},
+	onHide() {
+		this.$refs.unreadPopup?.stopUnreadCheck()
 	},
 	mounted() {
 		this.currency = uni.getStorageSync('settings').currency || ''
@@ -1457,7 +1465,7 @@ export default {
 }
 
 .more-link {
-	color:  $themeColor;
+	color: $themeColor;
 	font-size: 24rpx;
 }
 

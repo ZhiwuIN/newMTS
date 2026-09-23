@@ -2,89 +2,13 @@
     <view class="box">
         <view class="Big_bgi" :style="topStyle2"></view>
         <view class="main" :style="topStyle2">
-            <!-- 标题 -->
-            <view class="title">
-                Update List 0826
-            </view>
-            <!-- 内容 -->
-            <view class="content">
-                ✨ Brand new interface refresh, fully upgraded visual experience This version focuses on the UI
-                redesign
-                of the App.
-                We restructured the visual hierarchy of pages and adjusted colors, fonts and widget styles for a
-                cleaner
-                and more modern look.
-                ✨ Brand new interface refresh, fully upgraded visual experience This version focuses on the UI
-                redesign
-                of the App.
-                We restructured the visual hierarchy of pages and adjusted colors, fonts and widget styles for a
-                cleaner
-                and more modern look.
-                ✨ Brand new interface refresh, fully upgraded visual experience This version focuses on the UI
-                redesign
-                of the App.
-                We restructured the visual hierarchy of pages and adjusted colors, fonts and widget styles for a
-                cleaner
-                and more modern look.
-                ✨ Brand new interface refresh, fully upgraded visual experience This version focuses on the UI
-                redesign
-                of the App.
-                We restructured the visual hierarchy of pages and adjusted colors, fonts and widget styles for a
-                cleaner
-                and more modern look.
-                ✨ Brand new interface refresh, fully upgraded visual experience This version focuses on the UI
-                redesign
-                of the App.
-                We restructured the visual hierarchy of pages and adjusted colors, fonts and widget styles for a
-                cleaner
-                and more modern look.
-                ✨ Brand new interface refresh, fully upgraded visual experience This version focuses on the UI
-                redesign
-                of the App.
-                We restructured the visual hierarchy of pages and adjusted colors, fonts and widget styles for a
-                cleaner
-                and more modern look.
-                ✨ Brand new interface refresh, fully upgraded visual experience This version focuses on the UI
-                redesign
-                of the App.
-                We restructured the visual hierarchy of pages and adjusted colors, fonts and widget styles for a
-                cleaner
-                and more modern look.
-                ✨ Brand new interface refresh, fully upgraded visual experience This version focuses on the UI
-                redesign
-                of the App.
-                We restructured the visual hierarchy of pages and adjusted colors, fonts and widget styles for a
-                cleaner
-                and more modern look.
-                ✨ Brand new interface refresh, fully upgraded visual experience This version focuses on the UI
-                redesign
-                of the App.
-                We restructured the visual hierarchy of pages and adjusted colors, fonts and widget styles for a
-                cleaner
-                and more modern look.
-                ✨ Brand new interface refresh, fully upgraded visual experience This version focuses on the UI
-                redesign
-                of the App.
-                We restructured the visual hierarchy of pages and adjusted colors, fonts and widget styles for a
-                cleaner
-                and more modern look.
-                ✨ Brand new interface refresh, fully upgraded visual experience This version focuses on the UI
-                redesign
-                of the App.
-                We restructured the visual hierarchy of pages and adjusted colors, fonts and widget styles for a
-                cleaner
-                and more modern look.
-                ✨ Brand new interface refresh, fully upgraded visual experience This version focuses on the UI
-                redesign
-                of the App.
-                We restructured the visual hierarchy of pages and adjusted colors, fonts and widget styles for a
-                cleaner
-                and more modern look.
-            </view>
-            <!-- 进度条 -->
+            <view class="title">{{ notice.title || $t('updateNotice.title') }}</view>
+            <scroll-view class="content" scroll-y>
+                <rich-text :nodes="notice.content || ''"></rich-text>
+            </scroll-view>
             <view class="progressBar_box">
                 <view class="text_box">
-                    <view class="text">Updating...</view>
+                    <view class="text">{{ $t(progressTextKey) }}</view>
                     <view class="percentage">{{ showPercentage }}%</view>
                 </view>
                 <view class="progressBar">
@@ -94,23 +18,49 @@
         </view>
     </view>
 </template>
+
 <script>
+const UPDATE_NOTICE_DATA_KEY = 'latest_update_notice_data'
+const UPDATE_VERSION_DATA_KEY = 'latest_update_version_data'
+
 export default {
     data() {
         return {
             topStyle2: '',
+            notice: {},
+            versionData: null,
             percentage: 0,
             timer: null,
-            totalTime: 0,
-            startTime: 0,
-            isPause: false,
-            pauseEndTime: 0
+            downloadTask: null,
+            progressTextKey: this.$t('updateNotice.updating')
         }
     },
     computed: {
         showPercentage() {
             return Math.round(this.percentage)
         }
+    },
+    onLoad() {
+        this.notice = uni.getStorageSync(UPDATE_NOTICE_DATA_KEY) || {}
+        this.versionData = uni.getStorageSync(UPDATE_VERSION_DATA_KEY) || null
+        uni.removeStorageSync(UPDATE_NOTICE_DATA_KEY)
+        uni.removeStorageSync(UPDATE_VERSION_DATA_KEY)
+        this.mtop()
+
+        // #ifdef APP-PLUS
+        if (this.versionData) {
+            this.startRealUpdate()
+            return
+        }
+        // #endif
+
+        this.startNoticeProgress()
+    },
+    onUnload() {
+        if (this.timer) clearInterval(this.timer)
+    },
+    onBackPress() {
+        if (this.versionData?.edition_force == 1) return true
     },
     methods: {
         mtop() {
@@ -121,10 +71,6 @@ export default {
             statusBarHeight = sys.statusBarHeight
             navBarHeight = sys.platform === 'android' ? 96 : 88
             // #endif
-            // #ifdef H5
-            statusBarHeight = 0
-            navBarHeight = 88
-            // #endif
             const mtopValue = statusBarHeight / 2 + navBarHeight
             // #ifdef H5
             this.topStyle2 = `height:calc(100vh - ${mtopValue - 88.1}rpx);`
@@ -133,78 +79,66 @@ export default {
             this.topStyle2 = 'height:calc(100vh);'
             // #endif
         },
-        startProgress() {
-            // 总时长随机：10 ~15秒
-            this.totalTime = Math.floor(Math.random() * 5000) + 10000
-            this.startTime = Date.now()
-            this.percentage = 0
-            this.isPause = false
-            this.pauseEndTime = 0
-
+        startNoticeProgress() {
+            const duration = 3000
+            const startedAt = Date.now()
             this.timer = setInterval(() => {
-                const now = Date.now()
-                const elapsed = now - this.startTime
-                const remainTime = this.totalTime - elapsed
-                const remainPercent = 100 - this.percentage
-
-                // 时间到，结束
-                if (remainTime <= 0 || remainPercent <= 0) {
-                    this.percentage = 100
+                this.percentage = Math.min(100, ((Date.now() - startedAt) / duration) * 100)
+                if (this.percentage >= 100) {
                     clearInterval(this.timer)
-                    setTimeout(() => {
-                        uni.reLaunch({
-                            url: '/pages/LoginPage/login'
-                        })
-                    }, 300)
-                    return
+                    this.timer = null
+                    setTimeout(() => this.goLogin(), 300)
                 }
-
-                // 如果处于暂停状态，判断是否暂停时间结束
-                if (this.isPause) {
-                    if (now >= this.pauseEndTime) {
-                        this.isPause = false
-                    }
-                    return
-                }
-
-                // ✅ 兜底：剩余小于2.5秒，不再产生卡顿，直接冲刺
-                if (remainTime < 2500) {
-                    this.percentage += remainPercent / (remainTime / 80)
-                    return
-                }
-
-                // ✅ 随机触发卡顿：5%概率进入暂停
-                if (Math.random() < 0.05) {
-                    const pauseMs = Math.floor(Math.random() * 1200) + 300 // 停顿300~1500ms
-                    this.isPause = true
-                    this.pauseEndTime = now + pauseMs
-                    return
-                }
-
-                // ✅ 正常增长：小步为主，偶尔大跳
-                let step = Math.random() * 2.2
-                // 20%概率大幅跳跃
-                if (Math.random() < 0.4) {
-                    step = Math.random() * 4.5
-                }
-                this.percentage += step
-
-                if (this.percentage > 100) this.percentage = 100
             }, 80)
-        }
-    },
-    onLoad() {
-        this.mtop()
-        this.startProgress()
-    },
-    onUnload() {
-        if (this.timer) {
-            clearInterval(this.timer)
-            this.timer = null
+        },
+        startRealUpdate() {
+            const data = this.versionData
+            if (data.package_type == 0 && !data.edition_url?.toLowerCase().includes('.apk')) {
+                this.progressTextKey = this.$t('updateNotice.openingDownload')
+                plus.runtime.openURL(data.edition_url)
+                this.goLogin()
+                return
+            }
+
+            this.progressTextKey = this.$t('updateNotice.downloading')
+            this.downloadTask = uni.downloadFile({
+                url: data.edition_url,
+                success: (res) => {
+                    if (res.statusCode !== 200) {
+                        this.handleUpdateError(null, this.$t('updateNotice.downloadFailed'))
+                        return
+                    }
+                    this.percentage = 100
+                    this.progressTextKey = this.$t('updateNotice.installing')
+                    plus.runtime.install(res.tempFilePath, { force: true }, () => {
+                        if (data.package_type == 1) plus.runtime.restart()
+                        else this.goLogin()
+                    }, this.handleUpdateError)
+                },
+                fail: this.handleUpdateError
+            })
+
+            this.downloadTask.onProgressUpdate((res) => {
+                this.percentage = res.progress
+            })
+        },
+        handleUpdateError(error, messageKey = this.$t('updateNotice.updateFailed')) {
+            if (error) console.log('app update failed', error)
+            this.progressTextKey = this.$t('updateNotice.updateFailed')
+            uni.showToast({
+                title: this.$t(messageKey),
+                icon: 'none',
+                duration: 2500
+            })
+            if (this.versionData?.edition_force != 1) setTimeout(() => this.goLogin(), 2000)
+        },
+        goLogin() {
+            uni.reLaunch({ url: '/pages/LoginPage/login' })
         }
     }
 }
 </script>
+
 <style scoped lang="scss">
 * {
     box-sizing: border-box;
@@ -230,12 +164,9 @@ export default {
     flex-direction: column;
     overflow: hidden;
 
-    /* 关键：超出main高度的内容截断，交给子元素滚动 */
     .title {
         font-size: 48rpx;
         font-weight: 900;
-        font-variation-settings: "opsz" auto;
-        font-feature-settings: "kern" on;
         background: linear-gradient(180deg, #ffffff 54%, #9db9ff 84%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
@@ -251,7 +182,7 @@ export default {
         color: #fff;
         overflow-y: auto;
         flex: 1;
-        flex-shrink: 1;
+        min-height: 0;
     }
 
     .progressBar_box {
@@ -262,19 +193,18 @@ export default {
             display: flex;
             justify-content: space-between;
             margin-bottom: 16rpx;
+        }
 
-            .text {
-                font-family: MiSans;
-                font-size: 28rpx;
-                color: #FFFFFF;
-            }
+        .text,
+        .percentage {
+            font-family: MiSans;
+            font-size: 28rpx;
+            color: #fff;
+        }
 
-            .percentage {
-                font-family: MiSans;
-                font-size: 28rpx;
-                font-weight: bold;
-                color: #3CD5FC;
-            }
+        .percentage {
+            font-weight: bold;
+            color: #3CD5FC;
         }
 
         .progressBar {
@@ -283,13 +213,13 @@ export default {
             border-radius: 2026rpx;
             background-color: #0d1f3c;
             overflow: hidden;
+        }
 
-            .progressBar_inner {
-                height: 100%;
-                border-radius: inherit;
-                background: linear-gradient(270deg, #3cd5fc 0%, #195efc 48%);
-                transition: width 0.3s;
-            }
+        .progressBar_inner {
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(270deg, #3cd5fc 0%, #195efc 48%);
+            transition: width 0.2s;
         }
     }
 }

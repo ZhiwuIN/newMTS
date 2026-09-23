@@ -5,6 +5,8 @@ import en from '../../locale/en.json'
 import ru from '../../locale/ru.json'
 import es from '../../locale/es.json'
 import fr from '../../locale/fr.json'
+import zh from '../../locale/zh.json'
+import tv from '../../locale/tv.json'
 import {
 	showMessage
 } from '@/utils/utils.js'
@@ -12,7 +14,9 @@ const messages = {
 	'en': en,
 	'ru': ru,
 	'es': es,
-	'fr': fr
+	'fr': fr,
+	'zh': zh,
+	'tv': tv
 }
 const {
 	t
@@ -253,7 +257,7 @@ function requestWithAuth(params, resolve, reject, retried = false) {
 			} else if (is502Error) {
 				if (!globalRequestFailedAlerted) {
 					globalRequestFailedAlerted = true;
-					showMessage('warning', t('request.systemMaintenance'));
+					showMessage('warning', t('systemMaintenance'));
 
 					// 3秒内禁止重复弹窗
 					setTimeout(() => {
@@ -262,8 +266,9 @@ function requestWithAuth(params, resolve, reject, retried = false) {
 				}
 			} else {
 				// 其他网络错误：保留原有网络错误提示（可根据需求调整）
-				showMessage('warning', t('request.systemMaintenance'));
+				showMessage('warning', t('systemMaintenance'));
 			}
+			reject(err);
 		},
 		complete() {
 			uni.hideLoading();

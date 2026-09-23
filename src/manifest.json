@@ -27,8 +27,7 @@
         /* 模块配置 - 移除Push模块 */
         "modules" : {
             "Camera" : {},
-            "VideoPlayer" : {},
-            "Push" : {}
+            "VideoPlayer" : {}
         },
         /* 应用发布信息 */
         "distribute" : {
@@ -66,15 +65,7 @@
             "sdkConfigs" : {
                 "ad" : {},
                 "payment" : {},
-                "push" : {
-                    "unipush" : {
-                        "icons" : {
-                            "small" : {
-                                "ldpi" : ""
-                            }
-                        }
-                    }
-                }
+                "push" : {}
             },
             "icons" : {
                 "android" : {

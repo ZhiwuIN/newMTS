@@ -14,7 +14,7 @@
 							</view>
 							<view class="user-detail">
 								<view class="user-name">{{ userInfo.username || '--' }}</view>
-								<view class="user-id">{{ $t('minePage.cqaiId') }}: {{ displayUserId }}</view>
+								<view class="user-id">{{ $t('minePage.vcicId') }}: {{ displayUserId }}</view>
 							</view>
 						</view>
 						<!-- 保证金 -->
@@ -307,7 +307,7 @@ export default {
 	},
 	computed: {
 		displayUserId() {
-			return this.userInfo.cqaiId || this.userInfo.userId || this.userInfo.uid || this.userInfo.id || this.userInfo.phone || '--';
+			return this.userInfo.userId || this.userInfo.uid || this.userInfo.id || this.userInfo.phone || '--';
 		},
 		gridMenuItems() {
 			// return this.menuList.slice(0, 9);

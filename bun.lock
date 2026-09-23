@@ -25,7 +25,7 @@
         "date-fns": "^4.1.0",
         "date-fns-tz": "^1.0.0",
         "echarts": "^6.1.0",
-        "pinia": "2.2.6",
+        "pinia": "2.1.7",
         "sass": "1.77.8",
         "tdesign-mobile-vue": "^1.10.1",
         "vue": "3.4.21",
@@ -1309,7 +1309,7 @@
 
     "pify": ["pify@2.3.0", "https://registry.npmmirror.com/pify/-/pify-2.3.0.tgz", {}, "sha512-udgsAY+fTnvv7kI7aaxbqwWNb0AHiB0qBO89PZKPkoTmGOgdbrHDKD+0B2X4uTfJ/FT1R09r9gTsjUjNJotuog=="],
 
-    "pinia": ["pinia@2.2.6", "", { "dependencies": { "@vue/devtools-api": "^6.6.3", "vue-demi": "^0.14.10" }, "peerDependencies": { "@vue/composition-api": "^1.4.0", "typescript": ">=4.4.4", "vue": "^2.6.14 || ^3.5.11" }, "optionalPeers": ["@vue/composition-api", "typescript"] }, "sha512-vIsR8JkDN5Ga2vAxqOE2cJj4VtsHnzpR1Fz30kClxlh0yCHfec6uoMeM3e/ddqmwFUejK3NlrcQa/shnpyT4hA=="],
+    "pinia": ["pinia@2.1.7", "", { "dependencies": { "@vue/devtools-api": "^6.5.0", "vue-demi": ">=0.14.5" }, "peerDependencies": { "@vue/composition-api": "^1.4.0", "typescript": ">=4.4.4", "vue": "^2.6.14 || ^3.3.0" }, "optionalPeers": ["@vue/composition-api", "typescript"] }, "sha512-+C2AHFtcFqjPih0zpYuvof37SFxMQ7OEG2zV9jRI12i9BOy3YQVAHwdKtyyc8pDcDyIc33WCIsZaCFWU7WWxGQ=="],
 
     "pirates": ["pirates@4.0.7", "https://registry.npmmirror.com/pirates/-/pirates-4.0.7.tgz", {}, "sha512-TfySrs/5nm8fQJDcBDuUng3VOUKsd7S+zqvbOTiGXHfxX4wK31ard+hoNuvkicM/2YFzlpDgABOevKSsB4G/FA=="],
 

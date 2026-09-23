@@ -86,12 +86,17 @@
 					idCard: '',
 				},
 				nationalityValue: 0,
-				nationalityList: [{
+				nationalityList: [
+					{
 						value: 0,
-						text: this.$t("nationality.Nigeria"),
+						text: this.$t("nationality.CotedIvoire"),
 					},
 					{
 						value: 1,
+						text: this.$t("nationality.Nigeria"),
+					},
+					{
+						value: 2,
 						text: this.$t("other"),
 					},
 				]

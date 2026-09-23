@@ -66,7 +66,11 @@
 		onLoad({
 			obj
 		}) {
-			this.data = JSON.parse(obj);
+			try {
+				this.data = JSON.parse(obj);
+			} catch (error) {
+				this.data = JSON.parse(decodeURIComponent(obj));
+			}
 			if (this.data.edition_force == 0) {
 				this.cancleBtn = true;
 			}

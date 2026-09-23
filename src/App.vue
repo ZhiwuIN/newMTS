@@ -3,9 +3,47 @@ import {
 	settingsApi
 } from "@/common/api/users.js";
 import {
+	latestNoticeApi,
 	versionApi
 } from "@/common/api/home.js";
 import { messageBadgeManager } from '@/common/api/messageBadge.js';
+
+const NOTICE_TIMESTAMP_KEY = 'latest_update_notice_timestamp'
+const UPDATE_NOTICE_DATA_KEY = 'latest_update_notice_data'
+const UPDATE_VERSION_DATA_KEY = 'latest_update_version_data'
+
+function normalizeVersionData(data = {}) {
+	return {
+		...data,
+		describe: data.description,
+		edition_name: data.editionName,
+		edition_url: data.editionUrl,
+		package_type: data.packageType,
+		edition_force: data.editionForce
+	}
+}
+
+function isUnseenNotice(notice) {
+	if (!notice || notice.timestamp === undefined || notice.timestamp === null) return false
+	return String(uni.getStorageSync(NOTICE_TIMESTAMP_KEY)) !== String(notice.timestamp)
+}
+
+function settleRequest(promise, timeout = 10000) {
+	return new Promise((resolve) => {
+		let finished = false
+		const finish = (result) => {
+			if (finished) return
+			finished = true
+			clearTimeout(timer)
+			resolve(result)
+		}
+		const timer = setTimeout(() => finish({ ok: false, error: new Error('request timeout') }), timeout)
+		Promise.resolve(promise).then(
+			value => finish({ ok: true, value }),
+			error => finish({ ok: false, error })
+		)
+	})
+}
 export default {
 	onLaunch: function (options) {
 		// #ifdef H5
@@ -16,49 +54,14 @@ export default {
 				url: '/pages/LoginPage/register'
 			})
 		} else {
-			// 2. 判断是否是首次启动（而非刷新）
-			const isInitialized = uni.getStorageSync('app_initialized')
-			if (!isInitialized) {
-				uni.reLaunch({
-					url: '/pages/HomePage/index'
-				})
-				// 标记为已初始化
-				uni.setStorageSync('app_initialized', true)
-			}
+			this.checkH5UpdateNotice()
 		}
 		// #endif
 		// #ifdef APP-PLUS
 		plus.runtime.getProperty(plus.runtime.appid, (inf) => {
-			//获取服务器的版本号
-			versionApi().then(res => {
-				let data = res.data
-				data.describe = res.data.description
-				data.edition_name = res.data.editionName
-				data.edition_url = res.data.editionUrl
-				data.package_type = res.data.packageType
-				data.edition_force = res.data.editionForce
-				if (Number(res.data.editionNumber) > Number(inf.versionCode)) {
-					setTimeout(() => {
-						// console.log('跳转更新')
-						uni.reLaunch({
-							url: '/uni_modules/rt-uni-update/components/rt-uni-update/rt-uni-update?obj=' +
-								JSON.stringify(data),
-							success: () => {
-								//跳转完页面后再关闭启动页
-								plus.navigator.closeSplashscreen();
-							}
-						});
-					}, 100)
-				} else {
-					uni.reLaunch({
-						url: '/pages/LoginPage/login',
-						success: () => {
-							//跳转完页面后再关闭启动页
-							plus.navigator.closeSplashscreen();
-						}
-					})
-
-				}
+			this.checkAppUpdates(inf).catch((error) => {
+				console.log('app startup update check fail', error)
+				this.reLaunchAndCloseSplash('/pages/LoginPage/login')
 			})
 		});
 		// #endif
@@ -116,6 +119,71 @@ export default {
 	},
 
 	methods: {
+		async checkH5UpdateNotice() {
+			const result = await settleRequest(latestNoticeApi())
+			if (result.ok) {
+				const notice = result.value.data
+				if (isUnseenNotice(notice)) {
+					uni.setStorageSync(NOTICE_TIMESTAMP_KEY, String(notice.timestamp))
+					uni.setStorageSync(UPDATE_NOTICE_DATA_KEY, notice)
+					uni.removeStorageSync(UPDATE_VERSION_DATA_KEY)
+					uni.reLaunch({ url: '/pages/updateNoticePage/index' })
+					return
+				}
+			} else {
+				console.log('latest notice request fail', result.error)
+			}
+
+			const isInitialized = uni.getStorageSync('app_initialized')
+			if (!isInitialized) {
+				uni.reLaunch({ url: '/pages/HomePage/index' })
+				uni.setStorageSync('app_initialized', true)
+			}
+		},
+		async checkAppUpdates(inf) {
+			let notice = null
+			let versionData = null
+			const [noticeResult, versionResult] = await Promise.all([
+				settleRequest(latestNoticeApi()),
+				settleRequest(versionApi())
+			])
+
+			if (noticeResult.ok) notice = noticeResult.value.data
+			else console.log('latest notice request fail', noticeResult.error)
+
+			if (versionResult.ok &&
+				Number(versionResult.value.data?.editionNumber) > Number(inf.versionCode)) {
+				versionData = normalizeVersionData(versionResult.value.data)
+			} else if (!versionResult.ok) {
+				console.log('version request fail', versionResult.error)
+			}
+
+			if (isUnseenNotice(notice)) {
+				uni.setStorageSync(NOTICE_TIMESTAMP_KEY, String(notice.timestamp))
+				uni.setStorageSync(UPDATE_NOTICE_DATA_KEY, notice)
+				if (versionData) uni.setStorageSync(UPDATE_VERSION_DATA_KEY, versionData)
+				else uni.removeStorageSync(UPDATE_VERSION_DATA_KEY)
+				this.reLaunchAndCloseSplash('/pages/updateNoticePage/index')
+				return
+			}
+
+			if (versionData) {
+				this.reLaunchAndCloseSplash(
+					'/uni_modules/rt-uni-update/components/rt-uni-update/rt-uni-update?obj=' +
+					encodeURIComponent(JSON.stringify(versionData))
+				)
+				return
+			}
+			this.reLaunchAndCloseSplash('/pages/LoginPage/login')
+		},
+		reLaunchAndCloseSplash(url) {
+			setTimeout(() => {
+				uni.reLaunch({
+					url,
+					success: () => plus.navigator.closeSplashscreen()
+				})
+			}, 100)
+		},
 		handleDeviceDetection() {
 			// 空值兜底，避免 undefined 报错
 			const userAgentInfo = window?.navigator.userAgent || '';

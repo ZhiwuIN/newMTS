@@ -483,6 +483,7 @@ export default {
 					return
 				}
 				let params = {
+					"password": this.password,
 					"taskId": this.taskId
 				}
 				paymentApi(params).then((res) => {

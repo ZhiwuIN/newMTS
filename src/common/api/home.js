@@ -204,6 +204,14 @@ export function versionApi() {
 	})
 }
 
+// 最新更新公告
+export function latestNoticeApi() {
+	return request({
+		url: '/app/notice/latest',
+		method: 'get',
+	})
+}
+
 // 顶部消息通知
 export function messageNoticeApi() {
 	return request({
