@@ -15,10 +15,10 @@
                     <!-- 按钮 -->
                     <view class="btn_box">
                         <view class="btn" @click="toPage('/pages/DiscountMallPage/rule')">
-                            {{ $t('活动说明') }}
+                            {{ $t('活动规则') }}
                         </view>
                         <view class="btn_recharge" @click="toPage('/pages/DiscountMallPage/rechargePage')">
-                            {{ $t('充值') }}
+                            {{ $t('home.Recharge') }}
                         </view>
                     </view>
                 </view>

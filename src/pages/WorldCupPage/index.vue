@@ -82,7 +82,7 @@
             <!-- 活动介绍 -->
             <view class="main_box main_box_2" style="margin-top: 60rpx;">
                 <view class="title_box">
-                    <view>{{ $t('活动说明') }}</view>
+                    <view>{{ $t('活动规则') }}</view>
                 </view>
                 <view class="explain">
                     {{ activityInfo?.activityDesc }}
