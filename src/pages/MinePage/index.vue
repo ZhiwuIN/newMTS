@@ -14,7 +14,7 @@
 							</view>
 							<view class="user-detail">
 								<view class="user-name">{{ userInfo.username || '--' }}</view>
-								<view class="user-id">{{ $t('minePage.vcicId') }}: {{ displayUserId }}</view>
+								<view class="user-id">ID {{ webTitle }}: {{ displayUserId }}</view>
 							</view>
 						</view>
 						<!-- 保证金 -->
@@ -301,6 +301,7 @@ export default {
 			shebaoFundImage: '',
 			textCache: {},
 			currency: '',
+			webTitle: '',
 			eyeOpen: true,
 			userInfoAmount: {}
 		};
@@ -335,6 +336,7 @@ export default {
 		});
 		settingsApi().then(r => uni.setStorageSync('settings', r.data));
 		this.currency = uni.getStorageSync('settings').currency;
+		this.webTitle = uni.getStorageSync('settings').webTitle
 		userInfoApi().then(r => {
 			this.userInfo = r.data || {};
 			this.isRestrictAccess = r.data.housekeeper == 1;

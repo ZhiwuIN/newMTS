@@ -443,12 +443,12 @@ export default {
 			// 右侧给装饰图 tag_img 让位：图宽 338rpx、right:-24rpx，左缘落在 422rpx，
 			// 这里把文案限制在 736-320=416rpx 以内，长文案（fr/ru/tv）换行避让，
 			// 而不是压到图上或被图遮住
-			padding-right: 320rpx;
+			// padding-right: 320rpx;
 			font-size: 64rpx;
 			font-weight: bold;
 			line-height: 72rpx;
 			word-break: break-all;
-			max-width: 450rpx;
+			// max-width: 450rpx;
 			z-index: 3;
 
 			.small {
@@ -456,11 +456,12 @@ export default {
 				line-height: 32rpx;
 				font-weight: 500;
 				color: #3D3D3D;
+				margin-top: 24rpx;
 			}
 		}
 
 		.data_box {
-			margin-top: 30rpx;
+			margin-top: 60rpx;
 			box-sizing: border-box;
 			position: relative;
 			padding: 24rpx;
@@ -470,10 +471,10 @@ export default {
 
 			.tag_img {
 				position: absolute;
-				top: -262rpx;
+				top: -152rpx;
 				right: -24rpx;
-				width: 338rpx;
-				height: 362rpx;
+				width: 218rpx;
+				height: 202rpx;
 			}
 
 			.data_row {
