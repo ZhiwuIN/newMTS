@@ -446,7 +446,7 @@ export default {
 			padding-right: 320rpx;
 			font-size: 64rpx;
 			font-weight: bold;
-			line-height: 52rpx;
+			line-height: 72rpx;
 			word-break: break-all;
 			max-width: 450rpx;
 			z-index: 3;
