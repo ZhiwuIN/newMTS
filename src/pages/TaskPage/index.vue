@@ -404,9 +404,16 @@ export default {
 		.text_box {
 			position: relative;
 			z-index: 2;
-			font-size: 64rpx;
+			display: flex;
+			flex-direction: column;
+			align-items: safe;
+			gap: 24rpx;
+			font-size: 52rpx;
 			font-weight: bold;
-			line-height: 94rpx;
+			line-height: 52rpx;
+			word-break: break-all;
+			max-width: 450rpx;
+			z-index: 3;
 
 			.small {
 				font-size: 26rpx;
