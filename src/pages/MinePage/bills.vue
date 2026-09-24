@@ -27,26 +27,12 @@
 									{{ actualCurrency }}
 								</view>
 							</view>
-							<view class="FAIL" v-if="item.status == 'REVIEW_FAILED'">{{ item.status }}</view>
-							<view class="SUCCESS" v-if="item.status == 'SUCCESS'">{{ item.status }}</view>
-							<view class="FAIL" v-if="item.status == 'FAIL'">{{ item.status }}
-							</view>
-							<view class="PROCESSING" v-if="item.status == 'PAID'">
-								{{ $t('批准待付') }}
-							</view>
-							<view class="PROCESSING" v-if="item.status == 'REVIEW_SUCCESS'">
-								{{ $t('批准待付') }}
-							</view>
-							<view class="PROCESSING" v-if="item.status == 'PENDING_REVIEW'">{{ item.status }}</view>
+							<view :class="statusClass(item.status)">{{ statusText(item.status) }}</view>
 							<view class="item-left-t2">{{ item.tradeNo }}</view>
 						</view>
 						<view class="item-left" v-else>
 							<view class="item-left-t1">{{ item.amount }} {{ currency }}</view>
-							<view class="PROCESSING" v-if="item.status == 'PENDING_REVIEW'">{{ item.status }}</view>
-							<view class="PROCESSING" v-if="item.status == 'PROCESSING'">{{ item.status }}</view>
-							<view class="SUCCESS" v-if="item.status == 'SUCCESS'">{{ item.status }}</view>
-							<view class="FAIL" v-if="item.status == 'unknown'">FAIL</view>
-							<view class="FAIL" v-if="item.status == 'FAIL'">{{ item.status }}</view>
+							<view :class="statusClass(item.status)">{{ statusText(item.status) }}</view>
 							<view class="item-left-t2">{{ item.tradeNo }}</view>
 						</view>
 						<view class="item-right">
@@ -119,6 +105,32 @@ export default {
 		}
 	},
 	methods: {
+		// 状态展示文案，与后端枚举保持一致
+		statusText(status) {
+			switch (status) {
+				case 'SUCCESS':
+					return this.$t('提款成功')
+				case 'FAIL':
+				case 'unknown':
+					return this.$t('取款失败')
+				case 'PROCESSING':
+					return this.$t('处理中')
+				case 'PENDING_REVIEW':
+					return this.$t('未审核')
+				case 'REVIEW_FAILED':
+					return this.$t('审核失败')
+				case 'REVIEW_SUCCESS':
+				case 'PAID':
+					return this.$t('批准待付')
+				default:
+					return status || ''
+			}
+		},
+		statusClass(status) {
+			if (status == 'SUCCESS') return 'SUCCESS'
+			if (status == 'FAIL' || status == 'unknown' || status == 'REVIEW_FAILED') return 'FAIL'
+			return 'PROCESSING'
+		},
 		pushInfo(currentTab, id) {
 			if (currentTab == 3) {
 				uni.navigateTo({
