@@ -86,124 +86,97 @@ export default {
 				idCard: '',
 			},
 			nationalityValue: 0,
+			nationalityValue: 0,
+			// 国籍只保留科特迪瓦，尼日利亚等其他选项已移除
 			nationalityList: [
 				{
 					value: 0,
 					text: this.$t("nationality.CotedIvoire"),
 				},
-				// {
-				// 	value: 1,
-				// 	text: this.$t("nationality.Nigeria"),
-				// },
-				{
-					value: 1,
-					text: this.$t("other"),
-				},
 			]
 		}
 	},
-	onShow() {
-		let userInfo = uni.getStorageSync('userInfo')
-		this.nationalityValue = this.nationalityList.find(item => item.text == userInfo.nationality)?.value
-		this.formData = {
-			realName: userInfo.realName,
-			gender: userInfo.gender || 'male',
-			phone: userInfo.phone,
-			nationality: userInfo.nationality,
-			email: userInfo.email,
-			address: userInfo.address,
-			idCard: userInfo.idCard,
-		}
-		if (this.formData.realName == 'African User') {
-			this.formData.realName = ''
-		}
+	handleNationalityChange(e) {
+		this.formData.nationality = this.nationalityList.find(item => item.value === e).text
 	},
-	methods: {
-		changeGender(i) {
-			this.formData.gender = i == 0 ? 'male' : 'female'
-		},
-		handleNationalityChange(e) {
-			this.formData.nationality = this.nationalityList.find(item => item.value === e).text
-		},
-		genderChange(e) {
-			this.formData.gender = e.detail.value
-		},
-		handleSubmit() {
-			let userInfo = uni.getStorageSync('userInfo')
-			if (!this.formData.realName && userInfo.realName != 'African User') {
-				this.$showMessage('warning', this.$t('identity.placeholder1'));
-				return
-			}
-			if (!this.formData.phone) {
-				this.$showMessage('warning', this.$t('register.phonePlaceHolder'));
-				return
-			}
-			if (!this.validatePhoneFormat()) {
-				this.$showMessage('warning', this.$t('login.invalidGhanaPhone'))
-				return
-			}
-			if (!this.formData.nationality) {
-				this.$showMessage('warning', this.$t('请选择') + ' ' + this.$t('identity.Nationality'));
-				return
-			}
-			if (!this.formData.idCard) {
-				this.$showMessage('warning', this.$t('identity.placeholderIdCard'));
-				return
-			}
-			// if (!this.formData.email) {
-			// 	this.$showMessage('warning', this.$t('请输入邮箱'));
-			// 	return
-			// }
-			// if (!this.formData.address) {
-			// 	this.$showMessage('warning', this.$t('identity.placeholder'));
-			// 	return
-			// }
-			this.formData.realName = this.formData.realName?.trim()
-			this.formData.email = this.formData.email?.trim()
-			let params = {
-				"address": this.formData.address,
-				"gender": this.formData.gender,
-				"phone": this.formData.phone,
-				"nationality": this.formData.nationality,
-				'email': this.formData.email,
-				"realName": this.formData.realName,
-				"idCard": this.formData.idCard,
-			}
+	genderChange(e) {
+		this.formData.gender = e.detail.value
+	},
+	handleSubmit() {
+		let userInfo = uni.getStorageSync('userInfo')
+		if (!this.formData.realName && userInfo.realName != 'African User') {
+			this.$showMessage('warning', this.$t('identity.placeholder1'));
+			return
+		}
+		if (!this.formData.phone) {
+			this.$showMessage('warning', this.$t('register.phonePlaceHolder'));
+			return
+		}
+		if (!this.validatePhoneFormat()) {
+			this.$showMessage('warning', this.$t('login.invalidGhanaPhone'))
+			return
+		}
+		if (!this.formData.nationality) {
+			this.$showMessage('warning', this.$t('请选择') + ' ' + this.$t('identity.Nationality'));
+			return
+		}
+		if (!this.formData.idCard) {
+			this.$showMessage('warning', this.$t('identity.placeholderIdCard'));
+			return
+		}
+		// if (!this.formData.email) {
+		// 	this.$showMessage('warning', this.$t('请输入邮箱'));
+		// 	return
+		// }
+		// if (!this.formData.address) {
+		// 	this.$showMessage('warning', this.$t('identity.placeholder'));
+		// 	return
+		// }
+		this.formData.realName = this.formData.realName?.trim()
+		this.formData.email = this.formData.email?.trim()
+		let params = {
+			"address": this.formData.address,
+			"gender": this.formData.gender,
+			"phone": this.formData.phone,
+			"nationality": this.formData.nationality,
+			'email': this.formData.email,
+			"realName": this.formData.realName,
+			"idCard": this.formData.idCard,
+		}
 
-			if (!this.formData.realName && userInfo.realName == 'African User') {
-				params.realName = 'African User'
-			}
+		if (!this.formData.realName && userInfo.realName == 'African User') {
+			params.realName = 'African User'
+		}
 
-			changeUserInfoApi(params).then((res) => {
-				this.$showMessage('success', this.$t('toast.success'));
-				setTimeout(() => {
-					this.$customizeBack()
-				}, 500)
+		changeUserInfoApi(params).then((res) => {
+			this.$showMessage('success', this.$t('toast.success'));
+			setTimeout(() => {
+				this.$customizeBack()
+			}, 500)
 
-			}).catch((err) => {
-				console.log('request fail', err);
-				this.$showMessage('warning', err.msg);
-				// uni.showToast({
-				// 	title: err.msg,
-				// 	icon: 'none'
-				// })
-			})
-		},
-		validatePhoneFormat() {
-			// 清除空格
-			this.formData.phone = this.formData.phone.replace(/\s/g, '')
-			const cleanedPhone = this.formData.phone
+		}).catch((err) => {
+			console.log('request fail', err);
+			this.$showMessage('warning', err.msg);
+			// uni.showToast({
+			// 	title: err.msg,
+			// 	icon: 'none'
+			// })
+		})
+	},
+	validatePhoneFormat() {
+		// 清除空格
+		this.formData.phone = this.formData.phone.replace(/\s/g, '')
+		const cleanedPhone = this.formData.phone
 
-			// 加纳手机号正则表达式
-			//	const ghanaPhoneRegex = /^0\d{9}$/;
+		// 加纳手机号正则表达式
+		//	const ghanaPhoneRegex = /^0\d{9}$/;
 
-			//	if (!ghanaPhoneRegex.test(cleanedPhone)) {
-			//	return false;
-			//}
+		//	if (!ghanaPhoneRegex.test(cleanedPhone)) {
+		//	return false;
+		//}
 
-			return true;
-		},
-	}
+		return true;
+	},
 }
 </script>
 
