@@ -72,7 +72,8 @@
 				</view>
 			</uni-popup>
 			<!-- 抽奖记录按钮 -->
-			<view class="enregistrer" v-if="pointRuleId" @click="toPage(`/pages/commonDetailsPage?title=Integral Rules&id=${pointRuleId}`)">
+			<view class="enregistrer" v-if="pointRuleId"
+				@click="toPage(`/pages/commonDetailsPage?title=Integral Rules&id=${pointRuleId}`)">
 				{{ $t('积分规则') }}
 			</view>
 		</customnavbar>
@@ -97,8 +98,6 @@ export default {
 	},
 	data() {
 		return {
-			url: 'http://13.245.95.135:8888',
-			// url: 'http://192.168.2.35:8080',
 			topStyle: null,
 			points: 0, // 剩余积分
 			page: {
@@ -172,7 +171,7 @@ export default {
 		// 获取积分规则
 		async getPointRule() {
 			const res = await noticeListApi(9, { pageNum: 1, pageSize: 10 })
-			if(res.code == 200){
+			if (res.code == 200) {
 				this.pointRuleId = res.rows[0]?.noticeId
 			}
 		},
@@ -184,10 +183,10 @@ export default {
 			});
 			pointPrizeListApi(this.page).then((res) => {
 				this.loading = false
-				if (this.page.pageNum == 1) this.produitList = res.rows || []
-				else this.produitList.push(...res.rows)
-				this.nodata = res.total == 0
-				if (this.produitList.length == res.total) this.hasMore = false
+				if (this.page.pageNum == 1) this.produitList = res.data.rows || []
+				else this.produitList.push(...res.data.rows)
+				this.nodata = res.data.total == 0
+				if (this.produitList.length == res.data.total) this.hasMore = false
 			}).catch((err) => {
 				console.log('request fail', err);
 				this.loading = false

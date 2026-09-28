@@ -68,10 +68,10 @@ export default {
 			this.loading = true
 			luckyBagRecordListApi(this.page).then((res) => {
 				this.loading = false
-				if (this.page.pageNum == 1) this.list = res.rows || []
-				else this.list.push(...res.rows)
-				this.nodata = res.total == 0
-				if (this.list.length == res.total) this.hasMore = false
+				if (this.page.pageNum == 1) this.list = res.data.rows || []
+				else this.list.push(...res.data.rows)
+				this.nodata = res.data.total == 0
+				if (this.list.length == res.data.total) this.hasMore = false
 
 			}).catch((err) => {
 				console.log('request fail', err);

@@ -7,7 +7,7 @@
 					<view class="Mybtn_box">
 						<text class="account-label">{{ $t('financePage.totalPurchasedRevenue') }}</text>
 						<text class="Mybtn" @click="toPage('/pages/MinePage/financePage')">{{ $t('financePage.myFund')
-							}}</text>
+						}}</text>
 					</view>
 					<view class="account-total">{{ productIncomeSummary?.totalIncome || 0 }} <text>{{ currency }}</text>
 					</view>
@@ -35,11 +35,11 @@
 					<view class="scope">
 						{{ item.introduction || $t('financePage.purchaseScope') }}
 						<text v-if="item.totalRevenue">{{ $t('financePage.totalRevenueSeparator') }}{{ item.totalRevenue
-							}}</text>
+						}}</text>
 					</view>
 					<view class="product-stats">
 						<view><b>{{ item.dailyRateOfReturnStr || '--' }}</b><text>{{ $t('financePage.dailyRateOfReturn')
-								}}</text></view>
+						}}</text></view>
 						<view><b>{{ getStartingAmount(item.startingAmount, 0) }} {{ currency }}</b><text>{{
 							$t('financePage.minPurchase') }}</text></view>
 						<view><b>{{ getStartingAmount(item.startingAmount, 1) }} {{ currency }}</b><text>{{
@@ -384,6 +384,10 @@ export default {
 						border: 0;
 					}
 				}
+			}
+
+			.product-stats view b {
+				white-space: normal;
 			}
 
 			&.dark {

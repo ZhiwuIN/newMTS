@@ -92,8 +92,8 @@ export default {
                 title: this.$t('loading.btn')
             })
             customCycleClaimListApi(this.page).then(res => {
-                const rows = res.rows || []
-                const total = Number(res.total || 0)
+                const rows = res.data.rows || []
+                const total = Number(res.data.total || 0)
                 if (this.page.pageNum === 1) this.billsList = rows
                 else this.billsList.push(...rows)
                 this.nodata = total === 0

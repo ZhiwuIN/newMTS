@@ -165,8 +165,8 @@ export default {
         getShopProducts() {
             this.loading = true
             shopProductsApi(this.page).then((res) => {
-                if (this.page.pageNum == 1) this.productList = res.rows || []
-                else this.productList.push(...res.rows)
+                if (this.page.pageNum == 1) this.productList = res.data || []
+                else this.productList.push(...res.data)
                 this.nodata = res.total == 0
                 this.hasMore = this.productList.length < res.total
             }).finally(() => {
@@ -445,10 +445,10 @@ export default {
                     align-items: start;
                     flex-direction: column;
                     justify-content: space-between;
-                    height: 268rpx;
+                    // height: 268rpx;
                     flex: 1;
                     min-width: 0;
-                    overflow: hidden;
+                    // overflow: hidden;
 
                     .title {
                         font-size: 28rpx;

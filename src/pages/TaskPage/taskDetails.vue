@@ -374,12 +374,12 @@ export default {
 			taskDetailsApi(this.taskId).then((res) => {
 				this.taskDetails = res.data;
 				// 不是属于该等级的任务
-				if (this.taskDetails.taskLevel != uni.getStorageSync('userInfo').levelCode) {
-					uni.switchTab({
-						url: '/pages/TaskPage/index'
-					})
-					return;
-				}
+				// if (this.taskDetails.taskLevel != uni.getStorageSync('userInfo').levelCode) {
+				// 	uni.switchTab({
+				// 		url: '/pages/TaskPage/index'
+				// 	})
+				// 	return;
+				// }
 				const answers = ['answer1', 'answer2', 'answer3'];
 				const apiPrefixes = ['A', 'B', 'C'];
 
@@ -464,13 +464,13 @@ export default {
 				this.taskDetails = res.data;
 				await this.getTaskInfo()
 				// 不是属于该等级的任务
-				if (this.taskDetails.taskLevel != uni.getStorageSync('userInfo').levelCode) {
-					this.showMask = false
-					uni.switchTab({
-						url: '/pages/TaskPage/index'
-					})
-					return;
-				}
+				// if (this.taskDetails.taskLevel != uni.getStorageSync('userInfo').levelCode) {
+				// 	this.showMask = false
+				// 	uni.switchTab({
+				// 		url: '/pages/TaskPage/index'
+				// 	})
+				// 	return;
+				// }
 				if (this.taskInfo.todayRemainingMoney < this.taskDetails.price) {
 					this.$showMessage('warning', this.$t('您的任务额度不足'));
 					return

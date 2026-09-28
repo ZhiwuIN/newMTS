@@ -77,7 +77,7 @@
 								</view>
 								<view class="growth-meta">
 									<view class="meta-item"><text class="meta-value">{{ item.totalRevenue || '--'
-									}}</text><text class="meta-label">{{ $t('home.productDeadline') }}</text>
+											}}</text><text class="meta-label">{{ $t('home.productDeadline') }}</text>
 									</view>
 									<view class="meta-item"><text class="meta-value">{{
 										getStartingAmount(item.startingAmount, 0) }}{{ currency
@@ -213,7 +213,7 @@
 		</homenavbar>
 
 		<!-- 弹窗 -->
-		<t-overlay :visible="bigGG" v-if="bigGG" @touchmove.stop.prevent />
+		<t-overlay :visible="bigGG" v-if="bigGG" @touchmove.stop.prevent style="z-index: 99998;" />
 		<view class="bigGG" v-if="bigGG">
 			<scroll-view class="bigGG_main" scroll-y @scroll="onBigGGScroll">
 				<view class="bigGG_text" v-html="popWindowContent"></view>
@@ -225,7 +225,7 @@
 		</view>
 
 		<!-- 福袋弹窗 -->
-		<t-overlay :visible="bigBag" v-if="bigBag" />
+		<t-overlay :visible="bigBag" v-if="bigBag" style="z-index: 99998;" />
 		<view class="bigBag" v-if="bigBag">
 			<view class="bigBag_main">
 				<image class="bigBag_img" :src="bagInfo.image" mode="" :lazy-load="true">
@@ -1016,8 +1016,7 @@ export default {
 	top: 50%;
 	left: 50%;
 	transform: translate(-50%, -50%);
-	z-index: 9999;
-
+	z-index: 99999;
 
 	.bigBag_main {
 		display: flex;
