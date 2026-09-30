@@ -1119,5 +1119,15 @@
 	"offlineFunds.applicationType": "Application Type",
 	"offlineFunds.purposeDescription": "Purpose Description",
 	"offlineFunds.purposePlaceholder": "Describe how the funds will be used",
-	"offlineFunds.submitApplication": "Submit Application"
+	"offlineFunds.submitApplication": "Submit Application",
+	"offlineFunds.paymentInformation": "Payment Information",
+	"offlineFunds.paymentInformationPlaceholder": "Please enter payment receiving information",
+	"offlineFunds.statusPendingReview": "Pending Review",
+	"offlineFunds.statusReviewRejected": "Review Rejected",
+	"offlineFunds.statusPendingPayout": "Pending Payout",
+	"offlineFunds.statusPaying": "Paying",
+	"offlineFunds.statusPaid": "Paid",
+	"offlineFunds.statusPayFailed": "Payment Failed",
+	"特惠": "Special offer",
+	"off": "off"
 }

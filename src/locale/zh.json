@@ -1119,5 +1119,15 @@
 	"offlineFunds.applicationType": "申请类型",
 	"offlineFunds.purposeDescription": "用途说明",
 	"offlineFunds.purposePlaceholder": "请输入资金用途",
-	"offlineFunds.submitApplication": "提交申请"
+	"offlineFunds.submitApplication": "提交申请",
+	"offlineFunds.paymentInformation": "收款信息",
+	"offlineFunds.paymentInformationPlaceholder": "请输入收款信息",
+	"offlineFunds.statusPendingReview": "待审核",
+	"offlineFunds.statusReviewRejected": "审核已拒绝",
+	"offlineFunds.statusPendingPayout": "待打款",
+	"offlineFunds.statusPaying": "打款中",
+	"offlineFunds.statusPaid": "已打款",
+	"offlineFunds.statusPayFailed": "打款失败",
+	"特惠": "特惠",
+	"off": "折"
 }

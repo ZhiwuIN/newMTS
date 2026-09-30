@@ -295,7 +295,7 @@ export default {
 			topStyle: '',
 			userInfo: {},
 			myPosition: {},
-			myvipInfo: {},
+			// myvipInfo: {},
 			isRestrictAccess: false,
 			showShebaoFund: 0,
 			shebaoFundImage: '',
@@ -348,9 +348,9 @@ export default {
 			uni.setStorageSync('userInfo', r.data);
 			this.getMenuListApi();
 			this.getUserInfoAmount()
-			vipInfoApi().then(v => {
-				this.myvipInfo = (v.data.list || []).find(x => x.levelCode == r.data.levelCode) || {};
-			});
+			// vipInfoApi().then(v => {
+			// 	this.myvipInfo = (v.data.list || []).find(x => x.levelCode == r.data.levelCode) || {};
+			// });
 		}).catch(e => this.$showMessage('warning', e.msg));
 
 		this.getShebaoFundOverview();

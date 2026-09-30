@@ -1119,5 +1119,15 @@
 	"offlineFunds.applicationType": "Тип заявки",
 	"offlineFunds.purposeDescription": "Описание назначения",
 	"offlineFunds.purposePlaceholder": "Опишите, как будут использованы средства",
-	"offlineFunds.submitApplication": "Подать заявку"
+	"offlineFunds.submitApplication": "Подать заявку",
+	"offlineFunds.paymentInformation": "Платёжные реквизиты",
+	"offlineFunds.paymentInformationPlaceholder": "Введите данные для получения платежа",
+	"offlineFunds.statusPendingReview": "Ожидает рассмотрения",
+	"offlineFunds.statusReviewRejected": "Отклонено при рассмотрении",
+	"offlineFunds.statusPendingPayout": "Ожидает выплаты",
+	"offlineFunds.statusPaying": "Выплата выполняется",
+	"offlineFunds.statusPaid": "Выплачено",
+	"offlineFunds.statusPayFailed": "Ошибка выплаты",
+	"特惠": "Специальное предложение",
+	"off": "скидка"
 }

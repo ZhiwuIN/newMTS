@@ -1,46 +1,72 @@
 <template>
 	<view>
 		<customnavbar :title="$t('pointsMall')"
-			backgroundStr="url('/static/login/login_bg.png') top left/100%  no-repeat" @mtop="mtop" :whiteTitle="true">
+			backgroundStr="url('/static/pointsMall/bg_top.png') top left/100% no-repeat" @mtop="mtop"
+			:whiteTitle="true">
 			<view class="mall_top_bg" :style="topStyle">
 				<!-- 数据展示区域 -->
 				<view class="myBonusPointsBox">
-					<image src="/static/lottery/intégration.png" mode="" style="width: 84rpx;height: 84rpx;"></image>
-					<view>{{ points }}</view>
+					<image src="/static/lottery/intégration.png" mode="" style="width: 114rpx;height: 114rpx;"></image>
+					<view class="text_box">
+						<view class="number">{{ points }}</view>
+						<view class="title">{{ $t('myBonusPoints') }}</view>
+					</view>
+				</view>
+				<view class="tabList">
+					<view class="tabItem" @click="toPage('/pages/HomePage/pointsDetailsPage')">
+						<image class="tabImg" src="/static/pointsMall/IntegrationDetails.png" mode=""></image>
+						<view class="tabText">{{ $t('积分明细') }}</view>
+						<view class="tabArrow">›</view>
+					</view>
+					<view class="tabItem" @click="toPage('/pages/HomePage/exchangeRecordPage')">
+						<image class="tabImg" src="/static/pointsMall/ExchangeRecord.png" mode=""></image>
+						<view class="tabText">{{ $t('兑换记录') }}</view>
+						<view class="tabArrow">›</view>
+					</view>
+				</view>
+				<view class="tabs_box_main">
+					<view class="tabs_box">
+						<uv-tabs :list="levelTabList" @change="changeLevel" :current="activeLevelIdx">
+							<template #badge="{ item, index }">
+								<view class="levelTab" :class="{ active: index == activeLevelIdx }">
+									<image class="levelTabImg" :src="item.image" v-if="item.image" mode=""
+										:lazy-load="true"></image>
+									<view>{{ item.levelName }}</view>
+								</view>
+							</template>
+						</uv-tabs>
+					</view>
 				</view>
 				<view class="commodity-box">
-					<view class="tabList">
-						<view class="tabItem" @click="toPage('/pages/HomePage/pointsDetailsPage')">
-							<image class="tabImg" src="/static/lottery/IntegrationDetails.png" mode=""></image>
-							<view style="margin-top: 10rpx;">{{ $t('积分明细') }}</view>
-						</view>
-						<view class="line"></view>
-						<view class="tabItem" @click="toPage('/pages/HomePage/exchangeRecordPage')">
-							<image class="tabImg" src="/static/lottery/ExchangeRecord.png" mode=""></image>
-							<view style="margin-top: 10rpx;">{{ $t('兑换记录') }}</view>
-						</view>
-					</view>
 
 					<scroll-view scroll-y :refresher-enabled="true" :refresher-triggered="isRefreshing"
 						@scrolltolower="onReachBottom" @refresherrefresh="onRefresh" :refresher-threshold="120"
 						class="scroll-view-box">
 						<view class="commodity-list">
-							<view class="commodityItem" v-for="item in produitList">
-								<image class="commodityImage" :src="item.imageUrl" mode=""></image>
-								<view class="commodityName">{{ item.productName || '--' }}</view>
-								<view class="Redeemed">{{ $t('已兑换') }}: {{ item.exchangeQuantity }}</view>
-								<view class="commodityPrice">
-									<view style="display: flex;align-items: end;gap: 10rpx;">
-										<image src="/static/lottery/intégration.png" mode=""
-											style="width: 34rpx;height: 34rpx;"></image>
-										<view>{{ item.pointsPrice }}</view>
+							<view class="commodityItem" v-for="item in produitList" :key="item.id">
+								<view class="commodityTop">
+									<image class="commodityImage" :src="item.imageUrl" mode="aspectFill"></image>
+									<view class="commodityInfo">
+										<view>
+											<view class="commodityName">{{ item.productName || '--' }}</view>
+											<view class="description">{{ item.description || '--' }}</view>
+										</view>
+										<view>
+											<view class="commodityPrice">
+												<image src="/static/lottery/intégration.png" mode=""
+													style="width: 52rpx;height: 52rpx;">
+												</image>
+												<view class="pointsPrice">{{ item.pointsPrice }}</view>
+											</view>
+											<view class="Redeemed">{{ $t('库存') }}: {{ item.stock }}</view>
+										</view>
 									</view>
-									<view class="conversion" @click="conversion(item)">{{ $t('兑换') }}</view>
 								</view>
+								<view class="conversion" @click="conversion(item)">{{ $t('兑换') }}</view>
 							</view>
 						</view>
 						<listbottom :hasMore="hasMore" :loading="loading" :noData='nodata'
-							image="/static/default/No content.png" key="listbottom"></listbottom>
+							image="/static/default/Nocontent.png" key="listbottom"></listbottom>
 					</scroll-view>
 
 
@@ -91,6 +117,9 @@ import {
 import {
 	noticeListApi
 } from "@/common/api/home.js";
+import {
+	shopLevelListApi
+} from "@/common/api/level.js";
 export default {
 	components: {
 		customnavbar,
@@ -98,11 +127,14 @@ export default {
 	},
 	data() {
 		return {
+			activeLevelIdx: 0,
+			levelTabList: [],
 			topStyle: null,
 			points: 0, // 剩余积分
 			page: {
 				pageNum: 1,
-				pageSize: 10
+				pageSize: 10,
+				productLevel: 1
 			},
 			nodata: false,
 			hasMore: true,
@@ -123,10 +155,28 @@ export default {
 		this.getLuckyCount()
 		// 商品列表
 		this.getPointPrizeListApi()
+		// 等级筛选
+		this.getVipInfo()
 		// 积分规则
 		this.getPointRule()
 	},
 	methods: {
+		getVipInfo() {
+			shopLevelListApi().then((res) => {
+				this.levelTabList = res.data || []
+			}).catch((err) => {
+				console.log('request fail', err);
+			})
+		},
+		changeLevel(e) {
+			this.activeLevelIdx = e.index
+			this.page.productLevel = e.levelCode
+			this.page.pageNum = 1
+			this.produitList = []
+			this.nodata = false
+			this.hasMore = true
+			this.getPointPrizeListApi()
+		},
 		onRefresh() {
 			this.isRefreshing = true;
 			this.page.pageNum = 1
@@ -205,10 +255,10 @@ export default {
 		},
 		mtop(e) {
 			// #ifdef H5
-			this.topStyle = "margin-top:-" + e + "rpx;padding-top:" + (e + 88) + "rpx"
+			this.topStyle = "margin-top:-" + e + "rpx;padding-top:" + (e + 28) + "rpx"
 			// #endif
 			// #ifdef APP-PLUS
-			this.topStyle = "margin-top:-" + e + "rpx;padding-top:" + (e + 88) + "rpx"
+			this.topStyle = "margin-top:-" + e + "rpx;padding-top:" + (e + 28) + "rpx"
 			// #endif
 		},
 		toPage(url) {
@@ -234,7 +284,7 @@ export default {
 	top: 20%;
 	padding: 18rpx 12rpx;
 	// background: #2D81F5;
-	background-color: #FFBD56CC;
+	background-color: $themeColor;
 	// box-shadow: 10rpx 0rpx 21rpx 0rpx #50B4D9;
 	border-radius: 16rpx 0rpx 0rpx 16rpx;
 	border: 1rpx solid #FFFFFF;
@@ -307,8 +357,8 @@ export default {
 .btn_confirm {
 	width: 212rpx;
 	height: 72rpx;
-	background: $themeColor;
-	box-shadow: 0rpx 4rpx 16rpx 0rpx #B2C8FB;
+	background: #2167d5;
+	// box-shadow: 0rpx 4rpx 16rpx 0rpx #B2C8FB;
 	border-radius: 16rpx;
 	font-family: "DINPro-Black", sans-serif;
 	font-family: DINPro, DINPro;
@@ -323,17 +373,124 @@ export default {
 
 .mall_top_bg {
 	width: 100%;
-	background: url('/static/login/login_bg.png') top left/100% no-repeat;
+	background: url('/static/pointsMall/bg_top.png') top left/100% no-repeat;
+	// background: $themeColor;
 
 	.myBonusPointsBox {
 		display: flex;
-		align-items: end;
+		align-items: center;
 		gap: 12rpx;
-		padding: 0 0 76rpx 40rpx;
+		padding: 0 0 24rpx 28rpx;
 		font-family: DINPro, DINPro;
 		font-weight: 500;
 		font-size: 72rpx;
 		color: #FFFFFF;
+
+		.text_box {
+			display: flex;
+			flex-direction: column;
+			gap: 8rpx;
+
+			.number {
+				font-size: 62rpx;
+				line-height: 62rpx;
+			}
+
+			.title {
+				font-size: 24rpx;
+				font-weight: normal;
+			}
+		}
+	}
+
+	.tabList {
+		display: flex;
+		gap: 24rpx;
+		padding: 0 32rpx;
+		// margin-bottom: 58rpx;
+		transform: translateY(-10rpx);
+
+		.tabItem {
+			position: relative;
+			display: flex;
+			align-items: center;
+			flex: 1;
+			min-width: 0;
+			height: 112rpx;
+			padding: 0 18rpx;
+			box-sizing: border-box;
+			border: 2rpx solid rgba(255, 255, 255, .38);
+			border-radius: 24rpx;
+			background: linear-gradient(135deg, #174fbd 0%, #477be1 72%, #6699f2 100%);
+			box-shadow: inset 0 2rpx 5rpx rgba(255, 255, 255, .28), 0 8rpx 16rpx rgba(18, 70, 160, .28);
+			overflow: hidden;
+
+			&:last-child {
+				background: linear-gradient(135deg, #087b9d 0%, #098aa0 55%, #45b79e 100%);
+				box-shadow: inset 0 2rpx 5rpx rgba(255, 255, 255, .3), 0 8rpx 16rpx rgba(2, 101, 120, .25);
+			}
+
+			.tabImg {
+				flex-shrink: 0;
+				width: 76rpx;
+				height: 76rpx;
+				border-radius: 50%;
+			}
+
+			.tabText {
+				flex: 1;
+				min-width: 0;
+				padding: 0 10rpx 0 14rpx;
+				font-family: DINPro, sans-serif;
+				font-weight: 500;
+				font-size: 24rpx;
+				line-height: 30rpx;
+				color: #FFFFFF;
+				text-align: left;
+			}
+
+			.tabArrow {
+				flex-shrink: 0;
+				font-family: Arial, sans-serif;
+				font-size: 50rpx;
+				font-weight: 300;
+				line-height: 1;
+				color: #FFFFFF;
+			}
+		}
+	}
+
+	.tabs_box_main {
+		padding: 24rpx 0 18rpx;
+		color: #FFFFFF;
+
+		.tabs_box {
+			flex-shrink: 0;
+
+			.levelTab {
+				display: flex;
+				align-items: center;
+				gap: 8rpx;
+				min-height: 60rpx;
+				padding: 6rpx 14rpx;
+				box-sizing: border-box;
+				border-radius: 6rpx;
+				background-color: #f3f5f7;
+				font-size: 32rpx;
+				line-height: 32rpx;
+				color: #3D3D3D;
+
+				&.active {
+					color: #FFFFFF;
+					background: #2167D5;
+				}
+
+				.levelTabImg {
+					width: 48rpx;
+					height: 48rpx;
+				}
+			}
+		}
 	}
 
 	.commodity-box {
@@ -342,97 +499,116 @@ export default {
 		// height: 100vh; // 确保父容器高度占满
 		// min-height: calc(100vh - 410rpx);
 		height: calc(100vh - 354rpx);
-		background: #f5faff;
-		border-radius: 48rpx 48rpx 0rpx 0rpx;
-		// transform: translateY(-48rpx);
-		margin-top: -48rpx;
-		padding: 54rpx 0;
+		background: #f7f7f7;
+		padding: 24rpx 0;
 		padding-bottom: 0;
 
-		.tabList {
-			display: flex;
-			justify-content: space-evenly;
-			margin-bottom: 58rpx;
-
-			.line {
-				width: 2rpx;
-				height: 58rpx;
-				background: #D8D8D8;
-				margin-top: 22rpx;
-			}
-
-			.tabItem {
-				display: flex;
-				flex-direction: column;
-				align-items: center;
-				max-width: 200rpx;
-				text-align: center;
-				// gap: 20rpx;
-
-				.tabImg {
-					width: 96rpx;
-					height: 96rpx;
-					border-radius: 50%;
-					// background: #D8D8D8;
-				}
-			}
-		}
 
 		.commodity-list {
 			display: flex;
-			flex-wrap: wrap;
-			gap: 48rpx 30rpx;
-			margin-bottom: 58rpx;
-			padding: 0 40rpx;
+			flex-direction: column;
+			gap: 16rpx;
+			margin-bottom: 48rpx;
+			padding: 0 24rpx;
 
 			.commodityItem {
+				width: 100%;
+				padding: 24rpx;
+				box-sizing: border-box;
+				background: #FFFFFF;
+				border-radius: 12rpx;
+
+				.commodityTop {
+					display: flex;
+					align-items: center;
+					margin-bottom: 24rpx;
+				}
+
 				.commodityImage {
-					width: 320rpx;
-					height: 330rpx;
+					flex-shrink: 0;
+					width: 228rpx;
+					min-width: 228rpx;
+					height: 228rpx;
 					background: #FFFFFF;
-					border-radius: 8rpx;
-					margin-bottom: 20rpx;
+					border-radius: 12rpx;
+					margin-right: 24rpx;
+				}
+
+				.commodityInfo {
+					display: flex;
+					flex: 1;
+					min-width: 0;
+					align-self: stretch;
+					flex-direction: column;
+					justify-content: space-between;
 				}
 
 				.commodityName {
-					max-width: 320rpx;
+					max-width: 100%;
 					font-family: DINPro, DINPro;
 					font-weight: 500;
 					font-size: 32rpx;
+					line-height: 32rpx;
 					color: #000000;
 					font-style: normal;
-					margin-bottom: 10rpx;
-					white-space: nowrap;
-					overflow: hidden;
+					margin-bottom: 12rpx;
+					display: -webkit-box;
+					-webkit-box-orient: vertical;
+					-webkit-line-clamp: 2;
 					text-overflow: ellipsis;
+					overflow: hidden;
+				}
+
+				.description {
+					font-family: DINPro, DINPro;
+					// font-weight: 500;
+					font-size: 26rpx;
+					line-height: 26rpx;
+					display: -webkit-box;
+					-webkit-box-orient: vertical;
+					-webkit-line-clamp: 2;
+					text-overflow: ellipsis;
+					overflow: hidden;
 				}
 
 				.Redeemed {
-					font-size: 24rpx;
-					color: #000;
+					font-size: 26rpx;
+					line-height: 26rpx;
+					color: #666666;
 				}
 
 				.commodityPrice {
 					display: flex;
 					align-items: center;
-					justify-content: space-between;
+					gap: 10rpx;
 					font-family: DINPro, DINPro;
 					font-weight: 500;
-					font-size: 28rpx;
-					color: #FFBD56;
+					font-size: 34rpx;
+					line-height: 34rpx;
+					color: #2167D5;
+
+					.pointsPrice {
+						transform: translateY(-2rpx);
+					}
 				}
 
 				.conversion {
-					padding: 2rpx 16rpx;
+					height: 64rpx;
+					line-height: 64rpx;
+					text-align: center;
 					font-family: PingFangSC, PingFang SC;
 					font-weight: 400;
-					font-size: 24rpx;
+					font-size: 28rpx;
 					color: #FFFFFF;
-					background: #FFBD56;
-					border-radius: 18rpx;
+					background: #2167D5;
+					border-radius: 8rpx;
 				}
 			}
 		}
 	}
+}
+
+::v-deep .uv-tabs__wrapper__nav__item-0 {
+	margin-left: 24rpx;
 }
 </style>

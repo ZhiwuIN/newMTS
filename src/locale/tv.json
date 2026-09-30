@@ -1120,5 +1120,15 @@
 	"offlineFunds.applicationType": "Loại đăng ký",
 	"offlineFunds.purposeDescription": "Mô tả mục đích",
 	"offlineFunds.purposePlaceholder": "Mô tả cách sử dụng khoản tiền",
-	"offlineFunds.submitApplication": "Gửi đăng ký"
+	"offlineFunds.submitApplication": "Gửi đăng ký",
+	"offlineFunds.paymentInformation": "Thông tin nhận tiền",
+	"offlineFunds.paymentInformationPlaceholder": "Vui lòng nhập thông tin nhận tiền",
+	"offlineFunds.statusPendingReview": "Chờ xét duyệt",
+	"offlineFunds.statusReviewRejected": "Xét duyệt bị từ chối",
+	"offlineFunds.statusPendingPayout": "Chờ thanh toán",
+	"offlineFunds.statusPaying": "Đang thanh toán",
+	"offlineFunds.statusPaid": "Đã thanh toán",
+	"offlineFunds.statusPayFailed": "Thanh toán thất bại",
+	"特惠": "Ưu đãi đặc biệt",
+	"off": "giảm"
 }

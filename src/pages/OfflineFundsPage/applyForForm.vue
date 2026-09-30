@@ -1,5 +1,5 @@
 <template>
-    <customnavbar :title="pageTitle" backgroundStr="#004f56" @mtop="mtop" :whiteTitle="true">
+    <homenavbar :title="pageTitle" backgroundStr="''" @mtop="mtop">
         <view class="top-bg" :style="topStyle"></view>
         <!-- 表单 -->
         <view class="form_box">
@@ -17,23 +17,48 @@
                 </view>
             </view>
 
+            <!-- 收款信息 -->
+            <view class="form-item">
+                <view class="form-label">{{ $t('offlineFunds.paymentInformation') }}</view>
+                <view class="account-box">
+                    <view class="account-select">
+                        <uni-data-select v-model="form.memberBankId" :localdata="bankOptions" :emptyTips="$t('noData')"
+                            :placeholder="$t('task.asktips')" :clear="false" />
+                    </view>
+                </view>
+            </view>
+
             <view class="form-item">
                 <view class="form-label">{{ $t('offlineFunds.purposeDescription') }}</view>
-                <textarea v-model="form.purpose" class="purpose-field"
+                <textarea v-model="form.description" class="purpose-field"
                     :placeholder="$t('offlineFunds.purposePlaceholder')" placeholder-class="purpose-placeholder"
                     maxlength="500" />
             </view>
 
             <button class="submit-button" @click="submitForm">{{ $t('offlineFunds.submitApplication') }}</button>
         </view>
-    </customnavbar>
+
+        <uni-popup ref="bankPromptPopup" type="center" :mask-click="false">
+            <view class="prompt-pop-page">
+                <view class="prompt-pop-title">{{ $t('home.Prompt') }}</view>
+                <view class="prompt-pop-content">{{ $t('withdrawal.failTips2') }}</view>
+                <view class="prompt-pop-actions">
+                    <button class="prompt-cancel-button" @click="closeBankPrompt">{{ $t('pay.no') }}</button>
+                    <button class="prompt-confirm-button" @click="goToBankManagement">{{ $t('pay.yes') }}</button>
+                </view>
+            </view>
+        </uni-popup>
+    </homenavbar>
 </template>
 
 <script>
-import customnavbar from '@/component/custom-navbar/custom-navbar.vue'
-
+import homenavbar from '@/component/home-navbar/home-navbar.vue';
+import {
+    offlinePayoutApplyApi
+} from '@/common/api/OfflineFunds.js'
+import { bankListApi } from '@/common/api/withdrawal.js'
 export default {
-    components: { customnavbar },
+    components: { homenavbar },
     data() {
         return {
             pageTitle: '',
@@ -42,25 +67,80 @@ export default {
             applicationTypeName: '',
             form: {
                 amount: '',
-                purpose: ''
-            }
+                memberBankId: '',
+                description: ''
+            },
+            bankOptions: [],
+            typeCode: '',
+            isLoding: false
         }
     },
     onLoad(options) {
         this.pageTitle = options.title || this.$t('offlineFunds.title')
         this.applicationTypeName = options.typeName ? decodeURIComponent(options.typeName) : '--'
+        this.typeCode = options.typeCode
     },
     onShow() {
         this.currency = (uni.getStorageSync('settings') || {}).currency || ''
+        this.getBankList()
+        this.isLoding = false
     },
     methods: {
+        // 银行卡列表
+        getBankList() {
+            bankListApi().then(res => {
+                const banks = res.data || []
+                this.bankOptions = banks.map(item => ({
+                    value: item.bid,
+                    text: `${item.bankName || ''} ${item.cardNo || ''}`.trim()
+                }))
+
+                if (!this.bankOptions.some(item => item.value === this.form.memberBankId)) {
+                    this.form.memberBankId = ''
+                }
+
+                if (this.bankOptions.length === 0) {
+                    this.$nextTick(() => this.$refs.bankPromptPopup.open())
+                }
+            }).catch(err => {
+                this.bankOptions = []
+                this.form.memberBankId = ''
+                this.$showMessage('warning', err.msg)
+            })
+        },
+        closeBankPrompt() {
+            this.$refs.bankPromptPopup.close()
+        },
+        goToBankManagement() {
+            this.$refs.bankPromptPopup.close()
+            uni.navigateTo({
+                url: '/pages/MinePage/mobilePayment'
+            })
+        },
         mtop(height) {
             this.topStyle = `margin-top:-${height}rpx;padding-top:${height}rpx`
         },
         submitForm() {
-            this.$emit('submit', {
-                typeName: this.applicationTypeName,
+            if (this.form.memberBankId === '' || this.form.memberBankId == null) {
+                this.$showMessage('warning', `${this.$t('task.asktips')} ${this.$t('offlineFunds.paymentInformation')}`)
+                return
+            }
+
+            let form = {
+                typeCode: this.typeCode,
+                requestNo: `${uni.getStorageSync('userInfo')?.userId || ''}_${Date.now()}`,
                 ...this.form
+            }
+            if (this.isLoding) return
+            this.isLoding = true
+            offlinePayoutApplyApi(form).then(res => {
+                this.$showMessage('warning', this.$t('申请成功等待审核'))
+                setTimeout(() => {
+                    uni.navigateBack()
+                }, 1500)
+            }).catch(err => {
+                this.$showMessage('warning', err.msg);
+                this.isLoding = false
             })
         }
     }
@@ -146,11 +226,36 @@ export default {
 
     .purpose-field {
         display: block;
-        height: 206rpx;
         padding: 18rpx;
         font-size: 26rpx;
         line-height: 38rpx;
         color: #252b32;
+    }
+
+    .purpose-field {
+        height: 206rpx;
+    }
+
+    .account-box {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        height: 84rpx;
+        padding: 0 18rpx;
+        border: 2rpx solid #dfe3e8;
+        border-radius: 10rpx;
+        background: #fff;
+    }
+
+    .account-card {
+        width: 72rpx;
+        height: 72rpx;
+        margin-right: 24rpx;
+    }
+
+    .account-select {
+        flex: 1;
+        min-width: 0;
     }
 
     .submit-button {
@@ -175,11 +280,81 @@ export default {
     }
 }
 
+.prompt-pop-page {
+    width: 570rpx;
+    padding: 40rpx 54rpx 28rpx;
+    border-radius: 28rpx;
+    background: #fff;
+}
+
+.prompt-pop-title {
+    font-size: 32rpx;
+    font-weight: 500;
+    line-height: 42rpx;
+    text-align: center;
+    color: #000;
+}
+
+.prompt-pop-content {
+    margin-top: 40rpx;
+    font-size: 28rpx;
+    line-height: 36rpx;
+    text-align: center;
+    color: #1c2d57;
+}
+
+.prompt-pop-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 54rpx;
+}
+
+.prompt-cancel-button,
+.prompt-confirm-button {
+    width: 212rpx;
+    height: 72rpx;
+    padding: 0;
+    border-radius: 16rpx;
+    font-size: 32rpx;
+    font-weight: 500;
+    line-height: 72rpx;
+
+    &::after {
+        border: 0;
+    }
+}
+
+.prompt-cancel-button {
+    background: #ebebeb;
+    color: #000;
+}
+
+.prompt-confirm-button {
+    background: $themeColor;
+    box-shadow: 0 4rpx 16rpx #b2c8fb;
+    color: #fff;
+}
+
 ::v-deep .amount-placeholder {
     color: #171b20;
 }
 
 ::v-deep .purpose-placeholder {
+    color: #a4a8ae;
+}
+
+::v-deep .account-select .uni-select {
+    border: 0;
+    padding: 0;
+}
+
+::v-deep .account-select .uni-select__input-text {
+    font-size: 26rpx;
+    color: #252b32;
+}
+
+::v-deep .account-select .uni-select__input-placeholder {
+    font-size: 26rpx;
     color: #a4a8ae;
 }
 </style>

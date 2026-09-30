@@ -1,5 +1,5 @@
 <template>
-    <customnavbar :title="pageTitle" backgroundStr="#004f56" @mtop="mtop" :whiteTitle="true">
+    <homenavbar :title="pageTitle" backgroundStr="#004f56" @mtop="mtop" :whiteTitle="true">
         <view class="top-bg" :style="topStyle"></view>
         <view class="offline-funds-page">
             <view class="hero" :style="topStyle"></view>
@@ -9,7 +9,7 @@
                         <view class="summary-label">{{ item.label }}</view>
                         <view class="summary-value" :class="item.valueClass">
                             {{ item.value }}<text v-if="item.showCurrency" class="summary-currency">{{ currency
-                            }}</text>
+                                }}</text>
                         </view>
                     </view>
                 </view>
@@ -18,9 +18,10 @@
                 <view class="section_box">
                     <view class="section-title">{{ $t('offlineFunds.selectApplicationType') }}</view>
                     <view class="application-list">
-                        <view class="application-card" v-for="item in applicationTypes" :key="item.type">
+                        <view class="application-card" v-for="item in applicationTypes" :key="item.id || item.type">
                             <view class="application-left_box">
-                                <image src="/static/appDownload/111.png" mode="" class="application_img"></image>
+                                <image :src="item.iconUrl" mode="aspectFill" v-if="item.iconUrl"
+                                    class="application_img"></image>
                                 <view class="application-copy">
                                     <view class="application-name">{{ item.name }}</view>
                                     <view class="application-description">{{ item.description }}</view>
@@ -36,60 +37,78 @@
                     <view class="record-arrow"></view>
                 </view>
                 <!-- 申请记录 -->
-                <view class="record-list-box">
-                    <view class="record-item-card" v-for="item in applicationTypes" :key="item.type">
+                <view v-if="recentRecords.length" class="record-list-box">
+                    <view class="record-item-card" v-for="item in recentRecords" :key="item.id">
                         <view class="application-left_box">
-                            <image src="/static/appDownload/111.png" mode="" class="application_img"></image>
+                            <image :src="item.iconUrl" mode="aspectFill" v-if="item.iconUrl" class="application_img">
+                            </image>
                             <view class="application-copy">
                                 <view class="record-item-top">
-                                    <view class="application-name">{{ item.name }}</view>
+                                    <view class="application-name">{{ item.typeName || '--' }}</view>
                                     <view class="record-status" :class="getStatusMeta(item.status).className">
                                         {{ $t(getStatusMeta(item.status).labelKey) }}
                                     </view>
                                 </view>
                                 <view class="application-description">
                                     <view class="text">{{ $t('offlineFunds.applicationAmount') }}:</view>
-                                    {{ item.description }}
+                                    {{ formatAmount(item.amount) }} {{ currency }}
                                 </view>
                                 <view class="application-description">
                                     <view class="text">{{ $t('offlineFunds.time') }}:</view>
-                                    {{ item.description }}
+                                    {{ item.updateTime || '--' }}
                                 </view>
                             </view>
                         </view>
+                        <!-- 失败原因 -->
+                        <view class="rejectReason_text" v-if="item.rejectReason && item.status === 20">
+                            {{ $t('失败原因') }}: {{ item.rejectReason }}
+                        </view>
                     </view>
+                </view>
+                <view v-else class="default_box">
+                    <image src="/static/mine/applicationRecord/nullPositionManage.png" mode="" class="default_image">
+                    </image>
                 </view>
             </view>
         </view>
-    </customnavbar>
+    </homenavbar>
 </template>
 
 <script>
-import customnavbar from '@/component/custom-navbar/custom-navbar.vue'
-
+import homenavbar from '@/component/home-navbar/home-navbar.vue';
+import {
+    offlinePayoutHomeApi,
+    offlinePayoutRecordsApi
+} from '@/common/api/OfflineFunds.js'
 export default {
-    components: { customnavbar },
+    components: { homenavbar },
     data() {
         return {
             pageTitle: '',
             topStyle: '',
             currency: '',
-            statistics: { pending: 2, approved: 1500, paid: 800 }
+            i18nId: '',
+            statistics: {
+                pendingCount: 0,
+                approvedAmount: '0',
+                paidAmount: '0'
+            },
+            applicationTypes: [],
+            recentRecords: [],
+            recordsPage: {
+                pageNum: 1,
+                pageSize: 10
+            },
+            recordsLoading: false,
+            recordsHasMore: true
         }
     },
     computed: {
         summaryItems() {
             return [
-                { label: this.$t('offlineFunds.pending'), value: this.statistics.pending, valueClass: 'is-pending' },
-                { label: this.$t('offlineFunds.totalApproved'), value: this.formatAmount(this.statistics.approved) },
-                { label: this.$t('offlineFunds.paid'), value: this.formatAmount(this.statistics.paid), valueClass: 'is-paid', showCurrency: true }
-            ]
-        },
-        applicationTypes() {
-            return [
-                { type: 'charity', name: this.$t('offlineFunds.charity'), description: this.$t('offlineFunds.charityDescription') },
-                { type: 'meeting', name: this.$t('offlineFunds.teamMeeting'), description: this.$t('offlineFunds.teamMeetingDescription') },
-                { type: 'other', name: this.$t('offlineFunds.other'), description: this.$t('offlineFunds.otherDescription') }
+                { label: this.$t('offlineFunds.pending'), value: this.statistics.pendingCount, valueClass: 'is-pending' },
+                { label: this.$t('offlineFunds.totalApproved'), value: this.formatAmount(this.statistics.approvedAmount) },
+                { label: this.$t('offlineFunds.paid'), value: this.formatAmount(this.statistics.paidAmount), valueClass: 'is-paid', showCurrency: true }
             ]
         }
     },
@@ -98,8 +117,64 @@ export default {
     },
     onShow() {
         this.currency = (uni.getStorageSync('settings') || {}).currency || ''
+        this.getOfflinePayoutHome()
+        this.resetOfflinePayoutRecords()
+    },
+    onReachBottom() {
+        this.getOfflinePayoutRecords()
     },
     methods: {
+        // 首页统计
+        getOfflinePayoutHome() {
+            offlinePayoutHomeApi().then(res => {
+                if (!res || res.code !== 200 || !res.data) return
+
+                const { i18nId = '', stat = {}, types = [] } = res.data
+                this.i18nId = i18nId
+                this.statistics = {
+                    pendingCount: Number(stat.pendingCount) || 0,
+                    approvedAmount: stat.approvedAmount || '0',
+                    paidAmount: stat.paidAmount || '0'
+                }
+                this.applicationTypes = Array.isArray(types) ? types : []
+            }).catch(() => {
+                this.applicationTypes = []
+            })
+        },
+        resetOfflinePayoutRecords() {
+            this.recordsPage.pageNum = 1
+            this.recordsHasMore = true
+            this.recentRecords = []
+            this.getOfflinePayoutRecords()
+        },
+        // 获取申请记录
+        getOfflinePayoutRecords() {
+            if (this.recordsLoading || !this.recordsHasMore) return
+
+            this.recordsLoading = true
+            offlinePayoutRecordsApi(this.recordsPage).then(res => {
+                if (!res || res.code !== 200) return
+
+                const data = res.data || {}
+                const records = data.rows || []
+                const rows = Array.isArray(records) ? records : []
+
+                this.recentRecords = this.recordsPage.pageNum === 1
+                    ? rows
+                    : this.recentRecords.concat(rows)
+
+                const total = Number(data.total)
+                this.recordsHasMore = Number.isFinite(total)
+                    ? this.recentRecords.length < total
+                    : rows.length === this.recordsPage.pageSize
+
+                if (this.recordsHasMore) this.recordsPage.pageNum += 1
+            }).catch(() => {
+                if (this.recordsPage.pageNum === 1) this.recentRecords = []
+            }).finally(() => {
+                this.recordsLoading = false
+            })
+        },
         mtop(height) {
             this.topStyle = `margin-top:-${height}rpx;padding-top:${height}rpx`
         },
@@ -111,26 +186,21 @@ export default {
         },
         getStatusMeta(status) {
             const statusMap = {
-                0: { className: 'is-applying', labelKey: 'offlineFunds.statusApplying' },
-                1: { className: 'is-approved', labelKey: 'offlineFunds.statusApproved' },
-                2: { className: 'is-completed', labelKey: 'offlineFunds.statusCompleted' },
-                3: { className: 'is-rejected', labelKey: 'offlineFunds.statusRejected' },
-                applying: { className: 'is-applying', labelKey: 'offlineFunds.statusApplying' },
-                pending: { className: 'is-applying', labelKey: 'offlineFunds.statusApplying' },
-                approved: { className: 'is-approved', labelKey: 'offlineFunds.statusApproved' },
-                completed: { className: 'is-completed', labelKey: 'offlineFunds.statusCompleted' },
-                rejected: { className: 'is-rejected', labelKey: 'offlineFunds.statusRejected' },
-                '申请中': { className: 'is-applying', labelKey: 'offlineFunds.statusApplying' },
-                '已批准': { className: 'is-approved', labelKey: 'offlineFunds.statusApproved' },
-                '已完成': { className: 'is-completed', labelKey: 'offlineFunds.statusCompleted' },
-                '已拒绝': { className: 'is-rejected', labelKey: 'offlineFunds.statusRejected' }
+                10: { className: 'is-pending-review', labelKey: 'offlineFunds.statusPendingReview' },
+                20: { className: 'is-review-rejected', labelKey: 'offlineFunds.statusReviewRejected' },
+                30: { className: 'is-pending-payout', labelKey: 'offlineFunds.statusPendingPayout' },
+                40: { className: 'is-paying', labelKey: 'offlineFunds.statusPaying' },
+                50: { className: 'is-paid', labelKey: 'offlineFunds.statusPaid' },
+                60: { className: 'is-pay-failed', labelKey: 'offlineFunds.statusPayFailed' }
             }
 
-            return statusMap[status] || statusMap.pending
+            return statusMap[status] || statusMap[10]
         },
         applyFor(item) {
+            const typeCode = encodeURIComponent(item.typeCode || '')
+            const typeName = encodeURIComponent(item.name || '')
             uni.navigateTo({
-                url: '/pages/OfflineFundsPage/applyForForm'
+                url: `/pages/OfflineFundsPage/applyForForm?typeCode=${typeCode}&typeName=${typeName}`
             })
         },
         openRecords() {
@@ -141,6 +211,16 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.default_box {
+    display: flex;
+    justify-content: center;
+
+    .default_image {
+        width: 466rpx;
+        height: 466rpx;
+    }
+}
+
 * {
     box-sizing: border-box;
     font-family: MiSans, PingFangSC, sans-serif;
@@ -268,6 +348,10 @@ export default {
 
 }
 
+.rejectReason_text {
+    color: #fd4e74;
+}
+
 .application-copy {
     min-width: 0;
     padding-right: 24rpx;
@@ -278,6 +362,7 @@ export default {
     font-weight: 700;
     line-height: 42rpx;
     color: #101820;
+    word-break: break-all;
 }
 
 .application-description {
@@ -330,6 +415,7 @@ export default {
             display: flex;
             align-items: start;
             justify-content: space-between;
+            gap: 18rpx;
         }
 
         .application-description {
@@ -346,20 +432,23 @@ export default {
             font-size: 26rpx;
             font-weight: bold;
             border-radius: 2026rpx;
+            white-space: nowrap;
 
-            &.is-applying {
+            &.is-pending-review,
+            &.is-paying {
                 color: #439eee;
             }
 
-            &.is-approved {
+            &.is-pending-payout {
                 color: #fcaa26;
             }
 
-            &.is-completed {
+            &.is-paid {
                 color: #26b67d;
             }
 
-            &.is-rejected {
+            &.is-review-rejected,
+            &.is-pay-failed {
                 color: #fd4e74;
             }
         }

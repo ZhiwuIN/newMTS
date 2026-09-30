@@ -1119,5 +1119,15 @@
 	"offlineFunds.applicationType": "Type de demande",
 	"offlineFunds.purposeDescription": "Description de l’utilisation",
 	"offlineFunds.purposePlaceholder": "Décrivez l’utilisation prévue des fonds",
-	"offlineFunds.submitApplication": "Soumettre la demande"
+	"offlineFunds.submitApplication": "Soumettre la demande",
+	"offlineFunds.paymentInformation": "Informations de paiement",
+	"offlineFunds.paymentInformationPlaceholder": "Saisissez les informations pour recevoir le paiement",
+	"offlineFunds.statusPendingReview": "En attente d’examen",
+	"offlineFunds.statusReviewRejected": "Examen rejeté",
+	"offlineFunds.statusPendingPayout": "En attente de paiement",
+	"offlineFunds.statusPaying": "Paiement en cours",
+	"offlineFunds.statusPaid": "Payé",
+	"offlineFunds.statusPayFailed": "Échec du paiement",
+	"特惠": "Offre spéciale",
+	"off": "de réduction"
 }

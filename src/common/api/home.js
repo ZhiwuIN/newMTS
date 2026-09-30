@@ -165,10 +165,11 @@ export function messageInfoApi(id) {
 }
 
 // 积分商品列表
-export function pointPrizeListApi(page) {
+export function pointPrizeListApi(data) {
 	return request({
-		url: '/app/point-prize/list?pageNum=' + page.pageNum + '&pageSize=' + page.pageSize,
-		method: 'get'
+		url: '/app/point-prize/list',
+		method: 'get',
+		data
 	})
 }
 
