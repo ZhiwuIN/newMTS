@@ -41,7 +41,7 @@
 
 			<!-- 瀑布流容器 -->
 			<view class="custom-waterfalls" v-if="isShow">
-				<keep-alive>
+				<keep-alive v-if="taskList.length">
 					<scroll-view scroll-y :refresher-enabled="true" :refresher-triggered="isRefreshing"
 						@scrolltolower="onReachBottom" @refresherrefresh="onRefresh" :refresher-threshold="120"
 						:style="scrollViewStyle" ref="scrollViewElement" :scroll-top="scrollTop" @scroll="onPageScroll">
@@ -54,6 +54,11 @@
 							image="/static/default/No order.png"></listbottom>
 					</scroll-view>
 				</keep-alive>
+				<view v-else class="default_box">
+					<image src="/static/mine/applicationRecord/nullPositionManage.png" mode="" class="default_image">
+					</image>
+					<view>{{ loading ? $t('common.loading') : $t('暂无任务') }}</view>
+				</view>
 			</view>
 		</view>
 
@@ -428,6 +433,7 @@ export default {
 	display: flex;
 	flex-direction: column;
 	width: 100%;
+	min-height: 100vh;
 	background-color: #f2f5ff;
 
 	.task_top_card {
@@ -570,6 +576,18 @@ export default {
 		z-index: 2;
 		// flex: 1; // 让瀑布流容器占满剩余空间
 		width: 100%;
+	}
+
+	.default_box {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+
+		.default_image {
+			width: 466rpx;
+			height: 466rpx;
+		}
 	}
 }
 

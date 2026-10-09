@@ -926,6 +926,8 @@
 	"levelPage.error": "错误",
 	"minePage.vcicId": "VCIC ID",
 	"minePage.workDeposit": "工作保证金",
+	"minePage.depositStartDate": "开始日期",
+	"minePage.depositReturnDate": "退还日期",
 	"minePage.userGuide": "用户指南",
 	"minePage.goCheck": "去查看 →",
 	"minePage.noPositionActivated": "暂未激活职位",
@@ -1129,5 +1131,6 @@
 	"offlineFunds.statusPaid": "已打款",
 	"offlineFunds.statusPayFailed": "打款失败",
 	"特惠": "特惠",
-	"off": "折"
+	"off": "折",
+	"Retirer": "提现"
 }

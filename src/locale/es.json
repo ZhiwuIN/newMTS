@@ -927,6 +927,8 @@
 	"levelPage.error": "Error",
 	"minePage.vcicId": "ID VCIC",
 	"minePage.workDeposit": "Depósito de Trabajo",
+	"minePage.depositStartDate": "Fecha de inicio",
+	"minePage.depositReturnDate": "Fecha de devolución",
 	"minePage.userGuide": "Guía de Usuario",
 	"minePage.goCheck": "Ir a Revisar →",
 	"minePage.noPositionActivated": "Aún no hay puesto activado",
@@ -1130,5 +1132,6 @@
 	"offlineFunds.statusPaid": "Pagado",
 	"offlineFunds.statusPayFailed": "Pago fallido",
 	"特惠": "Oferta especial",
-	"off": "de descuento"
+	"off": "de descuento",
+	"Retirer": "Retirar"
 }

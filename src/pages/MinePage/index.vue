@@ -19,13 +19,37 @@
 						</view>
 						<!-- 保证金 -->
 						<view class="earnestMoney_box">
-							<view>{{ $t('minePage.workDeposit') }} <span>{{ userInfo?.depositAmount }}</span></view>
+							<view class="deposit-heading">
+								<image class="deposit-shield" src="/static/mine/shield.svg" mode="aspectFit"></image>
+								<view class="deposit-title">{{ $t('minePage.workDeposit') }}</view>
+							</view>
+							<view class="deposit-amount">{{ depositAmount }}</view>
+							<view class="deposit-dates">
+								<view class="deposit-date-item">
+									<image class="deposit-date-icon" src="/static/mine/date.svg" mode="aspectFit">
+									</image>
+									<view class="deposit-date-content">
+										<view class="deposit-date-label">{{ $t('minePage.depositStartDate') }}</view>
+										<view class="deposit-date-value">{{ depositStartDate }}</view>
+									</view>
+								</view>
+								<view class="deposit-date-divider"></view>
+								<view class="deposit-date-item">
+									<image class="deposit-date-icon" src="/static/mine/date.svg" mode="aspectFit">
+									</image>
+									<view class="deposit-date-content">
+										<view class="deposit-date-label">{{ $t('minePage.depositReturnDate') }}</view>
+										<view class="deposit-date-value">{{ depositReturnDate }}</view>
+									</view>
+								</view>
+							</view>
 						</view>
 					</view>
 					<!-- 用户指南 -->
 					<view class="guide-card" @click="toPage3('/pages/MinePage/userNotice')">
 						<image class="guide-book" src="/static/mine/book_img.png" mode="aspectFit"></image>
 						<view class="guide-title">{{ $t('minePage.userGuide') }}</view>
+						<view class="guide-desc">{{ $t('Aprende a utilizar la plataforma') }}</view>
 						<view class="guide-subtitle">{{ $t('minePage.goCheck') }}</view>
 					</view>
 				</view>
@@ -307,6 +331,20 @@ export default {
 		};
 	},
 	computed: {
+		depositAmount() {
+			const amount = Number(this.userInfo.depositAmount || 0);
+			return Number.isFinite(amount) ? amount.toFixed(2) : '0.00';
+		},
+		depositStartDate() {
+			return this.formatDepositDate(
+				this.userInfo.firstMemberTime || '--'
+			);
+		},
+		depositReturnDate() {
+			return this.formatDepositDate(
+				this.userInfo.lastDepositRefundTime || '--'
+			);
+		},
 		displayUserId() {
 			return this.userInfo.userId || this.userInfo.uid || this.userInfo.id || this.userInfo.phone || '--';
 		},
@@ -359,6 +397,12 @@ export default {
 		kAuthInfoApi().then(r => this.kAuthInfo = r.data || {});
 	},
 	methods: {
+		formatDepositDate(value) {
+			if (!value) return '--';
+			const text = String(value);
+			const matched = text.match(/\d{4}-\d{2}-\d{2}/);
+			return matched ? matched[0] : text;
+		},
 		toPostManage() {
 			uni.setStorageSync('pageTitle', ' ')
 			uni.navigateTo({
@@ -610,7 +654,7 @@ export default {
 
 .profile-row {
 	display: flex;
-	// align-items: center;
+	// align-items: end;
 	justify-content: space-between;
 	gap: 18rpx;
 }
@@ -626,14 +670,91 @@ export default {
 	}
 
 	.earnestMoney_box {
-		border-top: 2rpx solid #F9F9F9;
-		padding-top: 16rpx;
-		font-size: 28rpx;
-		transform: translateY(-4rpx);
+		padding: 14rpx 16rpx 16rpx;
+		border: 2rpx solid #F7DCC6;
+		border-radius: 20rpx;
+		background: #FEFAF6;
 
-		span {
-			font-weight: bold;
-			color: #B65300;
+		.deposit-heading {
+			display: flex;
+			align-items: center;
+			gap: 12rpx;
+		}
+
+		.deposit-shield {
+			width: 36rpx;
+			height: 36rpx;
+			flex: 0 0 auto;
+		}
+
+		.deposit-title {
+			color: #222222;
+			font-size: 26rpx;
+			font-weight: 600;
+			line-height: 36rpx;
+		}
+
+		.deposit-amount {
+			margin: 4rpx 0 12rpx 48rpx;
+			padding: 2rpx 0;
+			border-radius: 0 10rpx 10rpx 0;
+			background: linear-gradient(90deg, #FFF9F3 0%, #FFEBD9 100%);
+			color: #E84A17;
+			font-size: 36rpx;
+			font-weight: 700;
+			line-height: 46rpx;
+		}
+
+		.deposit-dates {
+			display: flex;
+			align-items: stretch;
+			padding-top: 12rpx;
+			border-top: 2rpx solid #E8DDD2;
+		}
+
+		.deposit-date-item {
+			display: flex;
+			align-items: flex-start;
+			min-width: 0;
+			flex: 1;
+			gap: 8rpx;
+		}
+
+		.deposit-date-icon {
+			width: 30rpx;
+			height: 30rpx;
+			// margin-top: 2rpx;
+			transform: translateY(-4rpx);
+			flex: 0 0 auto;
+		}
+
+		.deposit-date-content {
+			min-width: 0;
+		}
+
+		.deposit-date-label {
+			overflow: hidden;
+			color: #929292;
+			font-size: 18rpx;
+			line-height: 26rpx;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
+
+		.deposit-date-value {
+			margin-top: 2rpx;
+			color: #07576A;
+			font-size: 22rpx;
+			font-weight: 700;
+			line-height: 30rpx;
+			white-space: nowrap;
+		}
+
+		.deposit-date-divider {
+			width: 2rpx;
+			margin: 0 14rpx;
+			background: #D1CBC5;
+			flex: 0 0 auto;
 		}
 	}
 }
@@ -700,17 +821,20 @@ export default {
 .guide-card {
 	position: relative;
 	min-width: 224rpx;
-	padding: 116rpx 16rpx 14rpx;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	padding: 140rpx 16rpx 14rpx;
 	border-radius: 16rpx;
 	background: #fff;
 	box-shadow: 0 8rpx 24rpx rgba(26, 50, 112, 0.08);
 
 	.guide-book {
 		position: absolute;
-		top: -20rpx;
-		right: 0;
-		width: 132rpx;
-		height: 132rpx;
+		top: -30rpx;
+		right: -12rpx;
+		width: 162rpx;
+		height: 162rpx;
 	}
 
 	.guide-title {
@@ -722,8 +846,13 @@ export default {
 		word-break: break-all;
 	}
 
+	.guide-desc {
+		font-size: 22rpx;
+		line-height: 28rpx;
+		color: #929292;
+	}
+
 	.guide-subtitle {
-		margin-top: 4rpx;
 		font-size: 24rpx;
 		color: #000;
 		white-space: nowrap;

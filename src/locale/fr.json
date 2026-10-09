@@ -15,7 +15,7 @@
 	"home.CompanyProfile": "Présentation de l'entreprise",
 	"home.CompanyActivity": "Activité de l'entreprise",
 	"home.ConferenceNews": "Actualités de la conférence",
-	"home.Prompt": "Invite",
+	"home.Prompt": "Information",
 	"home.PromptTips": "Non connecté actuellement, voulez-vous vous connecter ?",
 	"home.logon": "Se connecter",
 	"home.cancel": "Annuler",
@@ -926,6 +926,8 @@
 	"levelPage.error": "Erreur",
 	"minePage.vcicId": "ID VCIC",
 	"minePage.workDeposit": "Dépôt de garantie",
+	"minePage.depositStartDate": "Date de début",
+	"minePage.depositReturnDate": "Date de retour",
 	"minePage.userGuide": "Manuel utilisateur",
 	"minePage.goCheck": "Vérifier →",
 	"minePage.noPositionActivated": "Aucun poste activé pour le moment",
@@ -1054,7 +1056,7 @@
 	"activityUpdates.daily": "Quotidien",
 	"activityUpdates.weekly": "Hebdomadaire",
 	"activityUpdates.definedPeriod": "Période définie",
-	"activityUpdates.periodWithRange": "{période} :\n {start} - {end}",
+	"activityUpdates.periodWithRange": "{period} :\n {start} - {end}",
 	"登录您的账户": "Connectez-vous à votre compte",
 	"使用您的电话号码和密码继续": "Utilisez votre numéro de téléphone et votre mot de passe pour continuer.",
 	"languageChange": "Changer de langue",
@@ -1129,5 +1131,6 @@
 	"offlineFunds.statusPaid": "Payé",
 	"offlineFunds.statusPayFailed": "Échec du paiement",
 	"特惠": "Offre spéciale",
-	"off": "de réduction"
+	"off": "de réduction",
+	"Retirer": "Retirer"
 }

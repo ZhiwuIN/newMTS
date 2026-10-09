@@ -926,6 +926,8 @@
 	"levelPage.error": "Ошибка",
 	"minePage.vcicId": "VCIC ID",
 	"minePage.workDeposit": "Рабочий депозит",
+	"minePage.depositStartDate": "Дата начала",
+	"minePage.depositReturnDate": "Дата возврата",
 	"minePage.userGuide": "Руководство пользователя",
 	"minePage.goCheck": "Проверить →",
 	"minePage.noPositionActivated": "Должность ещё не активирована",
@@ -1129,5 +1131,6 @@
 	"offlineFunds.statusPaid": "Выплачено",
 	"offlineFunds.statusPayFailed": "Ошибка выплаты",
 	"特惠": "Специальное предложение",
-	"off": "скидка"
+	"off": "скидка",
+	"Retirer": "Вывести"
 }

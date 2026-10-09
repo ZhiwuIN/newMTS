@@ -116,7 +116,7 @@
 		</uni-popup>
 		<uni-popup ref="promptpopup" type="center" :mask-click="false">
 			<view class="prompt_pop_page">
-				<view class="prompt_pop_top">{{ $t('home.Prompt') }}</view>
+				<view class="prompt_pop_top">{{ $t('Retirer') }}</view>
 				<view class="prompt_pop_taps">{{ failTips }}</view>
 				<view class="prompt_pop_bottom">
 					<button class="prompt_cancel_btn"

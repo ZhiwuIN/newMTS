@@ -927,6 +927,8 @@
 	"levelPage.error": "Lỗi",
 	"minePage.vcicId": "VCIC ID",
 	"minePage.workDeposit": "Tiền đặt cọc công việc",
+	"minePage.depositStartDate": "Ngày bắt đầu",
+	"minePage.depositReturnDate": "Ngày hoàn trả",
 	"minePage.userGuide": "Hướng dẫn người dùng",
 	"minePage.goCheck": "Đi kiểm tra →",
 	"minePage.noPositionActivated": "Chưa kích hoạt vị trí nào",
@@ -1130,5 +1132,6 @@
 	"offlineFunds.statusPaid": "Đã thanh toán",
 	"offlineFunds.statusPayFailed": "Thanh toán thất bại",
 	"特惠": "Ưu đãi đặc biệt",
-	"off": "giảm"
+	"off": "giảm",
+	"Retirer": "Rút tiền"
 }

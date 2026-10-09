@@ -1275,6 +1275,10 @@ export default {
 }
 
 .growth-desc {
+	display: -webkit-box;
+	overflow: hidden;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
 	margin-top: 18rpx;
 	color: #c8d6ef;
 	font-size: 25rpx;

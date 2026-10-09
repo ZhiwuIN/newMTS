@@ -926,6 +926,8 @@
 	"levelPage.error": "Error",
 	"minePage.vcicId": "ID",
 	"minePage.workDeposit": "Work Deposit",
+	"minePage.depositStartDate": "Start date",
+	"minePage.depositReturnDate": "Return date",
 	"minePage.userGuide": "User Guide",
 	"minePage.goCheck": "Go Check →",
 	"minePage.noPositionActivated": "No position activated yet",
@@ -1129,5 +1131,6 @@
 	"offlineFunds.statusPaid": "Paid",
 	"offlineFunds.statusPayFailed": "Payment Failed",
 	"特惠": "Special offer",
-	"off": "off"
+	"off": "off",
+	"Retirer": "Withdraw"
 }
