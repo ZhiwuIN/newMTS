@@ -57,7 +57,7 @@
 				<view v-else class="default_box">
 					<image src="/static/mine/applicationRecord/nullPositionManage.png" mode="" class="default_image">
 					</image>
-					<view>{{ loading ? $t('common.loading') : $t('暂无任务') }}</view>
+					<view>{{ loading ? $t('common.loading') : $t('default.NoTasks') }}</view>
 				</view>
 			</view>
 		</view>

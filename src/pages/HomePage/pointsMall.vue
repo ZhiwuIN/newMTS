@@ -37,8 +37,7 @@
 						</uv-tabs>
 					</view>
 				</view>
-				<view class="commodity-box">
-
+				<view class="commodity-box" v-if="produitList.length">
 					<scroll-view scroll-y :refresher-enabled="true" :refresher-triggered="isRefreshing"
 						@scrolltolower="onReachBottom" @refresherrefresh="onRefresh" :refresher-threshold="120"
 						class="scroll-view-box">
@@ -68,8 +67,11 @@
 						<listbottom :hasMore="hasMore" :loading="loading" :noData='nodata'
 							image="/static/default/Nocontent.png" key="listbottom"></listbottom>
 					</scroll-view>
-
-
+				</view>
+				<view v-else class="default_box">
+					<image src="/static/mine/applicationRecord/nullPositionManage.png" mode="" class="default_image">
+					</image>
+					<view>{{ loading ? $t('common.loading') : $t('default.NoTasks') }}</view>
 				</view>
 			</view>
 
@@ -604,6 +606,18 @@ export default {
 					border-radius: 8rpx;
 				}
 			}
+		}
+	}
+
+	.default_box {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+
+		.default_image {
+			width: 466rpx;
+			height: 466rpx;
 		}
 	}
 }

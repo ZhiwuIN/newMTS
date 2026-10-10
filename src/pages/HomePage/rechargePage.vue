@@ -97,7 +97,8 @@ export default {
 			accountList: [],
 			payTips: '',
 			userType: '',
-			source: ''
+			source: '',
+			settings: {}
 		}
 	},
 	onLoad(options) {
@@ -110,6 +111,7 @@ export default {
 		this.source = options.source
 		this.amount = options.amount
 		this.currency = uni.getStorageSync('settings').currency
+		this.settings = uni.getStorageSync('settings')
 		this.actualCurrency = uni.getStorageSync('settings').actualCurrency
 		this.usdtRate = uni.getStorageSync('settings').usdtRate
 		this.getDepositList()
@@ -201,7 +203,7 @@ export default {
 				this.$showMessage('warning', this.$t('Deposit.placeholder'));
 				return;
 			}
-			if (this.amount < this.minAmount || this.amount > this.maxAmount && (this.minAmount && this.maxAmount)) {
+			if (+this.amount < +this.minAmount || +this.amount > +this.maxAmount && (this.minAmount && this.maxAmount)) {
 				this.$showMessage('warning', this.$t('Deposit.amountRangeA') + this.minAmount + this.actualCurrency +
 					this.$t('Deposit.amountRangeB') + this.maxAmount + this.actualCurrency + this.$t(
 						'Deposit.amountRangeC'));
@@ -211,7 +213,7 @@ export default {
 				"source": this.source,
 				"amount": this.amount,
 				"cid": this.selectedChannel.id,
-				"pageUrl": 'https://www.cwpc.vip/#/pages/paymentSettlement'
+				"pageUrl": this.settings.qServerName + '/#/pages/paymentSettlement'
 				// "password": this.password
 			}
 			uni.showLoading({
