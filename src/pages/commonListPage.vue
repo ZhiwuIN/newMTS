@@ -4,7 +4,7 @@
 			<view class="common-list-page">
 				<view class="list-box" v-for="(item, index) in list" :key="index" @click="toDeatils(item.noticeId)">
 					<image class="image-container" :style="{ width: '652rpx', height: '372rpx' }" fit="fill"
-						:src="item.coverImg"></image>
+						:src="item.coverImg" mode="aspectFill"></image>
 					<view class="common-list-info">{{ item.title }}</view>
 				</view>
 			</view>

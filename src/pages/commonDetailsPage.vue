@@ -4,7 +4,7 @@
 			<view class="common-info">{{noticeDetails.title}}</view>
 			<image v-if="noticeDetails.coverImg" class="image-container"
 				:style="{ width: '652rpx', height: noticeDetails.gropid == '11' ? '772rpx' : '372rpx' }" fit="fill"
-				:src=" noticeDetails.coverImg"></image>
+				:src=" noticeDetails.coverImg" mode="widthFix"></image>
 			<rich-text :nodes="noticeDetails.content" class="common-info"></rich-text>
 		</view>
 
