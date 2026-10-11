@@ -126,6 +126,10 @@ export default {
 			type: Number,
 			default: 10
 		},
+		scrollTop: {
+			type: Number,
+			default: null
+		},
 		logoSrc: {
 			type: String,
 			default: '/static/logo.png'
@@ -210,8 +214,8 @@ export default {
 			});
 		},
 		setNavbarBackground(scrollTop = 0) {
-			this.currentScrollTop = scrollTop
-			if (this.whiteBackgroundOnScroll && scrollTop > this.whiteBackgroundScrollTop) {
+			this.currentScrollTop = this.scrollTop ?? scrollTop
+			if (this.whiteBackgroundOnScroll && this.currentScrollTop > this.whiteBackgroundScrollTop) {
 				this.scrollBackgroundStr = '#FFFFFF'
 			} else {
 				this.scrollBackgroundStr = this.getDefaultBackground()
@@ -238,6 +242,9 @@ export default {
 		}
 	},
 	watch: {
+		scrollTop(value) {
+			this.setNavbarBackground(value ?? 0)
+		},
 		backgroundStr() {
 			this.setNavbarBackground(this.currentScrollTop)
 		}

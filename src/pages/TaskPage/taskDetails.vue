@@ -28,8 +28,19 @@
 					</view>
 					<view class="one">
 						<view class="Sold">{{ taskDetails.quantity }}+ {{ $t('views') }}</view>
-						<view class="Sold">{{ $t('Sold') }} {{ taskDetails.quantity }}+</view>
+						<view class="Sold sold-count">{{ $t('Sold') }} {{ taskDetails.quantity }}+</view>
 					</view>
+				</view>
+
+				<view class="favorite-control" :class="{ 'favorite-active': isFavorited }" @click="toggleFavorite">
+					<view class="favorite-icon">
+						<text class="favorite-heart">❤</text>
+					</view>
+					<view class="favorite-text">
+						<view class="favorite-label">{{ $t(isFavorited ? 'task.favorited' : 'task.favorite') }}</view>
+						<view class="favorite-description">{{ $t('task.favoriteRequired') }}</view>
+					</view>
+					<text class="favorite-count">{{ taskDetails.quantity }}+</text>
 				</view>
 
 				<!-- 抢购记录 -->
@@ -70,7 +81,7 @@
 				</view>
 
 				<!-- 购买弹框 -->
-				<uni-popup ref="paypopup" type="center" border-radius="10px 10px 0 0">
+				<uni-popup ref="paypopup" type="center" border-radius="10px 10px 0 0" style="z-index: 10002;">
 					<view class="pay_pop_page">
 						<view class="pay_pop_top">{{ $t('收益') }}</view>
 						<view class="pay_pop_no">{{ $t("请输入你的安全密码并完成订单") }}
@@ -91,7 +102,7 @@
 
 
 
-				<uni-popup ref="paypopup2" type="center">
+				<uni-popup ref="paypopup2" type="center" style="z-index: 10002;">
 					<view class="prompt_pop_page">
 						<view class="prompt_pop_top">{{ $t('home.Prompt') }}</view>
 						<view class="prompt_pop_taps">{{ $t('先设置安全密码') }}</view>
@@ -103,7 +114,7 @@
 				</uni-popup>
 
 				<!-- 抢购成功 -->
-				<uni-popup ref="paypopup3" type="center">
+				<uni-popup ref="paypopup3" type="center" style="z-index: 10002;">
 					<view class="prompt_pop_page">
 						<view class="prompt_pop_top">{{ $t('home.Prompt') }}</view>
 						<view class="prompt_pop_taps">{{ prompt_pop_taps }}</view>
@@ -117,7 +128,8 @@
 				<view class="mask" v-if="showMask"></view>
 				<view class="poster-container" v-if="showMask">
 					<view>{{ $t('ProcessingYourOrder') }}</view>
-					<gradient-progress :progress="progress" :duration="duration + 's'" color1="#7ee1ff"
+					<!-- :duration="duration + 's'" -->
+					<gradient-progress :progress="progress" :duration="3 + 's'" color1="#7ee1ff"
 						color2="#397ed1"></gradient-progress>
 				</view>
 
@@ -183,6 +195,7 @@ export default {
 			currentSwiperi: 0, // 轮播指示
 			taskId: 0,
 			taskDetails: {},
+			isFavorited: false,
 			currency: '',
 			answerCurrent: -1,
 			answeritems: [],
@@ -199,6 +212,7 @@ export default {
 		}
 	},
 	onLoad(options) {
+		this.isFavorited = false
 		this.getTaskInfo()
 		// if (uni.getStorageSync('userInfo').levelCode == '0' && this.isOverFourDays(uni.getStorageSync('userInfo')
 		// 		.registerTime)) {
@@ -215,6 +229,15 @@ export default {
 		this.getPurchaseRecordApi()
 	},
 	methods: {
+		toggleFavorite() {
+			if (this.isloading || this.showMask) return
+			this.isFavorited = !this.isFavorited
+		},
+		ensureFavorited() {
+			if (this.isFavorited) return true
+			this.$showMessage('warning', this.$t('task.favoriteRequired'))
+			return false
+		},
 		// 购买记录
 		getPurchaseRecordApi() {
 			purchaseRecordApi(this.taskId, {
@@ -226,19 +249,21 @@ export default {
 		},
 		// 点击购买按钮
 		ShopNow() {
+			if (!this.ensureFavorited()) return
 			uni.showLoading({
 				title: this.$t('loading.btn')
 			});
 			userInfoApi().then((res) => {
+				if (!this.ensureFavorited()) return
 				uni.setStorageSync('userInfo', res.data)
 				if (!uni.getStorageSync('userInfo').hasWithdrawalPassword) {
 					this.$refs.paypopup2.open()
 					return
 				}
-				if (this.taskInfo.todayRemainingMoney < this.taskDetails.price) {
-					this.$showMessage('warning', this.$t('您的任务额度不足'));
-					return
-				}
+				// if (this.taskInfo.todayRemainingMoney < this.taskDetails.price) {
+				// 	this.$showMessage('warning', this.$t('您的任务额度不足'));
+				// 	return
+				// }
 				if (this.taskDetails.isTodayCompleted == 1) {
 					this.$showMessage('warning', this.$t('已答题'));
 					return
@@ -276,6 +301,7 @@ export default {
 		// 确认购买
 		payConfirm() {
 			if (this.isloading) return
+			if (!this.ensureFavorited()) return
 			this.isloading = true
 			if (this.password == '' || this.password.length < 6) {
 				this.$showMessage('warning', this.$t('password.placeholder3'));
@@ -290,13 +316,39 @@ export default {
 			const min = 5;
 			const max = 10;
 			const randomSeconds = Math.random() * (max - min) + min;
-			this.duration = randomSeconds.toFixed(1)
+			// this.duration = randomSeconds.toFixed(1)
+			this.duration = 3
 			this.showMask = true
 			setTimeout(() => {
 				// this.answer_confirm()
-				this.$refs.paypopup3.open()
+				// this.$refs.paypopup3.open()
 				this.isloading = false
 				this.showMask = false
+				let params = {
+					"password": this.password,
+					"taskId": this.taskId
+				}
+				uni.showLoading({
+					title: this.$t('loading.btn')
+				});
+				paymentApi(params).then((res) => {
+					this.taskDetails.isTodayCompleted = 1
+					this.prompt_pop_taps = res.msg
+					uni.setStorageSync('isTodayCompletedId', this.taskId)
+					// this.getRandomDuration()
+					this.$refs.paypopup3.open()
+				}).catch((err) => {
+					this.loading = false
+					this.isloading = false
+					this.$showMessage('warning', err.msg);
+				}).finally(() => {
+					// this.showMask = false
+					this.loading = false
+					uni.hideLoading();
+					setTimeout(() => {
+						// this.isloading = false
+					}, 1000)
+				})
 			}, this.duration * 1000)
 		},
 		checkNigeriaWeekend() {
@@ -457,12 +509,21 @@ export default {
 		},
 		// 提交答案
 		answer_confirm() {
+			if (!this.ensureFavorited()) {
+				this.isloading = false
+				return
+			}
 			uni.showLoading({
 				title: this.$t('loading.btn')
 			});
 			taskDetailsApi(this.taskId).then(async (res) => {
 				this.taskDetails = res.data;
 				await this.getTaskInfo()
+				if (!this.ensureFavorited()) {
+					this.isloading = false
+					uni.hideLoading()
+					return
+				}
 				// 不是属于该等级的任务
 				// if (this.taskDetails.taskLevel != uni.getStorageSync('userInfo').levelCode) {
 				// 	this.showMask = false
@@ -471,10 +532,10 @@ export default {
 				// 	})
 				// 	return;
 				// }
-				if (this.taskInfo.todayRemainingMoney < this.taskDetails.price) {
-					this.$showMessage('warning', this.$t('您的任务额度不足'));
-					return
-				}
+				// if (this.taskInfo.todayRemainingMoney < this.taskDetails.price) {
+				// 	this.$showMessage('warning', this.$t('您的任务额度不足'));
+				// 	return
+				// }
 				// 已答题
 				if (this.taskDetails.isTodayCompleted == 1) {
 					this.showMask = false
@@ -482,26 +543,7 @@ export default {
 					uni.hideLoading();
 					return
 				}
-				let params = {
-					"password": this.password,
-					"taskId": this.taskId
-				}
-				paymentApi(params).then((res) => {
-					this.taskDetails.isTodayCompleted = 1
-					this.prompt_pop_taps = res.msg
-					uni.setStorageSync('isTodayCompletedId', this.taskId)
-					this.getRandomDuration()
-				}).catch((err) => {
-					this.loading = false
-					this.isloading = false
-					this.$showMessage('warning', err.msg);
-				}).finally(() => {
-					// this.showMask = false
-					uni.hideLoading();
-					setTimeout(() => {
-						// this.isloading = false
-					}, 1000)
-				})
+				this.getRandomDuration()
 			}).catch((err) => {
 				this.loading = false;
 				this.showMask = false
@@ -891,9 +933,15 @@ export default {
 			justify-content: space-between;
 
 			.Sold {
+				flex: 1;
+				min-width: 0;
 				font-family: MiSans;
 				font-size: 24rpx;
 				color: #8A8A8A;
+			}
+
+			.sold-count {
+				text-align: right;
 			}
 		}
 
@@ -911,6 +959,74 @@ export default {
 			-webkit-line-clamp: 2;
 			overflow: hidden;
 			text-overflow: ellipsis;
+		}
+	}
+
+	.favorite-control {
+		display: flex;
+		align-items: center;
+		gap: 22rpx;
+		box-sizing: border-box;
+		margin: 0 24rpx 20rpx;
+		padding: 16rpx 20rpx;
+		border: 2rpx solid #e3e7ee;
+		border-radius: 14rpx;
+		background: #fff;
+
+		.favorite-icon {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			width: 80rpx;
+			height: 80rpx;
+			flex-shrink: 0;
+			border-radius: 50%;
+			background: #ffe3e6;
+		}
+
+		.favorite-heart {
+			color: #ee3345;
+			font-size: 52rpx;
+			line-height: 1;
+		}
+
+		.favorite-text {
+			flex: 1;
+			min-width: 0;
+		}
+
+		.favorite-label {
+			color: #11152e;
+			font-size: 30rpx;
+			font-weight: bold;
+			line-height: 38rpx;
+		}
+
+		.favorite-description {
+			margin-top: 4rpx;
+			color: #7f8391;
+			font-size: 24rpx;
+			line-height: 32rpx;
+		}
+
+		.favorite-count {
+			flex-shrink: 0;
+			color: #7f8391;
+			font-size: 26rpx;
+			white-space: nowrap;
+		}
+
+		&.favorite-active {
+			border-color: #e5a6b1;
+			background: #fff7f8;
+
+			.favorite-icon {
+				background: #ffd4da;
+			}
+
+			.favorite-label {
+				color: $themeColor;
+			}
 		}
 	}
 

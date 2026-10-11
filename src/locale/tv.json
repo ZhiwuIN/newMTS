@@ -1133,5 +1133,8 @@
 	"offlineFunds.statusPayFailed": "Thanh toán thất bại",
 	"特惠": "Ưu đãi đặc biệt",
 	"off": "giảm",
-	"Retirer": "Rút tiền"
+	"Retirer": "Rút tiền",
+	"task.favorite": "Yêu thích",
+	"task.favorited": "Đã yêu thích",
+	"task.favoriteRequired": "Vui lòng đánh dấu yêu thích sản phẩm này trước khi hoàn tất đơn hàng."
 }

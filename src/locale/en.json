@@ -1132,5 +1132,8 @@
 	"offlineFunds.statusPayFailed": "Payment Failed",
 	"特惠": "Special offer",
 	"off": "off",
-	"Retirer": "Withdraw"
+	"Retirer": "Withdraw",
+	"task.favorite": "Favorite",
+	"task.favorited": "Favorited",
+	"task.favoriteRequired": "Please favorite this product before completing the order."
 }

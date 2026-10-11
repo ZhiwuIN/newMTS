@@ -1,10 +1,11 @@
 import request from './request.js'
 
 // 获取任务列表
-export function getTaskLists() {
+export function getTaskLists(data) {
 	return request({
 		url: '/app/task/lists',
 		method: 'get',
+		data
 	})
 }
 

@@ -1,5 +1,6 @@
 <template>
-	<homenavbar homenavbar backgroundStr="''" :showBack="false" @mtop='mtop' :isHome="true">
+	<homenavbar homenavbar backgroundStr="''" :showBack="false" @mtop='mtop' :isHome="true"
+		:scroll-top="scrollTop">
 		<view class="top-bg" :style="topStyle"></view>
 		<view class="task-page" :style="topStyle2">
 			<view class="task_top_card" :style="taskTopCardStyle">
@@ -41,24 +42,21 @@
 
 			<!-- 瀑布流容器 -->
 			<view class="custom-waterfalls" v-if="isShow">
-				<keep-alive v-if="taskList.length">
-					<scroll-view scroll-y :refresher-enabled="true" :refresher-triggered="isRefreshing"
-						@scrolltolower="onReachBottom" @refresherrefresh="onRefresh" :refresher-threshold="120"
-						:style="scrollViewStyle" ref="scrollViewElement" :scroll-top="scrollTop" @scroll="onPageScroll">
-
-						<custom-waterfalls-flow :taskList="taskList" :currency="currency" @wapperClick="startTask"
-							ref="scrollView">
-						</custom-waterfalls-flow>
-
-						<listbottom :hasMore="hasMore" :loading="loading" :noData='nodata'
-							image="/static/default/No order.png"></listbottom>
-					</scroll-view>
-				</keep-alive>
-				<view v-else class="default_box">
-					<image src="/static/mine/applicationRecord/nullPositionManage.png" mode="" class="default_image">
-					</image>
-					<view>{{ loading ? $t('common.loading') : $t('default.NoTasks') }}</view>
-				</view>
+				<scroll-view scroll-y :refresher-enabled="true" :refresher-triggered="isRefreshing"
+					@scrolltolower="onReachBottom" @refresherrefresh="onRefresh" :refresher-threshold="120"
+					:lower-threshold="80"
+					:style="scrollViewStyle" ref="scrollViewElement" :scroll-top="scrollTop" @scroll="onPageScroll">
+					<custom-waterfalls-flow v-if="taskList.length" :taskList="taskList" :currency="currency"
+						@wapperClick="startTask" ref="scrollView">
+					</custom-waterfalls-flow>
+					<listbottom v-if="taskList.length" :hasMore="hasMore" :loading="loading" :noData='nodata'
+						image="/static/default/No order.png"></listbottom>
+					<view v-else class="default_box">
+						<image src="/static/mine/applicationRecord/nullPositionManage.png" mode="" class="default_image">
+						</image>
+						<view>{{ loading ? $t('common.loading') : $t('default.NoTasks') }}</view>
+					</view>
+				</scroll-view>
 			</view>
 		</view>
 
@@ -137,6 +135,7 @@ export default {
 			nodata: false,
 			hasMore: true,
 			loading: false,
+			taskListRequestId: 0,
 			isShow: false,
 			isRefreshing: false,
 			levelCode: '',
@@ -152,22 +151,26 @@ export default {
 	},
 	computed: {
 		taskTopCardStyle() {
-			const offset = this.taskCardCollapseOffset;
-			return `transform: translateY(-${offset}rpx); margin-bottom: -${offset}rpx;`;
+			const offset = uni.upx2px(this.taskCardCollapseOffset);
+			return `transform: translateY(-${offset}px); margin-bottom: -${offset}px;`;
 		},
 		scrollViewStyle() {
 			if (!this.scrollViewBaseHeight) return '';
-			return `height: calc(${this.scrollViewBaseHeight} + ${this.taskCardCollapseOffset}rpx);`;
+			return `height: calc(${this.scrollViewBaseHeight} + ${uni.upx2px(this.taskCardCollapseOffset)}px);`;
 		}
 	},
 	onLoad() {
 		const systemInfo = uni.getSystemInfoSync();
 		this.windowWidth = systemInfo.windowWidth || 375;
-		this.scrollTop = uni.getStorageSync('taskListScrollTop') || 0;
-		this.updateTaskCardCollapse(this.scrollTop);
+		const savedScrollTop = Number(uni.getStorageSync('taskListScrollTop')) || 0;
+		this.scrollTop = 0;
+		this.updateTaskCardCollapse(0);
 		this.currency = uni.getStorageSync('settings').currency;
-		this.getTaskList().then(() => {
+		this.getTaskList().then((loaded) => {
+			if (!loaded) return;
 			this.$nextTick(() => {
+				this.scrollTop = savedScrollTop;
+				this.updateTaskCardCollapse(savedScrollTop);
 				this.needRestoreScroll = true;
 			});
 		});
@@ -197,15 +200,17 @@ export default {
 			return
 		} else {
 			if (uni.getStorageSync('levelCode') != this.levelCode) {
-				this.page.pageNum = 1
-				this.getTaskList();
 				this.isShow = true;
 				this.taskList = [];
+				this.scrollTop = 0;
+				this.updateTaskCardCollapse(0);
+				this.getTaskList(true);
 			}
 		}
 
 	},
 	onUnload() {
+		this.taskListRequestId += 1;
 		uni.setStorageSync('taskListScrollTop', this.scrollTop);
 	},
 	methods: {
@@ -236,28 +241,9 @@ export default {
 			this.taskCardCollapseOffset = Math.min(this.taskCardCollapseMax, Math.max(0, scrollRpx));
 		},
 		onRefresh() {
-			// this.isRefreshing = true;
-			// this.page.pageNum = 1;
-			getTaskLists().then((res) => {
-				this.taskList = res.data || [];
-				// this.taskList = [...new Map(this.taskList.map(item => [item.taskId, item])).values()];
-				// this.taskList = this.taskList.filter(item => item.isTodayCompleted !== 1);
-				// if (!this.taskList.length && res.rows.length) {
-				// 	this.onReachBottom()
-				// }
-				// if (this.taskList.length < 10 && res.rows.length) {
-				// 	this.onReachBottom()
-				// }
-				this.levelCode = this.userInfo.levelCode;
-				// this.nodata = res.total === 0;
-				// this.hasMore = this.taskList.length !== res.total;
-				this.scrollTop = 0;
-				this.updateTaskCardCollapse(0);
-				this.isRefreshing = false;
-			}).catch((err) => {
-				console.log('request fail', err);
-				this.$showMessage('warning', err.msg);
-			})
+			if (this.isRefreshing) return Promise.resolve(false);
+			this.isRefreshing = true;
+			return this.getTaskList(true);
 		},
 		mtop(e) {
 			// 导航栏高度（从组件获取），供 updateScrollViewHeight 复用
@@ -283,11 +269,11 @@ export default {
 
 			// #ifdef H5
 			// H5端：额外减去底部可能的留白
-			this.scrollViewBaseHeight = `100vh - ${this.navHeight}rpx - ${cardHeight}rpx - 300rpx`;
+			this.scrollViewBaseHeight = `100vh - ${uni.upx2px(this.navHeight + cardHeight + 300)}px`;
 			// #endif
 
 			// #ifdef APP-PLUS
-			this.scrollViewBaseHeight = `100vh - ${this.navHeight}rpx - ${cardHeight}rpx - 128rpx`;
+			this.scrollViewBaseHeight = `100vh - ${uni.upx2px(this.navHeight + cardHeight + 128)}px`;
 			// #endif
 		},
 		// 量一次标题区高度：fr/ru/tv 等长文案会换行使卡片变高，
@@ -328,27 +314,42 @@ export default {
 				}
 			});
 		},
-		getTaskList() {
+		getTaskList(reset = false) {
+			if (!reset && (this.loading || (!this.hasMore && this.taskList.length))) {
+				return Promise.resolve(false);
+			}
+			const requestId = ++this.taskListRequestId;
+			const pageNum = reset || !this.taskList.length ? 1 : this.page.pageNum + 1;
+			const params = { ...this.page, pageNum };
 			this.loading = true;
-			uni.showLoading({
-				title: this.$t('loading.btn')
-			});
 
-			return getTaskLists().then((res) => {
-				this.loading = false;
-				this.taskList = res.data || [];
-				this.levelCode = this.userInfo.levelCode;
-				// this.nodata = res.total === 0;
-				this.hasMore = this.taskList.length !== res.total;
-				// if (this.page.pageNum > 1) {
-				// 	this.scrollTop = this.preLoadScrollTop;
-				// }
+			return getTaskLists(params).then((res) => {
+				if (requestId !== this.taskListRequestId) return false;
+				const data = res.data || res;
+				const rows = Array.isArray(data.rows) ? data.rows : [];
+				const items = pageNum === 1 ? rows : [...this.taskList, ...rows];
+				this.taskList = [...new Map(items.map(item => [item.taskId, item])).values()];
+				this.page.pageNum = pageNum;
+				this.levelCode = this.userInfo.levelCode ?? uni.getStorageSync('levelCode') ?? '';
+				this.nodata = this.taskList.length === 0;
+				const hasTotal = data.total != null && data.total !== '' && Number.isFinite(Number(data.total));
+				this.hasMore = rows.length > 0 && (hasTotal
+					? this.taskList.length < Number(data.total)
+					: rows.length >= params.pageSize);
+				if (reset) {
+					this.scrollTop = 0;
+					this.updateTaskCardCollapse(0);
+				}
+				return true;
 			}).catch((err) => {
-				this.loading = false;
+				if (requestId !== this.taskListRequestId) return false;
 				console.log('request fail', err);
 				this.$showMessage('warning', err.msg);
+				return false;
 			}).finally(() => {
-				uni.hideLoading();
+				if (requestId !== this.taskListRequestId) return;
+				this.loading = false;
+				this.isRefreshing = false;
 			});
 		},
 		startTask(e) {
@@ -405,10 +406,9 @@ export default {
 			return dayDiff > 3;
 		},
 		onReachBottom() {
-			if (!this.loading && this.hasMore) {
+			if (!this.loading && !this.isRefreshing && this.hasMore) {
 				this.preLoadScrollTop = this.scrollTop;
-				this.page.pageNum += 1;
-				this.getTaskList();
+				return this.getTaskList();
 			}
 		}
 	}
@@ -433,7 +433,7 @@ export default {
 	display: flex;
 	flex-direction: column;
 	width: 100%;
-	min-height: 100vh;
+	// min-height: 100vh;
 	background-color: #f2f5ff;
 
 	.task_top_card {

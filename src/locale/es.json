@@ -1133,5 +1133,8 @@
 	"offlineFunds.statusPayFailed": "Pago fallido",
 	"特惠": "Oferta especial",
 	"off": "de descuento",
-	"Retirer": "Retirar"
+	"Retirer": "Retirar",
+	"task.favorite": "Favorito",
+	"task.favorited": "En favoritos",
+	"task.favoriteRequired": "Por favor, marca este producto como favorito antes de completar el pedido."
 }
