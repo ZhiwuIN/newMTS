@@ -1135,5 +1135,7 @@
 	"Retirer": "Вывести",
 	"task.favorite": "Избранное",
 	"task.favorited": "В избранном",
-	"task.favoriteRequired": "Пожалуйста, добавьте этот товар в избранное перед завершением заказа."
+	"task.favoriteRequired": "Пожалуйста, добавьте этот товар в избранное перед завершением заказа.",
+	"task.allTasksCompleted": "Все задания на сегодня выполнены.",
+	"task.completedConfirm": "ОК"
 }

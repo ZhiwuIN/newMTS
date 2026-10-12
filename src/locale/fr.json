@@ -540,7 +540,7 @@
 	"mine.PromotionalBrochure": "Brochure promotionnelle",
 	"通知详情": "Détails de la notification",
 	"暂停发放": "Salaire provisoirement suspendu",
-	"Performancetargetnotmet": "Objectif de performance non atteint. Contactez le responsable RH",
+	"Performancetargetnotmet": "Objectif de performance non atteint. Contactez le responsable RRH",
 	"systemMaintenance": "Maintenance du système, veuillez réessayer plus tard",
 	"positionManage.audit": "En cours d'examen",
 	"您的职位申请正在审核中": "Votre demande de poste est en cours d'examen",
@@ -581,7 +581,7 @@
 	"申请成功等待审核": "Votre demande a été soumise avec succès. Veuillez attendre patiemment l'examen",
 	"register.IDPlaceHolder": "Veuillez saisir votre numéro d'identité",
 	"失败原因": "Cause de l'échec",
-	"代理联系方式": "Coordonnées du responsable RH",
+	"代理联系方式": "Coordonnées du responsable RRH",
 	"代理": "Agent",
 	"CommunitySelection": "Sélection communautaire",
 	"Selection": "Sélection",
@@ -1135,5 +1135,7 @@
 	"Retirer": "Retirer",
 	"task.favorite": "Favori",
 	"task.favorited": "En favoris",
-	"task.favoriteRequired": "Veuillez marquer ce produit comme favori avant de terminer la commande."
+	"task.favoriteRequired": "Veuillez marquer ce produit comme favori avant de terminer la commande.",
+	"task.allTasksCompleted": "Toutes les tâches d’aujourd’hui ont été terminées.",
+	"task.completedConfirm": "OK"
 }

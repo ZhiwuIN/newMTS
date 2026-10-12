@@ -1135,5 +1135,7 @@
 	"Retirer": "Withdraw",
 	"task.favorite": "Favorite",
 	"task.favorited": "Favorited",
-	"task.favoriteRequired": "Please favorite this product before completing the order."
+	"task.favoriteRequired": "Please favorite this product before completing the order.",
+	"task.allTasksCompleted": "All of today's tasks have been completed.",
+	"task.completedConfirm": "OK"
 }

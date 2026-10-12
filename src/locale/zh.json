@@ -1135,5 +1135,7 @@
 	"Retirer": "提现",
 	"task.favorite": "收藏",
 	"task.favorited": "已收藏",
-	"task.favoriteRequired": "请在完成订单前先收藏此商品"
+	"task.favoriteRequired": "请在完成订单前先收藏此商品",
+	"task.allTasksCompleted": "今天的所有任务已经完成",
+	"task.completedConfirm": "确定"
 }

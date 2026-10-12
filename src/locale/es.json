@@ -1136,5 +1136,7 @@
 	"Retirer": "Retirar",
 	"task.favorite": "Favorito",
 	"task.favorited": "En favoritos",
-	"task.favoriteRequired": "Por favor, marca este producto como favorito antes de completar el pedido."
+	"task.favoriteRequired": "Por favor, marca este producto como favorito antes de completar el pedido.",
+	"task.allTasksCompleted": "Todas las tareas de hoy se han completado.",
+	"task.completedConfirm": "Aceptar"
 }

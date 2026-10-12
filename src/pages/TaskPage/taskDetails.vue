@@ -124,6 +124,17 @@
 					</view>
 				</uni-popup>
 
+				<!-- 今日任务已完成 -->
+				<uni-popup ref="completedTaskPopup" type="center" :mask-click="false" style="z-index: 10002;">
+					<view class="prompt_pop_page completed-task-popup">
+						<view class="prompt_pop_top">{{ $t('home.Prompt') }}</view>
+						<view class="prompt_pop_taps">{{ $t('task.allTasksCompleted') }}</view>
+						<view class="prompt_pop_bottom">
+							<button class="prompt_confirm_btn" @click="closeCompletedTaskPopup">{{ $t('task.completedConfirm') }}</button>
+						</view>
+					</view>
+				</uni-popup>
+
 				<!-- 抢购进度条 -->
 				<view class="mask" v-if="showMask"></view>
 				<view class="poster-container" v-if="showMask">
@@ -249,6 +260,12 @@ export default {
 		},
 		// 点击购买按钮
 		ShopNow() {
+			const { todayDoneCount, actualTaskQuota } = this.taskInfo
+			if (todayDoneCount != null && actualTaskQuota != null &&
+				Number(todayDoneCount) >= Number(actualTaskQuota)) {
+				this.$refs.completedTaskPopup.open()
+				return
+			}
 			if (!this.ensureFavorited()) return
 			uni.showLoading({
 				title: this.$t('loading.btn')
@@ -285,6 +302,9 @@ export default {
 			}).finally(() => {
 				uni.hideLoading();
 			})
+		},
+		closeCompletedTaskPopup() {
+			this.$refs.completedTaskPopup.close()
 		},
 		prompt_cancel() {
 			this.$refs.paypopup2.close()
