@@ -1,5 +1,5 @@
 <template>
-	<customnavbar @mtop="mtop">
+	<customnavbar @mtop="mtop" backgroundStr="#f2f5ff" :title="$t('minePage.myProduct')">
 		<view class="product-container" :style="topStyle">
 			<view class="tabs">
 				<view v-for="(item, index) in tabs" :key="index"
@@ -219,6 +219,7 @@ export default {
 	flex-direction: column;
 	padding-top: 24rpx;
 	background-color: #f2f5ff;
+	transform: translateY(-2rpx);
 }
 
 .product-list {

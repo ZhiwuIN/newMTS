@@ -52,9 +52,10 @@ export default {
 				this.$showMessage('warning', err.msg)
 			})
 		},
-		// 验证密码格式
+		// 验证支付信息
 		validatePayment() {
-			if (!this.accountName) {
+			const accountName = this.accountName.trim()
+			if (!accountName) {
 				this.$showMessage('warning', this.$t('mobilePayment.accountname'))
 				// uni.showToast({
 				// 	title: this.$t('mobilePayment.accountname'),
@@ -63,6 +64,12 @@ export default {
 				this.loading = false
 				return false
 			}
+			if (!/^\p{L}[\p{L}\p{M}]*(?: +\p{L}[\p{L}\p{M}]*)*$/u.test(accountName)) {
+				this.$showMessage('warning', this.$t('mobilePayment.invalidAccountName'))
+				this.loading = false
+				return false
+			}
+			this.accountName = accountName
 			if (!this.accountNumber) {
 				this.$showMessage('warning', this.$t('mobilePayment.accountnumber'))
 				this.loading = false

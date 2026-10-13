@@ -1,6 +1,6 @@
 <template>
 	<view class="page">
-		<customnavbar backgroundStr="#fff" :title="$t('financePage.title')" @mtop="mtop">
+		<customnavbar backgroundStr="#f2f5ff" :title="$t('financePage.title')" @mtop="mtop">
 			<view class="hero" :style="topStyle"></view>
 			<view class="content">
 				<view class="account-card">
@@ -221,7 +221,7 @@ export default {
 					text,
 					b {
 						display: block;
-						white-space: nowrap;
+						word-break: break-all;
 					}
 
 					text {

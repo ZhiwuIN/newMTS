@@ -43,18 +43,18 @@
 							{{ item }}
 						</view>
 					</view>
-					<view class="withdraw-amount-input" v-if="customizedAmountList.length && userInfo.levelCode == '0'">
+					<!-- <view class="withdraw-amount-input" v-if="customizedAmountList.length && userInfo.levelCode == '0'">
 						<input type="digit" v-model="withdrawAmount"
 							:placeholder="withdrawalInfo.limitAmount ? $t('自由输入') + withdrawalInfo.limitAmount + '+' : $t('自由输入2')"
 							@input="handleWithdrawInput" @blur="handleWithdrawInputBlur"
 							:disabled="withdrawalInfo.balance < withdrawalInfo.limitAmount"
 							placeholder-style="color: #E4E4E4;font-size: 28rpx;font-weight: 500;" />
 						<text class="clear" @tap="clearWithdrawAmount" v-if="withdrawAmount">×</text>
-					</view>
-					<view class="step2-t2"
+					</view> -->
+					<!-- <view class="step2-t2"
 						v-if="customizedAmountList.length && userInfo.levelCode == '0' && withdrawalInfo.balance < withdrawalInfo.limitAmount">
 						{{ $t('余额达到才可输入') + withdrawalInfo.limitAmount }}{{ withdrawalInfo.currency }}
-					</view>
+					</view> -->
 					<view class="step2-t2" v-if="customizedAmountList.length">
 						{{ $t('Deposit.balance') }}{{ withdrawalInfo.balance }}{{ withdrawalInfo.currency }}
 					</view>
@@ -341,11 +341,11 @@ export default {
 			}
 
 			// 实习提现强校验
-			if (this.userInfo.levelCode == '0' && this.withdrawAmount < this.withdrawalInfo.limitAmount && !this
-				.customizedAmountList.includes(this.withdrawAmount)) {
-				this.$showMessage('warning', this.$t('请遵循正确的提现规则'));
-				return
-			}
+			// if (this.userInfo.levelCode == '0' && this.withdrawAmount < this.withdrawalInfo.limitAmount && !this
+			// 	.customizedAmountList.includes(this.withdrawAmount)) {
+			// 	this.$showMessage('warning', this.$t('请遵循正确的提现规则'));
+			// 	return
+			// }
 
 			// console.log(this.withdrawAmount + (this.withdrawAmount * (this.withdrawalInfo.fee / 100)))
 			this.getFee()

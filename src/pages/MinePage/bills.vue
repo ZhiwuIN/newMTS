@@ -384,8 +384,9 @@ export default {
 
 		.list {
 			flex: 1;
-			height: 1px;
-			padding-top: 40rpx;
+			height: 2rpx;
+			margin-top: 40rpx;
+			// border-top: 2rpx solid #e8e8e8;
 
 			.list-item {
 				display: flex;

@@ -277,6 +277,7 @@
 </template>
 
 <script>
+import { addYears, format, isValid, parse } from 'date-fns';
 import homenavbar from '@/component/home-navbar/home-navbar.vue';
 import contactWay from '@/components/contactWay/contactWay.vue';
 import { kAuthInfoApi } from '@/common/api/Certification.js';
@@ -341,9 +342,10 @@ export default {
 			);
 		},
 		depositReturnDate() {
-			return this.formatDepositDate(
-				this.userInfo.lastDepositRefundTime || '--'
-			);
+			const returnDate = String(this.userInfo.lastDepositRefundTime || '').trim();
+			if (returnDate) return this.formatDepositDate(returnDate);
+			const startDate = parse(this.depositStartDate, 'dd/MM/yyyy', new Date());
+			return isValid(startDate) ? format(addYears(startDate, 1), 'dd/MM/yyyy') : '--';
 		},
 		displayUserId() {
 			return this.userInfo.userId || this.userInfo.uid || this.userInfo.id || this.userInfo.phone || '--';
@@ -400,7 +402,7 @@ export default {
 		formatDepositDate(value) {
 			if (!value) return '--';
 			const text = String(value);
-			const matched = text.match(/\d{4}-\d{2}-\d{2}/);
+			const matched = text.split(' ')
 			return matched ? matched[0] : text;
 		},
 		toPostManage() {
@@ -448,13 +450,19 @@ export default {
 				this.$refs.promptpopup2.open()
 				return
 			}
+			uni.showLoading({
+				title: this.$t('loading.btn')
+			});
 			withdrawalSalaryApi(1).then(res => {
 				this.salaryIsGet = res.data.whetherToReceive ? true : false;
 				this.todaySalary = 0
 				this.$showMessage('warning', this.$t("home.receivedSuccessfully"))
 			}).catch(err => {
 				this.$showMessage('warning', err.msg);
-			}).finally(() => this.getUserInfo())
+			}).finally(() => {
+				this.getUserInfo()
+				uni.hideLoading();
+			})
 		},
 		// 获取今日薪水
 		getTadaySalary() {
@@ -924,7 +932,7 @@ export default {
 			font-size: 24rpx;
 			background-color: $themeColor;
 			color: #fff;
-			border-radius: 2026rpx;
+			border-radius: 6rpx;
 		}
 
 	}

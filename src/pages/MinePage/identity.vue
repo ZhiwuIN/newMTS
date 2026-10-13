@@ -12,7 +12,7 @@
 					<input v-model="formData.idCard" :placeholder="$t('identity.placeholderIdCard')"
 						placeholder-style="color: #E4E4E4;font-size: 28rpx;font-weight: 500;" />
 				</view>
-				<view style="display: flex;align-items: center; margin-top: 76rpx;">
+				<!-- <view style="display: flex;align-items: center; margin-top: 76rpx;">
 					<view class="identity_set_t1">
 						{{ $t('identity.Gender') }}
 					</view>
@@ -28,9 +28,9 @@
 					<view class="identity_set_t1">
 						{{ $t('identity.Female') }}
 					</view>
-				</view>
+				</view> -->
 				<!-- 手机号 -->
-				<view class="identity_set_t1" style="margin-top: 90rpx;">{{ $t('Account.CellPhoneNumber') }}</view>
+				<view class="identity_set_t1" style="margin-top: 50rpx;">{{ $t('Account.CellPhoneNumber') }}</view>
 				<view class="identity_set_input">
 					<input v-model="formData.phone" type="number" :placeholder="$t('register.phonePlaceHolder')"
 						placeholder-style="color: #E4E4E4;font-size: 28rpx;font-weight: 500;" />
@@ -140,7 +140,7 @@ export default {
 			this.formData.email = this.formData.email?.trim()
 			let params = {
 				"address": this.formData.address,
-				"gender": this.formData.gender,
+				// "gender": this.formData.gender,
 				"phone": this.formData.phone,
 				"nationality": this.formData.nationality,
 				'email': this.formData.email,
