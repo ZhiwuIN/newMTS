@@ -103,12 +103,12 @@
 
 
 				<uni-popup ref="paypopup2" type="center" style="z-index: 10002;">
-					<view class="prompt_pop_page">
-						<view class="prompt_pop_top">{{ $t('home.Prompt') }}</view>
+					<view class="prompt_pop_page security-setup-popup">
+						<view class="prompt_pop_top">{{ $t('需要安全验证') }}</view>
 						<view class="prompt_pop_taps">{{ $t('先设置安全密码') }}</view>
 						<view class="prompt_pop_bottom">
-							<button class="prompt_cancel_btn" @click="prompt_cancel">{{ $t('pay.no') }}</button>
-							<button class="prompt_confirm_btn" @click="prompt_confirm">{{ $t('pay.yes') }}</button>
+							<button class="prompt_cancel_btn" @click="prompt_cancel">{{ $t('Later') }}</button>
+							<button class="prompt_confirm_btn" @click="prompt_confirm">{{ $t('pay.createNow') }}</button>
 						</view>
 					</view>
 				</uni-popup>
@@ -652,6 +652,14 @@ export default {
 		line-height: 72rpx;
 		text-align: center;
 		font-style: normal;
+	}
+
+	&.security-setup-popup {
+		.prompt_cancel_btn,
+		.prompt_confirm_btn {
+			padding: 0;
+			font-size: 26rpx;
+		}
 	}
 }
 

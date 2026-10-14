@@ -69,6 +69,9 @@
 			<view v-else class="default_box">
 				<image src="/static/mine/applicationRecord/nullPositionManage.png" mode="" class="default_image">
 				</image>
+				<view class="text1">{{ $t('暂无产品') }}</view>
+				<view class="btn" @click="toPage('/pages/HomePage/financePage')">{{ $t('前往购买')
+				}}</view>
 			</view>
 		</view>
 	</customnavbar>
@@ -105,6 +108,9 @@ export default {
 		}
 	},
 	methods: {
+		toPage(url) {
+			uni.navigateTo({ url })
+		},
 		onRefresh() {
 			this.isRefreshing = true;
 			this.page.pageNum = 1
@@ -187,11 +193,36 @@ export default {
 <style scoped lang="scss">
 .default_box {
 	display: flex;
-	justify-content: center;
+	flex-direction: column;
+	align-items: center;
+	gap: 24rpx;
 
 	.default_image {
 		width: 466rpx;
 		height: 466rpx;
+	}
+
+	.text1 {
+		font-family: MiSans;
+		font-size: 32rpx;
+		font-weight: 500;
+	}
+
+	.text2 {
+		font-family: MiSans;
+		font-size: 28rpx;
+		color: #A1A1A1;
+	}
+
+	.btn {
+		font-family: MiSans;
+		font-size: 24rpx;
+		padding: 16rpx 24rpx;
+		min-width: 442rpx;
+		border-radius: 8rpx;
+		background: $themeColor;
+		text-align: center;
+		color: #fff;
 	}
 }
 

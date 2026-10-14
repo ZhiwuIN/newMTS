@@ -43,18 +43,18 @@
 							{{ item }}
 						</view>
 					</view>
-					<!-- <view class="withdraw-amount-input" v-if="customizedAmountList.length && userInfo.levelCode == '0'">
+					<view class="withdraw-amount-input" v-if="customizedAmountList.length && userInfo.levelCode == '0'">
 						<input type="digit" v-model="withdrawAmount"
-							:placeholder="withdrawalInfo.limitAmount ? $t('自由输入') + withdrawalInfo.limitAmount + '+' : $t('自由输入2')"
+							:placeholder="2000 ? $t('自由输入') + 2000 + '+' : $t('自由输入2')"
 							@input="handleWithdrawInput" @blur="handleWithdrawInputBlur"
-							:disabled="withdrawalInfo.balance < withdrawalInfo.limitAmount"
+							:disabled="withdrawalInfo.balance < 2000"
 							placeholder-style="color: #E4E4E4;font-size: 28rpx;font-weight: 500;" />
 						<text class="clear" @tap="clearWithdrawAmount" v-if="withdrawAmount">×</text>
-					</view> -->
-					<!-- <view class="step2-t2"
-						v-if="customizedAmountList.length && userInfo.levelCode == '0' && withdrawalInfo.balance < withdrawalInfo.limitAmount">
-						{{ $t('余额达到才可输入') + withdrawalInfo.limitAmount }}{{ withdrawalInfo.currency }}
-					</view> -->
+					</view>
+					<view class="step2-t2"
+						v-if="customizedAmountList.length && userInfo.levelCode == '0' && withdrawalInfo.balance < 2000">
+						{{ $t('余额达到才可输入') + 2000 }}{{ withdrawalInfo.currency }}
+					</view>
 					<view class="step2-t2" v-if="customizedAmountList.length">
 						{{ $t('Deposit.balance') }}{{ withdrawalInfo.balance }}{{ withdrawalInfo.currency }}
 					</view>
@@ -282,8 +282,8 @@ export default {
 		handleWithdrawInputBlur(e) {
 			let value = e.detail.value;
 			const numValue = parseFloat(value);
-			if (!isNaN(numValue) && numValue < this.withdrawalInfo.limitAmount) {
-				this.withdrawAmount = this.withdrawalInfo.limitAmount
+			if (!isNaN(numValue) && numValue < 2000) {
+				this.withdrawAmount = 2000
 			} else {
 				this.withdrawAmount = value;
 			}

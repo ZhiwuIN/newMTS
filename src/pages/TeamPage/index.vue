@@ -35,7 +35,7 @@
 						</view>
 						<view class="chart-legend"><text class="member-color">{{ vipMemberCount }}
 								{{ $t('teamPage.vip') }}</text><text class="intern-color">{{ ordinaryMemberCount }}
-								{{ $t('teamPage.ordinary') }}</text></view>
+								{{ $t('teamPage.intern') }}</text></view>
 					</view>
 					<view class="level-list">
 						<view class="level-item" v-for="item in levelItems" :key="item.name">

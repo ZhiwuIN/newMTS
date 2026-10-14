@@ -58,6 +58,7 @@ import { GridComponent, TooltipComponent } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
 import { provideEcharts } from '@/uni_modules/xiaohe-echarts/shared-core'
 import { incomeDetailSonApi, incomeMembersSonApi } from '@/common/api/team.js'
+import { formatDateToDMY } from '@/utils/date.js'
 echarts.use([LineChart, GridComponent, TooltipComponent, CanvasRenderer])
 
 export default {
@@ -89,7 +90,7 @@ export default {
 				grid: { left: 58, right: 18, top: 28, bottom: 42 },
 				xAxis: {
 					type: 'category',
-					data: dailyIncomeList.map(item => item.statDate),
+					data: dailyIncomeList.map(item => formatDateToDMY(item.statDate)),
 					boundaryGap: false,
 					axisLine: { show: false },
 					axisTick: { show: false },

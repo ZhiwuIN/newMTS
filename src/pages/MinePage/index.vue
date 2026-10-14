@@ -158,6 +158,28 @@
 					</view>
 				</view>
 
+				<view class="withdrawals-card">
+					<view class="withdrawal-stat">
+						<view class="withdrawal-icon-frame">
+							<image class="withdrawal-icon" src="/static/mine/withdraw_img1.png" mode="aspectFit"></image>
+						</view>
+						<view class="withdrawal-content">
+							<view class="withdrawal-label">{{ $t('minePage.todayWithdrawals') }}</view>
+							<view class="withdrawal-amount">{{ eyeOpen ? withdrawalMoney(userInfoAmount.todayWithdrawals) : '****.**' }}</view>
+						</view>
+					</view>
+					<view class="withdrawals-divider"></view>
+					<view class="withdrawal-stat">
+						<view class="withdrawal-icon-frame">
+							<image class="withdrawal-icon" src="/static/mine/withdraw_img2.png" mode="aspectFit"></image>
+						</view>
+						<view class="withdrawal-content">
+							<view class="withdrawal-label">{{ $t('minePage.totalWithdrawals') }}</view>
+							<view class="withdrawal-amount">{{ eyeOpen ? withdrawalMoney(userInfoAmount.totalWithdrawals) : '****.**' }}</view>
+						</view>
+					</view>
+				</view>
+
 				<!-- <view class="info-card">
 					<view class="info-title">Account Overview</view>
 					<view class="info-grid">
@@ -514,7 +536,7 @@ export default {
 		// 用户金额接口
 		getUserInfoAmount() {
 			userInfoAmountApi().then(res => {
-				this.userInfoAmount = res.data
+				this.userInfoAmount = res.data || {}
 			})
 		},
 		getShebaoFundOverview() {
@@ -540,6 +562,11 @@ export default {
 		signedMoney(v) {
 			const n = Number(v || 0);
 			return (n > 0 ? '+' : '') + this.money(n);
+		},
+		withdrawalMoney(v) {
+			const value = Number(v ?? 0);
+			const amount = Number.isFinite(value) ? value : 0;
+			return (amount >= 0 ? '+' : '') + this.money(amount);
 		},
 		toPage2(path) {
 			if (!this.userInfo.realName) {
@@ -945,6 +972,7 @@ export default {
 }
 
 .fund-card,
+.withdrawals-card,
 .info-card,
 .products-card,
 .shortcut-card,
@@ -960,6 +988,65 @@ export default {
 	padding-bottom: 24rpx;
 	margin-top: 16rpx;
 	overflow: hidden;
+}
+
+.withdrawals-card {
+	display: flex;
+	align-items: stretch;
+	gap: 24rpx;
+	padding: 20rpx 24rpx;
+
+	.withdrawal-stat {
+		flex: 1;
+		min-width: 0;
+		display: flex;
+		align-items: center;
+		gap: 14rpx;
+	}
+
+	.withdrawal-icon-frame {
+		position: relative;
+		width: 64rpx;
+		height: 64rpx;
+		flex-shrink: 0;
+		overflow: hidden;
+	}
+
+	.withdrawal-icon {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		width: 98rpx;
+		height: 98rpx;
+		transform: translate(-50%, -50%);
+	}
+
+	.withdrawal-content {
+		flex: 1;
+		min-width: 0;
+	}
+
+	.withdrawal-label {
+		font-size: 24rpx;
+		line-height: 32rpx;
+		color: #9F9F9F;
+	}
+
+	.withdrawal-amount {
+		margin-top: 6rpx;
+		font-family: initial;
+		font-size: 32rpx;
+		line-height: 40rpx;
+		font-weight: bold;
+		color: $themeColor;
+		overflow-wrap: anywhere;
+	}
+
+	.withdrawals-divider {
+		width: 1rpx;
+		flex-shrink: 0;
+		background: #C9D0E4;
+	}
 }
 
 .fund-head {

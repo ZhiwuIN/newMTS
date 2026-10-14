@@ -1,24 +1,24 @@
 <template>
 	<customnavbar
-		:title="type=='login'?$t('pages.SetLoginPwd'):type=='payment'?$t('pages.SetPayPwd'):$t('pages.SetWithdrawPwd')">
+		:title="type=='login'?$t('pages.SetLoginPwd'):type=='payment'?$t('pages.SetPayPwd'):$t('password.withdrawalTitle')">
 		<view class="password-set">
 			<!-- 密码输入区域 -->
 			<view class="set_t1" v-if="!hasWithdrawalPassword && type == 'withdraw'">
-				{{ (type == 'withdraw' ? '' : $t('password.old'))+ " " +(type=='login'?$t('pages.SetLoginPwd'):type=='payment'?$t('pages.SetPayPwd'):$t('pages.SetLoginPwd'))}}
+				{{ $t('pages.SetLoginPwd') }}
 			</view>
 			<view class="set_t1" v-if="hasWithdrawalPassword && type == 'withdraw'">
-				{{$t('旧的取款密码')}}
+				{{ $t('password.withdrawalOld') }}
 			</view>
 			<view class="set_t1" v-if="type == 'login'">
 				{{ (type == 'withdraw' ? '' : $t('password.old'))+ " " +(type=='login'?$t('pages.SetLoginPwd'):type=='payment'?$t('pages.SetPayPwd'):$t('pages.SetLoginPwd'))}}
 			</view>
 			<view class="set_input" v-if="!hasWithdrawalPassword && type == 'withdraw'">
 				<input type="password" v-model="oldPassword"
-					:placeholder="type == 'withdraw' ? $t('register.pwdPlaceHolder') : $t('password.placeholder1')"
+					:placeholder="$t('register.pwdPlaceHolder')"
 					password placeholder-style="color: #E4E4E4;font-size: 28rpx;font-weight: 500;" />
 			</view>
 			<view class="set_input" v-if="hasWithdrawalPassword && type == 'withdraw'">
-				<input type="password" v-model="oldPassword" :placeholder="$t('请输入旧的取款密码')" password
+				<input type="password" v-model="oldPassword" :placeholder="$t('password.withdrawalPlaceholderOld')" password
 					placeholder-style="color: #E4E4E4;font-size: 28rpx;font-weight: 500;" />
 			</view>
 			<view class="set_input" v-if="type == 'login'">
@@ -27,15 +27,19 @@
 					password placeholder-style="color: #E4E4E4;font-size: 28rpx;font-weight: 500;" />
 			</view>
 			<view class="set_t1" style="margin-top: 53rpx;">
-				{{$t('password.new')+" "+(type=='login'?$t('pages.SetLoginPwd'):type=='payment'?$t('pages.SetPayPwd'):$t('pages.SetWithdrawPwd'))}}
+				{{ type == 'withdraw' ? $t('password.withdrawalNew') : $t('password.new')+" "+(type=='login'?$t('pages.SetLoginPwd'):type=='payment'?$t('pages.SetPayPwd'):$t('pages.SetWithdrawPwd')) }}
 			</view>
 			<view class="set_input">
-				<input type="password" v-model="newPassword" :placeholder="$t('password.placeholder2')" password
+				<input type="password" v-model="newPassword"
+					:placeholder="type == 'withdraw' ? $t('password.withdrawalPlaceholderNew') : $t('password.placeholder2')" password
 					placeholder-style="color: #E4E4E4;font-size: 28rpx;font-weight: 500;" />
 			</view>
-			<view class="set_t1" style="margin-top: 53rpx;">{{$t('password.Confirmpassword')}}</view>
+			<view class="set_t1" style="margin-top: 53rpx;">
+				{{ type == 'withdraw' ? $t('password.withdrawalConfirm') : $t('password.Confirmpassword') }}
+			</view>
 			<view class="set_input">
-				<input type="password" v-model="confirmPassword" :placeholder="$t('password.placeholder3')" password
+				<input type="password" v-model="confirmPassword"
+					:placeholder="type == 'withdraw' ? $t('password.withdrawalPlaceholderConfirm') : $t('password.placeholder3')" password
 					placeholder-style="color: #E4E4E4;font-size: 28rpx;font-weight: 500;" />
 			</view>
 
@@ -78,11 +82,14 @@
 			validatePassword() {
 				
 				if (!this.oldPassword) {
-					this.$showMessage('warning', this.$t('password.placeholder1'));
+					const placeholderKey = this.type == 'withdraw'
+						? (this.hasWithdrawalPassword ? 'password.withdrawalPlaceholderOld' : 'register.pwdPlaceHolder')
+						: 'password.placeholder1';
+					this.$showMessage('warning', this.$t(placeholderKey));
 					return false;
 				}
 				if (!this.newPassword) {
-					this.$showMessage('warning', this.$t('password.placeholder2'));
+					this.$showMessage('warning', this.$t(this.type == 'withdraw' ? 'password.withdrawalPlaceholderNew' : 'password.placeholder2'));
 					return false;
 				}
 				if (this.type == 'login' && this.newPassword.length < 6 || this.newPassword.length > 20) {
@@ -90,7 +97,7 @@
 					return false;
 				}
 				if (this.newPassword !== this.confirmPassword) {
-					this.$showMessage('warning', this.$t('password.passworddiffer'));
+					this.$showMessage('warning', this.$t(this.type == 'withdraw' ? 'password.withdrawalMismatch' : 'password.passworddiffer'));
 					return false;
 				}
 				if (this.type == 'withdraw' && this.newPassword.length != 6) {

@@ -54,13 +54,21 @@
       <view v-for="block in commissionBlocks" :key="block.title" class="panel commission-panel">
         <text class="section-title">{{ block.title }}</text>
         <text class="section-desc">{{ block.desc }}</text>
-        <view v-for="row in getCommissionRows(block)" :key="row.name" class="commission-row">
-          <image class="brand" :src="row.image" mode="aspectFit" />
-          <view class="commission-copy"><strong>{{ row.name }}-level member {{ block.order ?
-            $t('levelPage.completesDailyOrders') :
-            `${$t('levelPage.activates')} ${levelName}` }}</strong><text>{{ $t('levelPage.directTeamReward') }}</text>
+        <view class="commission-row-box" :class="{ 'is-intern': isInternUser }">
+          <view v-for="row in getCommissionRows(block)" :key="row.name" class="commission-row"
+            :aria-hidden="isInternUser ? 'true' : null">
+            <image class="brand" :src="row.image" mode="aspectFit" />
+            <view class="commission-copy">
+              <strong>{{ $t(block.order ? 'levelPage.partnerDailyOrders' : 'levelPage.partnerMember', {
+                partner: row.name, member: levelName
+              }) }}</strong>
+              <text>{{ block.order ? $t('levelPage.teamManagementBonus') : block.title }}</text>
+            </view>
+            <view class="commission-rate"><strong>{{ row.rate }}</strong><text>{{ row.amount }}</text></view>
           </view>
-          <view class="commission-rate"><strong>{{ row.rate }}</strong><text>{{ row.amount }}</text></view>
+          <view v-if="isInternUser" class="commission-blur-mask">
+            <text class="commission-mask-tip">{{ $t('levelPage.memberRewardsUnlock') }}</text>
+          </view>
         </view>
       </view>
 
@@ -115,6 +123,10 @@ export default {
       const userLevelCode = this.userInfo.levelCode ?? this.selectedLevelCode;
       const index = this.levelList.findIndex(item => `${item.levelCode}` === `${userLevelCode}`);
       return index === -1 ? this.activeIndex : index;
+    },
+    isInternUser() {
+      const levelCode = this.userInfo?.levelCode;
+      return levelCode === 0 || levelCode === '0';
     },
     isUserLevelSelected() {
       const userLevelCode = this.userInfo.levelCode;
@@ -198,6 +210,13 @@ export default {
         { name: 'B', image: '/static/team/teamB.png' },
         { name: 'C', image: '/static/team/teamC.png' }
       ];
+    },
+    commissionNumberLocale() {
+      const locales = { en: 'en-US', fr: 'fr-FR', zh: 'zh-CN', es: 'es-ES', ru: 'ru-RU', tv: 'vi-VN' };
+      return locales[this.$i18n.locale] || 'en-US';
+    },
+    commissionNumberFormatter() {
+      return new Intl.NumberFormat(this.commissionNumberLocale, { maximumFractionDigits: 20 });
     },
     commissionBlocks() {
       return [
@@ -351,6 +370,23 @@ export default {
       const text = String(value);
       return suffix && text.endsWith(suffix) ? text : `${text} ${suffix}`;
     },
+    formatCommissionRate(value, decimalPlaces) {
+      if (value === undefined || value === null || String(value).trim() === '') return '-';
+      const text = String(value).trim().replace(/%$/, '').trim();
+      const number = Number(text.replace(',', '.'));
+      if (!text || !Number.isFinite(number)) return this.formatValue(value, '%');
+      const formatted = decimalPlaces === undefined
+        ? this.commissionNumberFormatter.format(number)
+        : number.toLocaleString(this.commissionNumberLocale, {
+          minimumFractionDigits: decimalPlaces, maximumFractionDigits: decimalPlaces
+        });
+      return `${formatted} %`;
+    },
+    formatCommissionMoney(value) {
+      if (value === undefined || value === null || value === '') return '-';
+      const number = Number(value);
+      return `${Number.isFinite(number) ? this.commissionNumberFormatter.format(number) : value} ${this.currency}`.trim();
+    },
     getCommissionRows(block) {
       const source = this.currentLevel[block.field] || [];
       return this.brandList.map((brand, index) => {
@@ -361,9 +397,9 @@ export default {
 
         return {
           ...brand,
-          rate: this.formatValue(rate, '%'),
+          rate: this.formatCommissionRate(rate, block.order ? 2 : undefined),
           // The backend's commission base is amount; do not derive it from incomeAmount.
-          amount: this.formatMoney(item.incomeAmount)
+          amount: this.formatCommissionMoney(item.incomeAmount)
         };
       });
     },
@@ -698,6 +734,42 @@ export default {
         font-size: 24rpx;
         line-height: 34rpx;
         margin: 12rpx 0 18rpx;
+      }
+      .commission-row-box.is-intern {
+        position: relative;
+        overflow: hidden;
+        border-radius: 10rpx;
+        -webkit-user-select: none;
+        user-select: none;
+
+        .commission-row {
+          filter: blur(4rpx);
+          pointer-events: none;
+        }
+
+        .commission-blur-mask {
+          position: absolute;
+          top: 0;
+          right: 0;
+          bottom: 0;
+          left: 0;
+          z-index: 1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 24rpx;
+          text-align: center;
+          background: rgba(255, 255, 255, 0.4);
+          -webkit-backdrop-filter: blur(4rpx);
+          backdrop-filter: blur(4rpx);
+
+          .commission-mask-tip {
+            color: #000;
+            font-size: 26rpx;
+            line-height: 38rpx;
+            font-weight: 600;
+          }
+        }
       }
 
       .commission-row {
