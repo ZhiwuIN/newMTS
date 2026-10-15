@@ -1,12 +1,11 @@
 <template>
 	<!-- :title="$t('pages.Luckyturntable')" -->
 	<customnavbar backgroundStr="url('/static/lottery/bgi.png') top left/100%  no-repeat" @mtop="mtop"
-		:whiteTitle="true">
+		:whiteTitle="false">
 		<view class="container">
 			<view class="lottery_top_bg" :style="topStyle">
 				<view class="wheel-section">
-					<image v-if="lang == 'fr'" src="/static/lottery/title-fr.png" mode="" class="titleImg"></image>
-					<image v-else src="/static/lottery/title-en.png" mode="" class="titleImg"></image>
+					<image src="/static/lottery/title-fr.png" mode="" class="titleImg"></image>
 					<!-- 我的积分 -->
 					<!-- <view class="dataBox">
 						<view>
@@ -34,7 +33,7 @@
 										mode="">
 									</image>
 									<image class="prizeImg"
-										:src="data.image ? data.image : '/static/lottery/losing.png'" mode="">
+										:src="data.image ? data.image : '/static/lottery/losing.png'" mode="heightFix">
 									</image>
 									<view class="prizeName">{{ data.prizeName }}</view>
 								</view>
@@ -118,8 +117,8 @@
 					</image>
 				</view>
 				<view class="prize-show-box" v-if="prizeType != 'physical'">
-					<image style="width: 168rpx;min-width: 168rpx;height: 160rpx;min-height: 160rpx;"
-						:src="image ?? przieImage" mode=""></image>
+					<image style="height: 160rpx;"
+						:src="image ?? przieImage" mode="heightFix"></image>
 				</view>
 				<!-- <view v-else style="margin-top: 68rpx;"></view> -->
 				<view class="prizeName_img_box">
@@ -257,7 +256,7 @@ export default {
 			if (index != -1) {
 				const prize = this.prizes[index]
 				this.content = prize.prizeName
-				if(prize.prizeType == 'physical') {
+				if (prize.prizeType == 'physical') {
 					this.content = this.$t('价值') + ': ' + prize.money + ' ' + uni.getStorageSync('settings').currency
 				}
 				console.log(prize)
@@ -345,7 +344,7 @@ export default {
 	top: 20%;
 	padding: 18rpx 12rpx;
 	// background: #2D81F5;
-	background: #1167D1;
+	background: $themeColor;
 	// box-shadow: 10rpx 0rpx 21rpx 0rpx #50B4D9;
 	border-radius: 16rpx 0rpx 0rpx 16rpx;
 	border: 1rpx solid #FFFFFF;
@@ -392,7 +391,7 @@ export default {
 						// text-overflow: ellipsis;
 
 						&.active {
-							background: #1167D1;
+							background: $themeColor;
 							// box-shadow: 6rpx 0rpx 12rpx 0rpx #4F76E6;
 							border-radius: 35rpx 35rpx 35rpx 35rpx;
 							font-family: PingFangSC, PingFang SC;
@@ -454,6 +453,7 @@ export default {
 					font-weight: bold;
 					font-size: 30rpx;
 					border-radius: 18rpx;
+
 					.pointsMallLogo {
 						width: 64rpx;
 						height: 64rpx;
@@ -477,7 +477,7 @@ export default {
 					justify-content: center;
 					width: 442rpx;
 					height: 100rpx;
-					background: #1167D1;
+					background: $themeColor;
 					border: 4rpx solid #fff;
 					border-radius: 2025rpx;
 					font-family: DIN, DIN;
@@ -492,7 +492,7 @@ export default {
 				.times {
 					margin-top: 12rpx;
 					font-size: 32rpx;
-					color: #fff;
+					color: $themeColor;
 					padding: 0 24rpx;
 					padding-bottom: 50rpx;
 				}
@@ -523,8 +523,8 @@ export default {
 
 	.prizeImg {
 		width: 102rpx;
-		height: 103rpx;
-		transform: translateY(-12rpx);
+		height: 124rpx;
+		transform: translateY(-24rpx);
 	}
 
 	.prizeName {
@@ -609,49 +609,6 @@ export default {
 			transform-origin: left center;
 		}
 
-		/* 底层：外描边 + 阴影 */
-		.prizeName_grade::before {
-			content: attr(data-text);
-			position: absolute;
-			left: 0;
-			top: 0;
-			width: 100%;
-			height: 100%;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			transform: skewX(-6deg);
-			transform-origin: left center;
-			/* 外描边：黑色，宽度2rpx */
-			-webkit-text-stroke: 8rpx #000;
-			color: transparent;
-			/* 阴影效果 */
-			text-shadow: 5rpx 7rpx 0px #307cfe;
-			z-index: 0;
-		}
-
-		/* 上层：渐变文字 */
-		.prizeName_grade::after {
-			content: attr(data-text);
-			position: absolute;
-			left: 0;
-			top: 0;
-			width: 100%;
-			height: 100%;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			transform: skewX(-6deg);
-			transform-origin: left center;
-			background: linear-gradient(to bottom, #fff, #fdf6e6, #307cfe, #b3dfff);
-			-webkit-background-clip: text;
-			background-clip: text;
-			color: transparent;
-			/* 可选：给渐变层加极细描边，增强层次 */
-			/* -webkit-text-stroke: 0.5rpx #ffbf5a; */
-			z-index: 1;
-		}
-
 		.text {
 			padding: 0 34rpx;
 			word-break: break-all;
@@ -706,7 +663,7 @@ export default {
 			font-style: italic;
 			gap: 40rpx;
 			transform-origin: left center;
-			text-shadow: 0px 5rpx 0px #307cfe;
+			text-shadow: 0px 5rpx 0px $themeColor;
 
 		}
 	}
@@ -734,13 +691,13 @@ uni-swiper {
 }
 
 .record-tab-item {
-	color: #694907;
+	// color: #694907;
 	padding: 20rpx 30rpx;
 	border-radius: 10rpx;
 	font-family: 'DINPro-Regular', sans-serif;
 	font-weight: 500;
 	font-size: 32rpx;
-	color: #fff;
+	color: $themeColor;
 	text-align: center;
 }
 
@@ -792,7 +749,7 @@ uni-swiper {
 	font-family: 'DINPro-Regular', sans-serif;
 	font-weight: 400;
 	font-size: 20rpx;
-	color: #fff;
+	color: $themeColor;
 	line-height: 28rpx;
 	text-align: left;
 	font-style: normal;
@@ -802,7 +759,7 @@ uni-swiper {
 	font-family: 'DINPro-Bold', sans-serif;
 	font-weight: bold;
 	font-size: 32rpx;
-	color: #0962ff;
+	color: $themeColor;
 	line-height: 42rpx;
 	text-align: center;
 	font-style: normal;

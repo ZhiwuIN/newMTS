@@ -32,7 +32,7 @@
         </view>
         <view class="upgrade-card" v-if="showUpgradeCard">
           <view class="upgrade-meta"><text>{{ $t('levelPage.oneTimeActivation') }}</text><text>{{ $t('levelPage.reward')
-          }}</text></view>
+              }}</text></view>
           <view class="upgrade-title">
             <view class="title_left">{{ $t('levelPage.upgrade') }} {{ userLevelName }} -> {{ upgradeLevelName }}</view>
             <text>{{ amountText }} {{ currency }}</text>
@@ -45,7 +45,7 @@
             </view>
           </view>
           <button class="upgrade-btn" @click="handleJoin">{{ $t('levelPage.upgradeTo') }} {{ upgradeLevelName
-          }}</button>
+            }}</button>
         </view>
         <view v-if="activeIndex < userLevelIndex" class="upgrade-btn_none">{{ $t('levelPage.higherLevelUnlocked') }}
         </view>
@@ -54,21 +54,22 @@
       <view v-for="block in commissionBlocks" :key="block.title" class="panel commission-panel">
         <text class="section-title">{{ block.title }}</text>
         <text class="section-desc">{{ block.desc }}</text>
-        <view class="commission-row-box" :class="{ 'is-intern': isInternUser }">
-          <view v-for="row in getCommissionRows(block)" :key="row.name" class="commission-row"
-            :aria-hidden="isInternUser ? 'true' : null">
-            <image class="brand" :src="row.image" mode="aspectFit" />
-            <view class="commission-copy">
-              <strong>{{ $t(block.order ? 'levelPage.partnerDailyOrders' : 'levelPage.partnerMember', {
-                partner: row.name, member: levelName
-              }) }}</strong>
-              <text>{{ block.order ? $t('levelPage.teamManagementBonus') : block.title }}</text>
-            </view>
-            <view class="commission-rate"><strong>{{ row.rate }}</strong><text>{{ row.amount }}</text></view>
+        <!-- <view class="commission-row-box" :class="{ 'is-intern': isInternUser }"> -->
+        <view v-for="row in getCommissionRows(block)" :key="row.name" class="commission-row"
+          :aria-hidden="isInternUser ? 'true' : null">
+          <image class="brand" :src="row.image" mode="aspectFit" />
+          <view class="commission-copy">
+            <strong>{{ $t(block.order ? 'levelPage.partnerDailyOrders' : 'levelPage.partnerMember', {
+              partner: row.name, member: levelName
+            }) }}</strong>
+            <text>{{ block.order ? $t('levelPage.teamManagementBonus') : block.title }}</text>
           </view>
-          <view v-if="isInternUser" class="commission-blur-mask">
+          <view v-if="activeIndex === 0" class="commission-rate"><strong>-</strong><text>-</text></view>
+          <view v-else class="commission-rate"><strong>{{ row.rate }}</strong><text>{{ row.amount }}</text></view>
+          <!-- </view> -->
+          <!-- <view v-if="isInternUser" class="commission-blur-mask">
             <text class="commission-mask-tip">{{ $t('levelPage.memberRewardsUnlock') }}</text>
-          </view>
+          </view> -->
         </view>
       </view>
 
@@ -735,6 +736,7 @@ export default {
         line-height: 34rpx;
         margin: 12rpx 0 18rpx;
       }
+
       .commission-row-box.is-intern {
         position: relative;
         overflow: hidden;

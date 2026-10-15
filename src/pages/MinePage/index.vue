@@ -13,8 +13,8 @@
 								<!-- <view class="level-tag">LV1</view> -->
 							</view>
 							<view class="user-detail">
-								<view class="user-name">{{ userInfo.username || '--' }}</view>
-								<view class="user-id">ID {{ webTitle }}: {{ displayUserId }}</view>
+								<view class="user-name">ID: {{ userInfo.username || '--' }}</view>
+								<!-- <view class="user-id">ID {{ webTitle }}: {{ displayUserId }}</view> -->
 							</view>
 						</view>
 						<!-- 保证金 -->

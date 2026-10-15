@@ -95,15 +95,15 @@ export default {
 .box {
     position: fixed;
     left: 0;
-    top: 0;
+    bottom: 0;
     z-index: 9999;
     width: 100%;
     background: rgba(0, 0, 0, 0.42);
-    display: flex;
-    align-items: end;
 
     .main {
-        position: relative;
+        position: fixed;
+        left: 0;
+        bottom: 0;
         display: flex;
         flex-direction: column;
         width: 100vw;

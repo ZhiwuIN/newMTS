@@ -77,7 +77,7 @@
 								</view>
 								<view class="growth-meta">
 									<view class="meta-item"><text class="meta-value">{{ item.totalRevenue || '--'
-											}}</text><text class="meta-label">{{ $t('home.productDeadline') }}</text>
+									}}</text><text class="meta-label">{{ $t('home.productDeadline') }}</text>
 									</view>
 									<view class="meta-item"><text class="meta-value">{{
 										getStartingAmount(item.startingAmount, 0) }}{{ currency
@@ -146,21 +146,38 @@
 					</view>
 				</view>
 				<!-- 活动中心 -->
-				<view class="section-head activity-head">
-					<view class="section-title">{{ $t('home.activityCenter') }}</view>
-					<view class="more-link" @click="toPage3('/pages/HomePage/activityCenter')">{{
-						$t('home.moreActivities') }} →</view>
-				</view>
-				<view class="activity-grid">
-					<image class="activity-big" @click="toPage3(activeCenterTop?.[0]?.targetUrl)"
-						:src="activeCenterTop?.[0]?.image" mode="aspectFill"></image>
-					<view class="activity-side">
-						<image :src="activeCenterTop?.[1]?.image" mode="aspectFill"
-							@click="toPage3(activeCenterTop?.[1]?.targetUrl)">
+				<template v-if="activityCenter?.activeSwitch">
+					<view class="section-head activity-head">
+						<view class="section-title">{{ $t('home.activityCenter') }}</view>
+						<view class="more-link" @click="toPage3('/pages/HomePage/activityCenter')">{{
+							$t('home.moreActivities') }} →</view>
+					</view>
+					<view v-if="activeCenterTop.length" class="activity-grid"
+						:class="'activity-grid--' + activeCenterTop.length">
+						<image v-for="(item, index) in activeCenterTop" :key="item.id || index" class="activity-card"
+							:src="item.image" mode="aspectFill" :lazy-load="true" @click="toPage3(item.targetUrl)">
 						</image>
-						<image :src="activeCenterTop?.[2]?.image" mode="aspectFill"
-							@click="toPage3(activeCenterTop?.[2]?.targetUrl)">
-						</image>
+					</view>
+					<view v-else class="activityCenter_box" @click="toPage3('/pages/HomePage/activityCenter')">
+						<image :lazy-load="true" src="/static/activityCenter.png" class="activityCenter"
+							mode="widthFix"></image>
+						<view class="activityCenter-content" style="pointer-events: none;">
+							<view class="activityName">{{ activityCenter?.name || $t('home.activityCenter') }}</view>
+							<view class="go">{{ $t('活动页去') }}</view>
+						</view>
+					</view>
+				</template>
+				<view v-else>
+					<view class="section-head activity-head">
+						<view class="section-title">{{ $t('home.activityCenter') }}</view>
+						<view class="more-link more-link--disabled">{{
+							$t('home.moreActivities') }} →</view>
+					</view>
+					<view class="activity-coming-soon">
+						<view class="activity-coming-soon-icon" aria-hidden="true">
+							<view class="activity-coming-soon-clock"></view>
+						</view>
+						<text class="activity-coming-soon-text">{{ $t('home.activityComingSoon') }}</text>
 					</view>
 				</view>
 				<!-- 精选帖子(加载锚点) -->
@@ -194,6 +211,10 @@
 					<article-post-card v-for="(post, index) in postList" :key="post.id || index" :post="post"
 						:compact="index === 0" />
 				</template>
+				<view v-else class="default_box">
+					<image src="/static/mine/applicationRecord/nullPositionManage.png" mode="" class="default_image">
+					</image>
+				</view>
 				<view v-if="postLoading && postList.length" class="community-loading community-loading-more">
 					<view class="community-loading-spinner"></view>
 					<text>{{ $t('common.loading') }}</text>
@@ -347,6 +368,7 @@ export default {
 			bigGGContainerHeight: 0, // 公告容器可视高度
 			popWindowContent: '',
 			activeCenterTop: [],
+			activityCenter: {},
 			// 顶部弹出消息
 			msgData: {},
 			isShowMessage: false
@@ -746,8 +768,20 @@ export default {
 		},
 		// 首页三位活动
 		getActiveCenterTop() {
-			activeCenterTopApi().then(res => {
-				this.activeCenterTop = res.data
+			return activeCenterTopApi().then(res => {
+				this.activeCenterTop = Array.isArray(res.data)
+					? res.data.filter(item => item?.image).slice(0, 3)
+					: []
+			}).catch(err => {
+				console.log('request fail', err)
+			})
+		},
+		getActivityCenter() {
+			return activityCenterApi().then(res => {
+				this.activityCenter = res.data || {}
+			}).catch(err => {
+				this.activityCenter = {}
+				console.log('request fail', err)
 			})
 		},
 		// 首页菜单
@@ -797,6 +831,7 @@ export default {
 	onShow() {
 		this.$nextTick(() => this.$refs.unreadPopup?.checkUnread())
 		this.getActiveCenterTop()
+		this.getActivityCenter()
 		this.getUserInfo()
 		this.getMenuListApi()
 		if (!uni.getStorageSync('popWindowContentShow')) {
@@ -1472,31 +1507,148 @@ export default {
 	font-size: 24rpx;
 }
 
-.activity-grid {
+.more-link--disabled {
+	color: #9aa4b5;
+}
+
+.activity-coming-soon {
+	position: relative;
+	z-index: 2;
 	display: flex;
-	gap: 8rpx;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 16rpx;
+	min-height: 200rpx;
+	margin: 20rpx 14rpx 0;
+	padding: 28rpx 24rpx;
+	border: 1rpx dashed rgba($themeColor, 0.18);
+	border-radius: 16rpx;
+	background: linear-gradient(135deg, #fff 0%, #edf5f4 100%);
+}
+
+.activity-coming-soon-icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 64rpx;
+	height: 64rpx;
+	border-radius: 50%;
+	background: rgba($themeColor, 0.07);
+}
+
+.activity-coming-soon-clock {
+	position: relative;
+	width: 32rpx;
+	height: 32rpx;
+	border: 3rpx solid $themeColor;
+	border-radius: 50%;
+
+	&::before,
+	&::after {
+		position: absolute;
+		content: '';
+		border-radius: 2rpx;
+		background: $themeColor;
+	}
+
+	&::before {
+		top: 5rpx;
+		left: 12rpx;
+		width: 3rpx;
+		height: 10rpx;
+	}
+
+	&::after {
+		top: 12rpx;
+		left: 12rpx;
+		width: 8rpx;
+		height: 3rpx;
+	}
+}
+
+.activity-coming-soon-text {
+	max-width: 100%;
+	color: #617780;
+	font-size: 28rpx;
+	font-weight: 500;
+	line-height: 40rpx;
+	text-align: center;
+	overflow-wrap: anywhere;
+}
+
+.activity-grid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	grid-auto-rows: 304rpx;
+	gap: 14rpx;
 	padding: 20rpx 14rpx 0;
 	position: relative;
 	z-index: 2;
 }
 
-.activity-big {
-	width: 352rpx;
-	height: 304rpx;
-	border-radius: 12rpx;
-}
-
-.activity-side {
-	display: flex;
-	flex-direction: column;
-	gap: 14rpx;
-	flex: 1;
-}
-
-.activity-side image {
+.activity-card {
+	display: block;
 	width: 100%;
-	height: 145rpx;
+	min-width: 0;
+	height: 100%;
 	border-radius: 12rpx;
+}
+
+.activity-grid--1 {
+	grid-template-columns: minmax(0, 1fr);
+	grid-auto-rows: 280rpx;
+}
+
+.activity-grid--3 {
+	grid-template-rows: repeat(2, 145rpx);
+	grid-auto-flow: column;
+
+	.activity-card:first-child {
+		grid-row: span 2;
+	}
+}
+
+.activityCenter_box {
+	position: relative;
+	z-index: 2;
+	margin: 20rpx 14rpx 0;
+	border-radius: 12rpx;
+	overflow: hidden;
+	color: #fff;
+
+	.activityCenter {
+		display: block;
+		width: 100%;
+	}
+
+	.activityCenter-content {
+		position: absolute;
+		top: 0;
+		left: 0;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		gap: 12rpx;
+		width: 60%;
+		height: 100%;
+		padding: 16rpx 24rpx;
+	}
+
+	.activityName {
+		display: -webkit-box;
+		overflow: hidden;
+		-webkit-box-orient: vertical;
+		-webkit-line-clamp: 2;
+		font-size: 30rpx;
+		font-weight: 700;
+		line-height: 36rpx;
+	}
+
+	.go {
+		font-size: 24rpx;
+		line-height: 30rpx;
+	}
 }
 
 .community-head {
@@ -1514,6 +1666,18 @@ export default {
 	font-size: 26rpx;
 	position: relative;
 	z-index: 2;
+}
+
+.default_box {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+
+	.default_image {
+		width: 466rpx;
+		height: 466rpx;
+	}
 }
 
 .community-loading-spinner {

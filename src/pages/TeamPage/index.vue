@@ -324,9 +324,9 @@ export default {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		height: 90rpx;
+		// height: 90rpx;
 		margin: 28rpx 24rpx 0;
-		padding: 0 16rpx;
+		padding: 12rpx 16rpx;
 		border: 2rpx solid #94c3ff;
 		border-radius: 24rpx 24rpx 0 0;
 		background: linear-gradient(90deg, $themeColor 0%, #34eeff 100%);
@@ -334,18 +334,19 @@ export default {
 
 		.tip-title {
 			font-family: DingTalk JinBuTi;
-			font-size: 26rpx;
+			font-size: 32rpx;
 			color: #FFD400;
 		}
 
 		.tip-description {
-			font-size: 20rpx;
+			font-size: 26rpx;
 			margin-top: 6rpx;
 		}
 
 		.tip-link {
-			font-size: 24rpx;
+			font-size: 26rpx;
 			font-weight: 700;
+			white-space: nowrap;
 		}
 	}
 }

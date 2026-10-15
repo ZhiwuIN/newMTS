@@ -5,9 +5,17 @@
 		<script>
 			var coverSupport = 'CSS' in window && typeof CSS.supports === 'function' && (CSS.supports('top: env(a)') ||
 				CSS.supports('top: constant(a)'))
+			var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+				(navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+			var isStandalone = navigator.standalone === true ||
+				(typeof window.matchMedia === 'function' && window.matchMedia('(display-mode: standalone)').matches)
+			// iOS 全屏 Web Clip 在 viewport-fit=cover 下可能使 fixed tabbar 随滚动偏移。
+			// 使用系统默认安全区域，保留 uni-app 的页面滚动和 tabbar 安全区处理。
+			// https://bugs.webkit.org/show_bug.cgi?id=237961
+			var useViewportCover = coverSupport && !(isIOS && isStandalone)
 			document.write(
 				'<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0' +
-				(coverSupport ? ', viewport-fit=cover' : '') + '" />')
+				(useViewportCover ? ', viewport-fit=cover' : '') + '" />')
 			document.oncontextmenu = function() {
 				return false
 			}
