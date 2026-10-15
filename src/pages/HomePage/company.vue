@@ -1,15 +1,15 @@
 <template>
-	<customnavbar :title="pageTitle" @mtop="mtop">
+	<customnavbar :title="pageTitle" @mtop="mtop" backgroundStr="#062c2f" :whiteTitle="true">
 		<view class="bill-record">
 			<view class="top_box">
-				<image src="/static/home/company_bgi.png" mode="widthFix" class="bgi_img"></image>
-				<view class="text_box">
+				<image src="/static/home/company_bgi.jpg" mode="widthFix" class="bgi_img"></image>
+				<!-- <view class="text_box">
 					<view class="title">{{ $t('company.aboutPlatform') }}</view>
 					<view class="desc">{{ $t('company.trustedPlatform') }}</view>
 					<view class="line"></view>
 					<view class="desc">{{ $t('company.globalUsers') }}</view>
 					<view class="number">1.26M+</view>
-				</view>
+				</view> -->
 			</view>
 			<view class="title_box">
 				<view class="line"></view>
@@ -203,6 +203,7 @@ export default {
 <style lang="scss" scoped>
 .top_box {
 	position: relative;
+	transform: translateY(-4rpx);
 
 	.bgi_img {
 		width: 100%;

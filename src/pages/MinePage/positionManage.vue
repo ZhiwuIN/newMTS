@@ -21,7 +21,7 @@
 									<view class="row-item">
 									<view class="positionManage-info-title">{{ $t('positionManage.PayType') }}</view>
 										<view class="positionManage-info-value">
-											{{ info?.payType }}
+											{{ payTypeText }}
 										</view>
 									</view>
 									<view class="row-item" style="align-items: center;">
@@ -270,6 +270,14 @@ export default {
 			initialServerTime: null,
 			localStartTime: null,
 			pageTitle: ''
+		}
+	},
+	computed: {
+		payTypeText() {
+			const payType = this.info?.payType;
+			return ['daily', 'weekly', 'monthly'].includes(payType)
+				? this.$t(`minePage.payTypes.${payType}`)
+				: payType || '--';
 		}
 	},
 	methods: {

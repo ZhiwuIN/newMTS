@@ -162,31 +162,17 @@ export default {
 			this.selectedAreaCode = this.areaCodes[e.detail.value]
 		},
 		validatePhoneFormat() {
-			// 清除空格
-			this.phone = this.phone.replace(/\s/g, '')
-			const cleanedPhone = this.phone
-
-			if (this.selectedAreaCode != '225') {
-				return true
-			}
-
-			// 加纳手机号正则表达式
-			//const ghanaPhoneRegex = /^0\d{9}$/;
-
-			//if (!ghanaPhoneRegex.test(cleanedPhone)) {
-			//	return false;
-			//	}
-
-			return true;
+			return /^\d{10}$/.test(this.phone);
 		},
 		// 注册按钮
 		handleRegister() {
-			if (!this.validatePhoneFormat()) {
-				this.$showMessage('warning', this.$t('login.invalidGhanaPhone'))
-				return
-			}
+			this.phone = String(this.phone || '').replace(/\s/g, '')
 			if (!this.phone) {
 				this.$showMessage('warning', this.$t('register.phonePlaceHolder'));
+				return
+			}
+			if (!this.validatePhoneFormat()) {
+				this.$showMessage('warning', this.$t('register.invalidPhone'))
 				return
 			}
 			if (!this.password) {

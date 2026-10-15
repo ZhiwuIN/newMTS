@@ -145,7 +145,7 @@
 						</view>
 						<view class="item_box">
 							<view>{{ $t('minePage.payType') }}</view>
-							<view class="number">{{ myPosition?.payType }}</view>
+							<view class="number">{{ payTypeText }}</view>
 						</view>
 					</view>
 					<!-- 充值提现按钮 -->
@@ -354,6 +354,12 @@ export default {
 		};
 	},
 	computed: {
+		payTypeText() {
+			const payType = this.myPosition?.payType;
+			return ['daily', 'weekly', 'monthly'].includes(payType)
+				? this.$t(`minePage.payTypes.${payType}`)
+				: payType || '--';
+		},
 		depositAmount() {
 			const amount = Number(this.userInfo.depositAmount || 0);
 			return Number.isFinite(amount) ? amount.toFixed(2) : '0.00';

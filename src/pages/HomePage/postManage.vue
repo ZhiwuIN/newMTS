@@ -108,7 +108,7 @@
 												{{ $t('发薪方式') }}：
 											</view>
 											<view>
-												{{ item?.payType }}
+												{{ getPayTypeText(item?.payType) }}
 											</view>
 										</view>
 										<view class="row">
@@ -116,7 +116,7 @@
 												{{ $t('考核日') }}：
 											</view>
 											<view>
-												{{ weekList[item?.assessmentDay] }}
+												{{ weekList[item?.assessmentDay] ? $t(weekList[item?.assessmentDay]) : '--' }}
 											</view>
 										</view>
 									</view>
@@ -164,13 +164,13 @@ export default {
 		return {
 			pageTitle: '',
 			weekList: {
-				1: 'Monday',
-				2: 'Tuesday',
-				3: 'Wednesday',
-				4: 'Thursday',
-				5: 'Friday',
-				6: 'Saturday',
-				7: 'Sunday'
+				1: 'positionManage.weekdays.monday',
+				2: 'positionManage.weekdays.tuesday',
+				3: 'positionManage.weekdays.wednesday',
+				4: 'positionManage.weekdays.thursday',
+				5: 'positionManage.weekdays.friday',
+				6: 'positionManage.weekdays.saturday',
+				7: 'positionManage.weekdays.sunday'
 			},
 			value: ['0'],
 			pop_message: "",
@@ -209,6 +209,11 @@ export default {
 		})
 	},
 	methods: {
+		getPayTypeText(payType) {
+			return ['daily', 'weekly', 'monthly'].includes(payType)
+				? this.$t(`minePage.payTypes.${payType}`)
+				: payType || '--';
+		},
 		mtop(e) {
 			// 计算可用高度 = 屏幕高度 - 导航栏高度 - 顶部卡片高度
 			const navHeight = e; // 导航栏高度（从组件获取）
