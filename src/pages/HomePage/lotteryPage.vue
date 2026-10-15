@@ -5,8 +5,8 @@
 		<view class="container">
 			<view class="lottery_top_bg" :style="topStyle">
 				<view class="wheel-section">
-					<image v-if="lang == 'fr'" src="/static/lottery/title-fr.png" mode="" class="titleImg"></image>
-					<image v-else src="/static/lottery/title-en.png" mode="" class="titleImg"></image>
+					<image src="/static/lottery/title-fr.png" mode="" class="titleImg"></image>
+					<!-- <image v-else src="/static/lottery/title-en.png" mode="" class="titleImg"></image> -->
 					<view class="tabBox" v-if="pointWheel == 1 && luckyWheel == 1">
 						<view class="tabs">
 							<view class="tabItem" @click="onchangeActiveTab(0)" :class="{ 'active': activeTab == 0 }">
