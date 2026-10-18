@@ -379,7 +379,7 @@ export default {
       const formatted = decimalPlaces === undefined
         ? this.commissionNumberFormatter.format(number)
         : number.toLocaleString(this.commissionNumberLocale, {
-          minimumFractionDigits: decimalPlaces, maximumFractionDigits: decimalPlaces
+          minimumFractionDigits: 0, maximumFractionDigits: decimalPlaces
         });
       return `${formatted} %`;
     },
