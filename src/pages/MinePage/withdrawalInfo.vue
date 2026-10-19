@@ -7,7 +7,7 @@
 			</view>
 			<view class="identity_set_t1">{{$t('取款金额')}}</view>
 			<view class="identity_set_input">
-				{{info.price + info.fee}} {{currency}}
+				{{+info.price + +info.fee}} {{currency}}
 			</view>
 			<view class="identity_set_t1">{{$t('手续费')}}</view>
 			<view class="identity_set_input">
