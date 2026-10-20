@@ -1,131 +1,122 @@
 <template>
-	<customnavbar :title="$t('home.Postmanage')"
-		backgroundStr="url('/static/task/background.png') top left/100%  no-repeat" @mtop='mtop'>
-		<!-- :style="topStyle2" -->
+	<customnavbar class="position-page" :title="$t('home.Postmanage')"
+		backgroundStr="url('/static/positions/top_bgi.png') left top / 100% auto no-repeat" @mtop="mtop">
 		<view class="task-page">
-			<!-- 顶部数据卡片 -->
-			<view class="task_top_card" :style="topStyle">
-				<view class="data_box">
-					<image class="my_postmanage" :src="userInfo?.image" mode=""></image>
-					<view class="top_tag">{{ $t('当前职位') }}:
-						{{ userInfo?.positionName || '--' }}
+			<view class="position-hero" :style="topStyle">
+				<view class="hero-main">
+					<view class="hero-copy">
+						<view class="hero-eyebrow">{{ $t('当前职位') }}</view>
+						<view class="hero-name">{{ userInfo?.positionName || '--' }}</view>
+						<view class="hero-description">{{ $t('post.growthHint') }}</view>
 					</view>
-					<view class="top_box_info">
-						<view>{{ $t('A级下属人数') }}: {{ userInfo?.lv1Count || 0 }}</view>
-						<view>{{ $t('团队人数') }}: {{ userInfo?.totalCount || 0 }}</view>
+					<image v-if="userInfo?.image" class="hero-badge" :src="userInfo.image" mode="aspectFit" />
+				</view>
+				<view class="team-stats">
+					<view class="stat-card">
+						<image class="stat-icon" src="/static/positions/subordinate.png" mode="aspectFit" />
+						<view class="stat-copy">
+							<view class="stat-value">{{ userInfo?.lv1Count || 0 }}</view>
+							<view class="stat-label">{{ $t('A级下属人数') }}</view>
+						</view>
+					</view>
+					<view class="stat-card stat-card-team">
+						<image class="stat-icon" src="/static/positions/team.png" mode="aspectFit" />
+						<view class="stat-copy">
+							<view class="stat-value">{{ userInfo?.totalCount || 0 }}</view>
+							<view class="stat-label">{{ $t('团队人数') }}</view>
+						</view>
 					</view>
 				</view>
 			</view>
 
-
-
-			<!-- 列表 -->
-			<uni-collapse ref="collapse" v-model="value">
-				<view v-for="(item, index) in postList">
-					<uni-collapse-item title-border="none" :border="false" :show-arrow="false">
-						<template v-slot:title>
-							<view class="postmanage_data_box">
-								<view class="postmanage_box">
-									<view class="postmanage_img_box">
-										<image class="postmanage_img" :src="item?.image" mode=""></image>
-									</view>
-									<view class="postmanage_name_box">
-										<view class="postmanage_name">{{ item?.positionName }}</view>
-										<view class="tag tag1" v-if="idx >= 0 && index === idx">{{ $t('当前职位') }}
-										</view>
-										<view class="tag tag1" v-else-if="idx >= 0 && index < idx">{{ $t('当前职位大于此职位') }}
-										</view>
-										<view class="tag tag1" v-else-if="item?.isItDone">{{ $t('已达成') }}
-										</view>
-										<view class="tag" v-else>{{ $t('未达成') }}
-										</view>
-									</view>
-
-									<!-- 申请按钮 -->
-									<view class="bottom_btn" v-if="item?.isItDone && index > idx"
-										@click="toApply(item)">
-										<view class="join_btn">{{ $t('post.apply') }}</view>
-									</view>
-								</view>
-								<view class="main_box">
-									<view class="title">
-										{{ $t('职位要求') }}
-										<view class="details_toggle">
-											{{ $t('View Details') }}
-											<uni-icons class="uniui-bottom" :class="{ expanded: value.includes(String(index)) }" type="bottom" size="14" color="#004f56" />
-										</view>
-									</view>
-									<view class="condition_box" v-if="item?.applicationType == 'aLevel'">
-										<view class="tag_box">
-											<image class="icon" src="/static/positions/subordinate.png" mode=""></image>
-											<view>{{ $t('A级下属人数') }}: {{ item?.numberAchievements }}</view>
-										</view>
-										<view class="progress_box">
-											<t-progress :color="'#246bfe'" style="width: 506rpx;" :label="false"
-												:percentage="item.completed / item.numberAchievements * 100" />
-											<view>
-												<text class="themeColor">{{ item?.completed }}</text>/{{
-													item?.numberAchievements
-													|| 0 }}
-											</view>
-										</view>
-									</view>
-									<view class="condition_box" v-else="item?.applicationType == 'team'">
-										<view class="tag_box">
-											<image class="icon" src="/static/positions/team.png" mode=""></image>
-											<view>{{ $t('团队人数') }}: {{ item?.numberAchievements }}</view>
-										</view>
-										<view class="progress_box">
-											<t-progress :color="'#246bfe'" style="width: 506rpx;" :label="false"
-												:percentage="item?.completed / item?.numberAchievements * 100" />
-											<view>
-												<text class="themeColor">{{ item?.completed }}</text>/{{
-													item?.numberAchievements
-													|| 0 }}
-											</view>
-										</view>
-									</view>
-								</view>
+			<view class="position-list">
+				<view v-for="(item, index) in postList" :key="item.pId ?? index" class="position-card"
+					@click.stop="toggleDetails(index)">
+					<view class="position-header">
+						<view class="position-badge" :class="{ 'position-badge-2': idx >= 0 && index === idx }">
+							<image class="position-image" :src="item.image" mode="aspectFit" />
+						</view>
+						<view class="position-info">
+							<view class="position-name">{{ item.positionName }}</view>
+							<view class="position-status status-current" v-if="idx >= 0 && index === idx">
+								<image class="status-crown" src="/static/positions/diadema.png" mode="aspectFit" />
+								<text>{{ $t('当前职位') }}</text>
 							</view>
-						</template>
-						<view class="content">
-							<view>
-								<view class="info_box">
-									<view class="title">
-										{{ $t('post.jobBenefits') }}
-									</view>
-									<view>
-										<view class="row">
-											<view>
-												{{ $t('基本工资') }}：
-											</view>
-											<view>
-												{{ item?.salary || 0 }}
-											</view>
-										</view>
-										<view class="row">
-											<view>
-												{{ $t('发薪方式') }}：
-											</view>
-											<view>
-												{{ getPayTypeText(item?.payType) }}
-											</view>
-										</view>
-										<view class="row">
-											<view>
-												{{ $t('考核日') }}：
-											</view>
-											<view>
-												{{ weekList[item?.assessmentDay] ? $t(weekList[item?.assessmentDay]) : '--' }}
-											</view>
-										</view>
-									</view>
+							<view class="position-status status-achieved" v-else-if="idx >= 0 && index < idx">
+								{{ $t('当前职位大于此职位') }}
+							</view>
+							<view class="position-status status-achieved" v-else-if="item.isItDone">
+								{{ $t('已达成') }}
+							</view>
+							<view class="position-status" v-else>
+								<image class="status-lock" src="/static/positions/lock.png" mode="aspectFit" />
+								<text>{{ $t('未达成') }}</text>
+							</view>
+						</view>
+						<view class="position-actions">
+							<button class="details-button" :aria-expanded="isExpanded(index)">
+								<text>{{ $t('View Details') }}</text>
+								<uni-icons type="right" size="13" color="#075cff" />
+							</button>
+							<button v-if="item.isItDone && index > idx" class="apply-button"
+								@click.stop="toApply(item)">
+								{{ $t('post.apply') }}
+							</button>
+						</view>
+					</view>
+
+					<view class="requirements-panel">
+						<view class="panel-heading">
+							<image class="panel-icon requirement-icon"
+								:src="item.applicationType === 'aLevel' ? '/static/positions/subordinate.png' : '/static/positions/team.png'"
+								mode="aspectFit" />
+							<view class="requirement-copy">
+								<view class="panel-title">{{ $t('职位要求') }}</view>
+								<view class="requirement-description">
+									{{ $t(item.applicationType === 'aLevel' ? 'A级下属人数' : '团队人数') }}:
+									{{ item.numberAchievements || 0 }}
 								</view>
 							</view>
 						</view>
-					</uni-collapse-item>
+						<view class="progress-row">
+							<view class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100"
+								:aria-valuenow="getProgress(item)" :aria-label="$t('职位要求')">
+								<view class="progress-fill" :style="{ width: getProgress(item) + '%' }" />
+							</view>
+							<view class="progress-count">
+								<text class="progress-completed">{{ item.completed || 0 }}</text>/{{
+									item.numberAchievements || 0 }}
+							</view>
+						</view>
+					</view>
+
+					<view v-if="isExpanded(index)" class="benefits-panel">
+						<view class="panel-heading benefits-heading">
+							<image class="panel-icon" src="/static/positions/JobAdvantages.png" mode="aspectFit" />
+							<view class="panel-title">{{ $t('post.jobBenefits') }}</view>
+						</view>
+						<view class="benefits-list">
+							<view class="benefit-row">
+								<image class="benefit-icon" src="/static/positions/salary.png" mode="aspectFit" />
+								<text class="benefit-label">{{ $t('基本工资') }}</text>
+								<text class="benefit-value">{{ item.salary || 0 }}</text>
+							</view>
+							<view class="benefit-row">
+								<image class="benefit-icon" src="/static/positions/paymentMethod.png"
+									mode="aspectFit" />
+								<text class="benefit-label">{{ $t('发薪方式') }}</text>
+								<text class="benefit-value">{{ getPayTypeText(item.payType) }}</text>
+							</view>
+							<view class="benefit-row">
+								<image class="benefit-icon" src="/static/positions/date.png" mode="aspectFit" />
+								<text class="benefit-label">{{ $t('考核日') }}</text>
+								<text class="benefit-value">{{ weekList[item.assessmentDay] ?
+									$t(weekList[item.assessmentDay]) : '--' }}</text>
+							</view>
+						</view>
+					</view>
 				</view>
-			</uni-collapse>
+			</view>
 		</view>
 	</customnavbar>
 	<uni-popup ref="promptpopup" type="center" :mask-click="false">
@@ -153,7 +144,6 @@
 import customnavbar from '@/component/custom-navbar/custom-navbar.vue'
 import {
 	positionApi,
-	positionApplyApi,
 	subordinateInformationApi
 } from "@/common/api/position.js";
 export default {
@@ -177,7 +167,6 @@ export default {
 			postList: [],
 			userInfo: {},
 			topStyle: '',
-			topStyle2: '',
 			idx: -1,
 		}
 	},
@@ -209,37 +198,33 @@ export default {
 		})
 	},
 	methods: {
+		isExpanded(index) {
+			return this.value.includes(String(index));
+		},
+		toggleDetails(index) {
+			const name = String(index);
+			this.value = this.isExpanded(index)
+				? this.value.filter(value => value !== name)
+				: [...this.value, name];
+		},
+		getProgress(item) {
+			const target = Number(item.numberAchievements);
+			const completed = Number(item.completed);
+			if (!Number.isFinite(target) || target <= 0 || !Number.isFinite(completed)) return 0;
+			return Math.min(100, Math.max(0, completed / target * 100));
+		},
 		getPayTypeText(payType) {
 			return ['daily', 'weekly', 'monthly'].includes(payType)
 				? this.$t(`minePage.payTypes.${payType}`)
 				: payType || '--';
 		},
 		mtop(e) {
-			// 计算可用高度 = 屏幕高度 - 导航栏高度 - 顶部卡片高度
-			const navHeight = e; // 导航栏高度（从组件获取）
-
-			// #ifdef H5
-			// H5端：额外减去底部可能的留白
-			this.topStyle = `margin-top:-${navHeight}rpx;padding-top:${navHeight + 44}rpx`;
-			this.topStyle2 = `height:calc(100vh - ${navHeight}rpx - 200rpx);`;
-			// #endif
-
-			// #ifdef APP-PLUS
-			// APP端：更紧凑的计算
-			this.topStyle = `margin-top:-${navHeight}rpx;padding-top:${navHeight - 2}rpx`;
-			this.topStyle2 = `height:calc(100vh - ${navHeight}rpx);`;
-			// #endif
+			this.topStyle = `margin-top:-${e}rpx;padding-top:${e + 24}rpx`;
 		},
 		toApply(item) {
-
-			// positionApplyApi(item.pId).then((res) => {
 			uni.navigateTo({
 				url: '/pages/HomePage/postAgreement?id=' + item.pId
 			})
-			// }).catch((err) => {
-			// 	this.pop_message = err.msg
-			// 	this.$refs.popup.open()
-			// })
 		},
 		prompt_confirm() {
 			this.$refs.promptpopup.close()
@@ -261,291 +246,415 @@ export default {
 </script>
 
 <style scoped lang="scss">
-::v-deep .uni-collapse {
-	gap: 12rpx;
-	background: #F9F9F9;
-
-	.uni-collapse-item {
-		background: #fff;
-		padding-bottom: 24rpx;
-
-		.uni-collapse-item__title {
-			position: relative;
-			flex-direction: column;
-			align-items: end;
-			padding-bottom: 0;
-		}
-
-	}
+.position-page {
+	min-height: 100vh;
+	background: #edf7ff;
+	color: #101833;
+	font-family: "DINPro-Regular", "PingFang SC", sans-serif;
 }
 
-::v-deep .t-progress__bar {
-	background-color: #fff;
-	height: 12rpx;
+:deep(.nav-title) {
+	font-size: 28rpx;
+	font-weight: 700;
+	color: #101833;
 }
 
-::v-deep .t-progress__inner {
-	background: repeating-linear-gradient(135deg, #246bfe 0, #246bfe 8rpx, #77bdff 8rpx, #77bdff 12rpx) !important;
-}
-
-.content {
-	.info_box {
-		box-sizing: border-box;
-		// width: 100%;
-		// background: rgba(255, 255, 255, 0.8);
-		// border-top: 2rpx solid #F4F4F4;
-		background-color: #eef5ff;
-		margin: 24rpx;
-		margin-top: 0;
-		padding: 0 16rpx;
-		padding-bottom: 24rpx;
-		// padding-bottom: 80rpx;
-
-		.title {
-			font-family: PingFangSC, PingFang SC;
-			font-weight: 600;
-			font-size: 28rpx;
-			color: #000000;
-			text-align: center;
-			font-style: normal;
-			padding: 20rpx 0 14rpx;
-			background-color: #eef5ff;
-		}
-
-		.row {
-			display: flex;
-			justify-content: space-between;
-			overflow-wrap: break-word;
-			padding: 30rpx;
-			background: #eef5ff;
-
-			.tag {
-				font-family: PingFangSC, PingFang SC;
-				font-weight: 400;
-				font-size: 26rpx;
-				color: #666666;
-				line-height: 36rpx;
-				text-align: left;
-				font-style: normal;
-			}
-
-			.value {
-				font-family: PingFangSC, PingFang SC;
-				font-weight: 400;
-				font-size: 26rpx;
-				color: #000000;
-				line-height: 36rpx;
-				text-align: left;
-				font-style: normal;
-			}
-
-			&:nth-child(2n) {
-				background: #fff;
-			}
-		}
-
-	}
-
-}
-
-.postmanage_data_box {
-	padding: 24rpx;
-	padding-bottom: 0;
-
-	.postmanage_box {
-		position: relative;
-		display: flex;
-		gap: 20rpx;
-		margin-bottom: 20rpx;
-
-		.bottom_btn {
-			position: absolute;
-			top: 0;
-			right: 0;
-			padding: 8rpx 28rpx;
-			border-radius: 8rpx;
-			background: $themeColor;
-			font-family: MiSans;
-			font-size: 24rpx;
-			font-weight: 500;
-			color: #FFFFFF;
-			text-align: center;
-			font-style: normal;
-			text-transform: none;
-		}
-
-		.postmanage_img_box {
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			width: 104rpx;
-			height: 104rpx;
-			border-radius: 12rpx;
-			background: #EAEAEA;
-		}
-
-		.postmanage_img {
-			width: 90rpx;
-			height: 90rpx;
-		}
-
-		.postmanage_name_box {
-			display: flex;
-			flex-direction: column;
-			align-items: start;
-
-			.tag {
-				background: #eef5ff;
-				border-radius: 20rpx;
-				padding: 6rpx 22rpx;
-				font-family: PingFangSC, PingFang SC;
-				font-weight: 400;
-				font-size: 20rpx;
-				color: #999999;
-				line-height: 28rpx;
-				text-align: left;
-				font-style: normal;
-			}
-
-			.postmanage_name {
-				// margin-top: 16rpx;
-				margin-bottom: 20rpx;
-			}
-
-			.tag1 {
-				color: $themeColor;
-			}
-		}
-
-
-	}
-
-	.main_box {
-		background: #eef5ff;
-		border-radius: 10rpx 10rpx 0 0;
-		padding: 20rpx 30rpx;
-
-		.title {
-			display: flex;
-			align-items: center;
-			justify-content: space-between;
-			font-family: PingFangSC, PingFang SC;
-			font-weight: 400;
-			font-size: 24rpx;
-			color: #333333;
-			line-height: 34rpx;
-			text-align: left;
-			font-style: normal;
-
-			.details_toggle {
-				display: flex;
-				align-items: center;
-				gap: 10rpx;
-				color: $themeColor;
-			}
-
-			.uniui-bottom {
-				transition: transform 0.2s;
-			}
-
-			.uniui-bottom.expanded {
-				transform: rotate(180deg);
-			}
-		}
-
-		.condition_box {
-			margin-top: 22rpx;
-
-			.tag_box {
-				display: flex;
-				align-items: center;
-				gap: 10rpx;
-				font-family: PingFangSC, PingFang SC;
-				font-weight: 400;
-				font-size: 24rpx;
-				color: #666666;
-				line-height: 34rpx;
-				text-align: left;
-				font-style: normal;
-				margin-bottom: 20rpx;
-
-				.icon {
-					width: 32rpx;
-					height: 32rpx;
-					border-radius: 4rpx;
-				}
-			}
-
-			.progress_box {
-				display: flex;
-				align-items: center;
-				justify-content: space-between;
-				font-family: PingFangSC, PingFang SC;
-				font-weight: 400;
-				font-size: 24rpx;
-				color: #666666;
-				text-align: left;
-				font-style: normal;
-
-				.themeColor {
-					margin-left: 30rpx;
-					color: $themeColor;
-				}
-			}
-		}
-	}
+:deep(.left-icon) {
+	left: 32rpx;
+	width: 36rpx;
+	height: 36rpx;
 }
 
 .task-page {
+	min-height: 100vh;
+	padding-bottom: calc(32rpx + env(safe-area-inset-bottom));
+	background: linear-gradient(180deg, #e0f5ff 0, #edf7ff 650rpx, #f3f9ff 100%);
+}
+
+.position-hero {
+	box-sizing: border-box;
+	padding: 0 30rpx 24rpx;
+	background-image: linear-gradient(180deg, rgba(237, 247, 255, 0) 70%, #edf7ff 100%),
+		url('/static/positions/top_bgi.png');
+	background-position: left top;
+	background-size: 100% 100%, 100% auto;
+	background-repeat: no-repeat;
+}
+
+.hero-main {
+	position: relative;
+	display: flex;
+	align-items: center;
+	box-sizing: border-box;
+	min-height: 172rpx;
+	padding: 20rpx 32rpx 18rpx;
+}
+
+.hero-copy {
+	position: relative;
+	z-index: 1;
+	width: 64%;
+	min-width: 0;
+}
+
+.hero-eyebrow {
+	margin-bottom: 8rpx;
+	color: #4e6c95;
+	font-size: 22rpx;
+	font-weight: 700;
+	line-height: 20rpx;
+	letter-spacing: 4rpx;
+	text-transform: uppercase;
+	overflow-wrap: anywhere;
+}
+
+.hero-name {
+	font-size: 38rpx;
+	font-weight: 900;
+	line-height: 46rpx;
+	overflow-wrap: anywhere;
+}
+
+.hero-description {
+	max-width: 330rpx;
+	margin-top: 6rpx;
+	color: #6e829e;
+	font-size: 20rpx;
+	line-height: 27rpx;
+}
+
+.hero-badge {
+	position: absolute;
+	right: 20rpx;
+	bottom: 0;
+	width: 216rpx;
+	height: 190rpx;
+}
+
+.team-stats {
+	position: relative;
+	display: flex;
+	align-items: stretch;
+	gap: 14rpx;
+	padding: 0 22rpx;
+}
+
+.stat-card {
+	display: flex;
+	flex: 1;
+	align-items: center;
+	gap: 14rpx;
+	box-sizing: border-box;
+	min-width: 0;
+	min-height: 86rpx;
+	padding: 12rpx 18rpx;
+	border: 1rpx solid rgba(255, 255, 255, 0.65);
+	border-radius: 20rpx;
+	background: rgba(255, 255, 255, 0.7);
+}
+
+.stat-card-team {
+	background: rgba(239, 238, 255, 0.8);
+}
+
+.stat-icon {
+	flex-shrink: 0;
+	width: 54rpx;
+	height: 54rpx;
+}
+
+.stat-copy {
+	min-width: 0;
+}
+
+.stat-value {
+	font-size: 27rpx;
+	font-weight: 700;
+	line-height: 29rpx;
+	overflow-wrap: anywhere;
+}
+
+.stat-label {
+	margin-top: 2rpx;
+	color: #72809c;
+	font-size: 20rpx;
+	line-height: 20rpx;
+	word-break: break-all;
+}
+
+.position-list {
 	display: flex;
 	flex-direction: column;
-	width: 100%;
-	padding-bottom: 32rpx;
+	gap: 20rpx;
+	padding: 8rpx 30rpx 0;
+}
 
-	.task_top_card {
-		width: 100%;
-		background: url('/static/task/background.png') top left/100% no-repeat;
+.position-card {
+	min-width: 0;
+	padding: 18rpx 24rpx 20rpx;
+	border: 1rpx solid rgba(255, 255, 255, 0.95);
+	border-radius: 24rpx;
+	background: rgba(255, 255, 255, 0.96);
+	box-shadow: 0 8rpx 28rpx rgba(63, 110, 165, 0.07);
+}
 
-		.data_box {
-			display: flex;
-			flex-direction: column;
-			align-items: center;
-			color: #fff;
+.position-header {
+	display: flex;
+	align-items: center;
+	gap: 20rpx;
+	margin-bottom: 14rpx;
+}
 
-			.my_postmanage {
-				width: 180rpx;
-				height: 180rpx;
-			}
+.position-badge {
+	display: flex;
+	flex-shrink: 0;
+	align-items: center;
+	justify-content: center;
+	width: 110rpx;
+	height: 92rpx;
+	border-radius: 18rpx;
+	background: #ebf3ff;
+}
 
-			.top_tag {
-				margin: 20rpx 0;
-				font-family: PingFangSC, PingFang SC;
-				font-weight: 500;
-				font-size: 28rpx;
-				color: #000;
-				line-height: 40rpx;
-				text-align: center;
-				font-style: normal;
-				text-transform: none;
-			}
+.position-badge-1 {
+	background: #e8f4ff;
+}
 
-			.top_box_info {
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				gap: 54rpx;
-				margin-bottom: 20rpx;
-				font-family: PingFangSC, PingFang SC;
-				font-weight: 400;
-				font-size: 24rpx;
-				color: #000;
-				line-height: 34rpx;
-				text-align: center;
-				font-style: normal;
-				text-transform: none;
-			}
-		}
+.position-badge-2 {
+	background: #f5f0ff;
+}
+
+.position-image {
+	width: 82rpx;
+	height: 82rpx;
+}
+
+.position-info {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 10rpx;
+	min-width: 0;
+}
+
+.position-name {
+	font-size: 28rpx;
+	font-weight: 700;
+	line-height: 34rpx;
+	overflow-wrap: anywhere;
+}
+
+.position-status {
+	display: flex;
+	align-items: center;
+	gap: 10rpx;
+	box-sizing: border-box;
+	max-width: 100%;
+	min-height: 38rpx;
+	padding: 6rpx 22rpx;
+	border-radius: 22rpx;
+	background: #edf1f6;
+	color: #77859a;
+	font-size: 20rpx;
+	overflow-wrap: anywhere;
+}
+
+.status-current {
+	background: linear-gradient(100deg, #1682ff, #04b4ff);
+	color: #fff;
+}
+
+.status-achieved {
+	background: #e8f3ff;
+	color: #1274ef;
+}
+
+.status-crown {
+	flex-shrink: 0;
+	width: 24rpx;
+	height: 24rpx;
+}
+
+.status-lock {
+	flex-shrink: 0;
+	width: 24rpx;
+	height: 24rpx;
+}
+
+.position-actions {
+	display: flex;
+	flex-shrink: 0;
+	flex-direction: column;
+	align-items: flex-end;
+	gap: 10rpx;
+	max-width: 34%;
+}
+
+.details-button,
+.apply-button {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 10rpx;
+	box-sizing: border-box;
+	max-width: 100%;
+	min-height: 44rpx;
+	margin: 0;
+	padding: 8rpx 20rpx;
+	border: none;
+	border-radius: 24rpx;
+	background: #edf4ff;
+	color: #075cff;
+	font-family: inherit;
+	font-size: 22rpx;
+	font-weight: 500;
+	line-height: 26rpx;
+	text-align: center;
+
+	&::after {
+		border: none;
 	}
+
+	&:active {
+		opacity: 0.75;
+	}
+}
+
+.apply-button {
+	background: linear-gradient(100deg, #1682ff, #04b4ff);
+	color: #fff;
+}
+
+.requirements-panel,
+.benefits-panel {
+	padding: 16rpx 18rpx;
+	border-radius: 16rpx;
+	background: linear-gradient(110deg, #edf5ff, #f0f7ff);
+}
+
+.panel-heading {
+	display: flex;
+	align-items: center;
+	gap: 16rpx;
+}
+
+.panel-icon {
+	flex-shrink: 0;
+	width: 52rpx;
+	height: 52rpx;
+}
+
+.requirement-icon {
+	filter: hue-rotate(315deg);
+}
+
+.requirement-copy {
+	flex: 1;
+	min-width: 0;
+}
+
+.panel-title {
+	font-size: 24rpx;
+	font-weight: 700;
+	line-height: 28rpx;
+	overflow-wrap: anywhere;
+}
+
+.requirement-description {
+	margin-top: 3rpx;
+	color: #7b88a0;
+	font-size: 22rpx;
+	line-height: 25rpx;
+	overflow-wrap: anywhere;
+}
+
+.progress-row {
+	display: flex;
+	align-items: center;
+	gap: 20rpx;
+	margin-top: 12rpx;
+}
+
+.progress-track {
+	flex: 1;
+	height: 18rpx;
+	overflow: hidden;
+	border-radius: 12rpx;
+	background: #dce8f9;
+}
+
+.progress-fill {
+	height: 100%;
+	border-radius: inherit;
+	background: repeating-linear-gradient(135deg, transparent 0, transparent 10rpx, rgba(0, 88, 255, 0.25) 10rpx, rgba(0, 88, 255, 0.25) 20rpx),
+		linear-gradient(90deg, #0879ff, #11a7ff);
+	transition: width 0.25s ease;
+}
+
+.progress-count {
+	flex-shrink: 0;
+	min-width: 54rpx;
+	color: #224781;
+	font-size: 20rpx;
+	line-height: 26rpx;
+	text-align: right;
+	white-space: nowrap;
+}
+
+.progress-completed {
+	color: #0878ff;
+	font-size: 24rpx;
+}
+
+.benefits-panel {
+	margin-top: 14rpx;
+	padding-top: 10rpx;
+}
+
+.benefits-heading {
+	margin-bottom: 8rpx;
+}
+
+.benefits-list {
+	padding: 0 16rpx;
+	border-radius: 16rpx;
+	background: rgba(255, 255, 255, 0.94);
+}
+
+.benefit-row {
+	display: flex;
+	align-items: center;
+	gap: 20rpx;
+	min-height: 52rpx;
+
+	&+& {
+		border-top: 1rpx solid #eaf0f8;
+	}
+}
+
+.benefit-icon {
+	flex-shrink: 0;
+	width: 38rpx;
+	height: 38rpx;
+}
+
+.benefit-label {
+	flex: 1;
+	min-width: 0;
+	padding: 8rpx 0;
+	font-size: 22rpx;
+	// line-height: 26rpx;
+	overflow-wrap: anywhere;
+}
+
+.benefit-value {
+	max-width: 45%;
+	padding: 8rpx 0;
+	font-size: 22rpx;
+	// line-height: 26rpx;
+	text-align: right;
+	overflow-wrap: anywhere;
 }
 
 
