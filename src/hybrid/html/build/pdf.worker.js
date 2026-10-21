@@ -14578,6 +14578,13 @@ var JpxImage = function JpxImageClosure() {
             zeroBitPlanesTree = new TagTree(width, height);
             precinct.inclusionTree = inclusionTree;
             precinct.zeroBitPlanesTree = zeroBitPlanesTree;
+            // Consume the tag-tree bits for earlier layers before decoding this precinct.
+            // Backport: https://github.com/mozilla/pdf.js/commit/369f1899c686
+            for (let l = 0; l < layerNumber; l++) {
+              if (readBits(1) !== 0) {
+                throw new JpxError("Invalid tag tree");
+              }
+            }
           }
 
           if (inclusionTree.reset(codeblockColumn, codeblockRow, layerNumber)) {

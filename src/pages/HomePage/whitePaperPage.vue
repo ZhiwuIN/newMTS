@@ -56,7 +56,7 @@ export default {
 			this.pageTitle = options.title
 		}
 		if (uni.getStorageSync('settings').whitePaper) {
-			this.pdfUrl = '/hybrid/html/web/viewer.html?file=' + encodeURIComponent(uni.getStorageSync('settings').whitePaper)
+			this.pdfUrl = '/hybrid/html/web/viewer.html?v=jpx-tag-tree-1&file=' + encodeURIComponent(uni.getStorageSync('settings').whitePaper)
 		}
 	}
 }
