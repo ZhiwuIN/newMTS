@@ -10,6 +10,7 @@ import {
 	withdrawalbankSysListApi,
 } from '@/common/api/withdrawal.js'
 import customnavbar from '@/component/custom-navbar/custom-navbar.vue'
+import { isValidAccountName } from '@/utils/accountName.js'
 
 export default {
 	components: {
@@ -64,7 +65,7 @@ export default {
 				this.loading = false
 				return false
 			}
-			if (!/^\p{L}[\p{L}\p{M}]*(?: +\p{L}[\p{L}\p{M}]*)*$/u.test(accountName)) {
+			if (!isValidAccountName(accountName)) {
 				this.$showMessage('warning', this.$t('mobilePayment.invalidAccountName'))
 				this.loading = false
 				return false
