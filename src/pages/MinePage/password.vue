@@ -45,7 +45,7 @@
 
 			<!-- 确认按钮 -->
 			<view class="btn-section">
-				<button class="confirm-btn" @click="handleConfirm">{{$t("password.Submit")}}</button>
+				<button class="confirm-btn" :disabled="submitting" @click="handleConfirm">{{$t("password.Submit")}}</button>
 			</view>
 		</view>
 	</customnavbar>
@@ -69,13 +69,16 @@
 				newPassword: '',
 				confirmPassword: '',
 				type: 'login', // login, payment, withdraw
-				hasWithdrawalPassword: false
+				hasWithdrawalPassword: false,
+				submitting: false // 防重复提交
 			}
 		},
 		onLoad(options) {
 			// 获取路由参数
-			this.type = options.type;
-			this.hasWithdrawalPassword = uni.getStorageSync('userInfo').hasWithdrawalPassword
+			this.type = options.type || 'login';
+			// userInfo 可能为空，避免直接取属性报错
+			const userInfo = uni.getStorageSync('userInfo') || {};
+			this.hasWithdrawalPassword = !!userInfo.hasWithdrawalPassword;
 		},
 		methods: {
 			// 验证密码格式
@@ -92,7 +95,7 @@
 					this.$showMessage('warning', this.$t(this.type == 'withdraw' ? 'password.withdrawalPlaceholderNew' : 'password.placeholder2'));
 					return false;
 				}
-				if (this.type == 'login' && this.newPassword.length < 6 || this.newPassword.length > 20) {
+				if (this.type == 'login' && (this.newPassword.length < 6 || this.newPassword.length > 20)) {
 					this.$showMessage('warning', this.$t('password.passwordlength'));
 					return false;
 				}
@@ -100,32 +103,39 @@
 					this.$showMessage('warning', this.$t(this.type == 'withdraw' ? 'password.withdrawalMismatch' : 'password.passworddiffer'));
 					return false;
 				}
-				if (this.type == 'withdraw' && this.newPassword.length != 6) {
-					this.$showMessage('warning', this.$t('提现密码请输入六位'));
-					return false;
+				if (this.type == 'withdraw') {
+					// 新提现密码：6 位纯数字
+					if (this.newPassword.length != 6) {
+						this.$showMessage('warning', this.$t('提现密码请输入六位'));
+						return false;
+					}
+					if (!(/^\d+$/.test(this.newPassword))) {
+						this.$showMessage('warning', this.$t('提现密码需要为纯数字'));
+						return false;
+					}
+					// 修改场景：旧提现密码同样要求 6 位纯数字
+					if (this.hasWithdrawalPassword) {
+						if (this.oldPassword.length != 6) {
+							this.$showMessage('warning', this.$t('提现密码请输入六位'));
+							return false;
+						}
+						if (!(/^\d+$/.test(this.oldPassword))) {
+							this.$showMessage('warning', this.$t('提现密码需要为纯数字'));
+							return false;
+						}
+					}
 				}
-				
-				if (this.type == 'withdraw' && this.newPassword.length != 6) {
-					this.$showMessage('warning', this.$t('提现密码请输入六位'));
-					return false;
-				}
-				
-				
-				if (this.type == 'withdraw' && !(/^\d+$/.test(this.newPassword))) {
-					this.$showMessage('warning', this.$t('提现密码需要为纯数字'));
-					return false;
-				}
-				
-				
 				return true;
 			},
 
 			// 确认修改密码
 			handleConfirm() {
+				if (this.submitting) return;
 				if (!this.validatePassword()) return;
 				let params = {}
 				switch (this.type) {
 					case 'withdraw':
+						this.submitting = true;
 						if(this.hasWithdrawalPassword) {
 							params = {
 								"newWithdrawPassword": this.newPassword,
@@ -142,6 +152,7 @@
 						this.changeWithdrawalPasswordApi(params)
 						break;
 					case 'login':
+						this.submitting = true;
 						params = {
 							"newPassword": this.newPassword,
 							"oldPassword": this.oldPassword,
@@ -156,12 +167,14 @@
 			},
 			changeWithdrawalPasswordApi(params) {
 				withdrawalPasswordApi(params).then((res) => {
+					this.submitting = false;
 					this.$showMessage('success', this.$t('toast.success'));
 					// 返回上一页
 					setTimeout(() => {
 						this.$customizeBack()
 					}, 500);
 				}).catch((err) => {
+					this.submitting = false;
 					console.log('request fail', err);
 					this.$showMessage('warning', err.msg);
 					// uni.showToast({
@@ -172,6 +185,7 @@
 			},
 			changeLoginPasswordApi(params) {
 				changePasswordApi(params).then((res) => {
+					this.submitting = false;
 					this.$showMessage('success', this.$t('toast.success'));
 					// uni.showToast({
 					// 	title: this.$t('toast.success'),
@@ -182,6 +196,7 @@
 						this.$customizeBack()
 					}, 1500);
 				}).catch((err) => {
+					this.submitting = false;
 					console.log('request fail', err);
 					this.$showMessage('warning', err.msg);
 
