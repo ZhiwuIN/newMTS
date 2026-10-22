@@ -3,7 +3,7 @@ name: Deploy cwpc-h5 to Cloudflare Pages
 on:
   push:
     branches:
-      - cwpc  # 只有推送到 cwpc 分支时触发
+      - main  # 只有推送到 main 分支时触发
 
 jobs:
   build-and-deploy:
