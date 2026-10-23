@@ -1166,5 +1166,6 @@
 	"task.favorited": "Đã yêu thích",
 	"task.favoriteRequired": "Vui lòng đánh dấu yêu thích sản phẩm này trước khi hoàn tất đơn hàng.",
 	"task.allTasksCompleted": "Tất cả nhiệm vụ hôm nay đã hoàn thành.",
-	"task.completedConfirm": "OK"
+	"task.completedConfirm": "OK",
+	"request.cryptoError": "Không thể xử lý yêu cầu. Vui lòng thử lại."
 }

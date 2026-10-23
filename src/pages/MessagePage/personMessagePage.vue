@@ -104,7 +104,7 @@ import {
 	getHaveNewMessageApi
 } from "@/common/api/message.js";
 import { messageBadgeManager } from '@/common/api/messageBadge.js';
-import { base_url } from '@/common/api/request.js';
+import { uploadApiFiles } from '@/common/api/upload.js';
 
 const DEFAULT_AVATAR = '/static/default-avatar.png'
 const DEFAULT_AVATAR2 = '/static/1024.png'
@@ -276,38 +276,24 @@ export default {
 					} catch (e) {
 						console.log(e)
 					}
-					uni.uploadFile({
-						url: base_url + '/s3/uploads',
-						filePath: res.tempFilePaths[0],
-						name: 'file',
-						header: {
-							'Authorization': 'Bearer ' + uni.getStorageSync('token')
-						},
-						success: async ({ data }) => {
-							try {
-								const obj = JSON.parse(data)
-								const msgRes = await messageSendApi({
-									recvId: this.proxyId,
-									content: obj.data[0],
-									type: 1
-								})
-								if (msgRes.code == 200 && msgRes.data) {
-									this.msgList.push(msgRes.data)
-									this.$nextTick(() => {
-										this.scrollToBottom();
-									});
-								}
-							} catch (err) {
-								console.log(err)
-							} finally {
-								uni.hideLoading()
+					uploadApiFiles('/s3/uploads', [res.tempFilePaths[0]])
+						.then(async (obj) => {
+							const msgRes = await messageSendApi({
+								recvId: this.proxyId,
+								content: obj.data[0],
+								type: 1
+							})
+							if (msgRes.code == 200 && msgRes.data) {
+								this.msgList.push(msgRes.data)
+								this.$nextTick(() => {
+									this.scrollToBottom();
+								});
 							}
-						},
-						fail: (err) => {
+						})
+						.catch((err) => {
 							console.log(err)
-							uni.hideLoading()
-						}
-					})
+						})
+						.finally(() => uni.hideLoading())
 				}
 			});
 		},

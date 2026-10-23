@@ -11,6 +11,26 @@ import { messageBadgeManager } from '@/common/api/messageBadge.js';
 const NOTICE_TIMESTAMP_KEY = 'latest_update_notice_timestamp'
 const UPDATE_NOTICE_DATA_KEY = 'latest_update_notice_data'
 const UPDATE_VERSION_DATA_KEY = 'latest_update_version_data'
+const LOGIN_PAGE = '/pages/LoginPage/login'
+const APP_SPLASH_TIMEOUT = 3000
+const APP_STARTUP_TIMEOUT = 12000
+let appSplashTimer = null
+let appStartupTimer = null
+let appStartupFinished = false
+
+function closeNativeSplash() {
+	// #ifdef APP-PLUS
+	try {
+		if (typeof plus !== 'undefined' && typeof plus.navigator?.closeSplashscreen === 'function') {
+			plus.navigator.closeSplashscreen()
+			clearTimeout(appSplashTimer)
+			appSplashTimer = null
+		}
+	} catch (error) {
+		console.warn('close app splash fail', error)
+	}
+	// #endif
+}
 
 function normalizeVersionData(data = {}) {
 	return {
@@ -28,7 +48,7 @@ function isUnseenNotice(notice) {
 	return String(uni.getStorageSync(NOTICE_TIMESTAMP_KEY)) !== String(notice.timestamp)
 }
 
-function settleRequest(promise, timeout = 10000) {
+function settleRequest(request, timeout = 10000) {
 	return new Promise((resolve) => {
 		let finished = false
 		const finish = (result) => {
@@ -38,7 +58,8 @@ function settleRequest(promise, timeout = 10000) {
 			resolve(result)
 		}
 		const timer = setTimeout(() => finish({ ok: false, error: new Error('request timeout') }), timeout)
-		Promise.resolve(promise).then(
+		// 延迟调用，同时接住请求创建时的同步异常。
+		Promise.resolve().then(() => typeof request === 'function' ? request() : request).then(
 			value => finish({ ok: true, value }),
 			error => finish({ ok: false, error })
 		)
@@ -58,14 +79,20 @@ export default {
 		}
 		// #endif
 		// #ifdef APP-PLUS
-		plus.runtime.getProperty(plus.runtime.appid, (inf) => {
-			this.checkAppUpdates(inf).catch((error) => {
-				console.log('app startup update check fail', error)
-				this.reLaunchAndCloseSplash('/pages/LoginPage/login')
-			})
-		});
+		// 关闭启动页不依赖版本检查、接口响应或路由回调。
+		clearTimeout(appSplashTimer)
+		appSplashTimer = setTimeout(closeNativeSplash, APP_SPLASH_TIMEOUT)
+		this.startAppStartup()
 		// #endif
 
+	},
+	onError(error) {
+		closeNativeSplash()
+		console.error('App runtime error', error)
+	},
+	onUnhandledRejection(event) {
+		closeNativeSplash()
+		console.error('App unhandled rejection', event?.reason ?? event)
 	},
 	onShow: function () {
 		console.log('App onShow')
@@ -119,8 +146,26 @@ export default {
 	},
 
 	methods: {
+		startAppStartup() {
+			appStartupFinished = false
+			clearTimeout(appStartupTimer)
+			// 包括 getProperty 没有回调的情况，整个启动流程都有时间上限。
+			appStartupTimer = setTimeout(() => {
+				console.warn('app startup timeout, continuing to login')
+				this.reLaunchAndCloseSplash(LOGIN_PAGE)
+				this.closeAppSplash()
+			}, APP_STARTUP_TIMEOUT)
+			Promise.resolve().then(() => new Promise((resolve) => {
+				plus.runtime.getProperty(plus.runtime.appid, resolve)
+			})).then((inf) => {
+				if (!appStartupFinished) return this.checkAppUpdates(inf)
+			}).catch((error) => {
+				console.error('app startup update check fail', error)
+				this.reLaunchAndCloseSplash(LOGIN_PAGE)
+			})
+		},
 		async checkH5UpdateNotice() {
-			const result = await settleRequest(latestNoticeApi())
+			const result = await settleRequest(latestNoticeApi)
 			if (result.ok) {
 				const notice = result.value.data
 				if (isUnseenNotice(notice)) {
@@ -144,15 +189,17 @@ export default {
 			let notice = null
 			let versionData = null
 			const [noticeResult, versionResult] = await Promise.all([
-				settleRequest(latestNoticeApi()),
-				settleRequest(versionApi())
+				settleRequest(latestNoticeApi),
+				settleRequest(versionApi)
 			])
+			// 超时后不再用迟到的结果覆盖当前页面或写入已读公告。
+			if (appStartupFinished) return
 
 			if (noticeResult.ok) notice = noticeResult.value.data
 			else console.log('latest notice request fail', noticeResult.error)
 
 			if (versionResult.ok &&
-				Number(versionResult.value.data?.editionNumber) > Number(inf.versionCode)) {
+				Number(versionResult.value.data?.editionNumber) > Number(inf?.versionCode)) {
 				versionData = normalizeVersionData(versionResult.value.data)
 			} else if (!versionResult.ok) {
 				console.log('version request fail', versionResult.error)
@@ -174,15 +221,38 @@ export default {
 				)
 				return
 			}
-			this.reLaunchAndCloseSplash('/pages/LoginPage/login')
+			this.reLaunchAndCloseSplash(LOGIN_PAGE)
 		},
 		reLaunchAndCloseSplash(url) {
-			setTimeout(() => {
-				uni.reLaunch({
-					url,
-					success: () => plus.navigator.closeSplashscreen()
-				})
-			}, 100)
+			this.closeAppSplash()
+			if (appStartupFinished) return
+			appStartupFinished = true
+			clearTimeout(appStartupTimer)
+			appStartupTimer = null
+			const pages = getCurrentPages()
+			if (pages.length === 1 && pages[0].route === url.slice(1)) {
+				return
+			}
+			const navigate = (target) => {
+				try {
+					uni.reLaunch({
+						url: target,
+						fail: (error) => {
+							console.error('app startup navigation fail', error)
+							if (target !== LOGIN_PAGE) navigate(LOGIN_PAGE)
+						},
+						complete: () => this.closeAppSplash()
+					})
+				} catch (error) {
+					console.error('app startup navigation fail', error)
+					this.closeAppSplash()
+					if (target !== LOGIN_PAGE) navigate(LOGIN_PAGE)
+				}
+			}
+			navigate(url)
+		},
+		closeAppSplash() {
+			closeNativeSplash()
 		},
 		handleDeviceDetection() {
 			// 空值兜底，避免 undefined 报错

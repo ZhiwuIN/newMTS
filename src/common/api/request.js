@@ -10,6 +10,7 @@ import tv from '../../locale/tv.json'
 import {
 	showMessage
 } from '@/utils/utils.js'
+import { apiCrypto } from './crypto.js'
 const messages = {
 	'en': en,
 	'ru': ru,
@@ -57,6 +58,15 @@ function getLanguageHeader() {
 	return uni.getStorageSync('Language') || uni.getStorageSync('defaultLanguage') || 'en'
 }
 
+function cryptoRequestError(error) {
+	return {
+		code: 'API_CRYPTO_ERROR',
+		stage: error.stage || 'unknown',
+		msg: t('request.cryptoError'),
+		message: t('request.cryptoError')
+	}
+}
+
 
 // 刷新token接口，假设为 /auth/refreshToken，返回新token
 function refreshToken() {
@@ -67,25 +77,32 @@ function refreshToken() {
 			return;
 		}
 		let Token = uni.getStorageSync('token') || ''
+		let outgoing
+		try {
+			outgoing = apiCrypto.prepareRequest({
+				method: 'POST', data: { refreshToken: refresh_token },
+				header: { 'Content-Type': 'application/json;charset=UTF-8', Authorization: 'Bearer ' + Token }
+			})
+		} catch (error) { reject(cryptoRequestError(error)); return }
 		uni.request({
 			url: base_url + '/auth/refreshToken',
 			method: 'POST',
-			header: {
-				'Content-Type': 'application/json;charset=UTF-8',
-				'Authorization': 'Bearer ' + Token
-			},
-			data: {
-				refreshToken: refresh_token
-			},
+			header: outgoing.header,
+			data: outgoing.data,
+			dataType: 'text',
+			timeout,
 			success(res) {
-				if (res.statusCode == 200 && res.data.code == 0) {
+				try { res = apiCrypto.decryptUniResponse(res) }
+				catch (error) { reject(cryptoRequestError(error)); return }
+				if (res.statusCode == 200 && res.data && (res.data.code === 0 || res.data.code === 200)
+					&& res.data.data && typeof res.data.data.token === 'string' && res.data.data.token) {
 					const newToken = res.data.data.token;
 					const newRefreshToken = res.data.data.refreshToken;
 					uni.setStorageSync('token', newToken);
 					uni.setStorageSync('refresh_token', newRefreshToken);
 					resolve(newToken);
 				} else {
-					reject(res.data.msg || t('request.FailedRefresh'));
+					reject((res.data && res.data.msg) || t('request.FailedRefresh'));
 				}
 			},
 			fail(err) {
@@ -103,8 +120,8 @@ let requestQueue = [];
 
 function requestWithAuth(params, resolve, reject, retried = false) {
 	let url = params.url;
-	let method = params.method || "get";
-	let data = params.data || {};
+	let method = (params.method || "get").toUpperCase();
+	let data = params.data === undefined ? {} : params.data;
 	let Token = uni.getStorageSync('token') || ''
 	let header = {
 		'Content-Type': 'application/json;charset=UTF-8',
@@ -114,8 +131,15 @@ function requestWithAuth(params, resolve, reject, retried = false) {
 		// 'X-Client-Type': 'app',
 		...params.header
 	};
-	if (method === "post") {
-		header['Content-Type'] = 'application/json';
+	try {
+		const outgoing = apiCrypto.prepareRequest({ url, method, data, header, encryptRequest: params.encryptRequest })
+		url = outgoing.url
+		data = outgoing.data
+		header = outgoing.header
+	} catch (error) {
+		uni.hideLoading()
+		reject(cryptoRequestError(error))
+		return
 	}
 	uni.request({
 		url: base_url + url,
@@ -123,13 +147,20 @@ function requestWithAuth(params, resolve, reject, retried = false) {
 		header: header,
 		data: data,
 		timeout,
+		dataType: 'text',
 		success(response) {
+			try { response = apiCrypto.decryptUniResponse(response) }
+			catch (error) { reject(cryptoRequestError(error)); return }
 			const {
 				statusCode,
 				data,
 				msg
 			} = response;
 			if (statusCode == 200) {
+				if (!data || typeof data !== 'object') {
+					reject(cryptoRequestError({ stage: 'response-json-required' }));
+					return;
+				}
 				// 部分分页接口直接返回 { total, rows }，没有统一的 code 包装。
 				if (data.code === 200 || (Array.isArray(data.rows) && data.total !== undefined)) {
 					resolve(data); //需要根据后端实际接口返回数据层级去resolve
@@ -159,7 +190,7 @@ function requestWithAuth(params, resolve, reject, retried = false) {
 				showGlobalRequestMessage('warning', tooManyRequestsMessage);
 				reject(buildHandledError(response, tooManyRequestsMessage));
 			} else {
-				reject(response);
+				reject({ ...response, msg: data && data.msg ? data.msg : response.msg });
 			}
 
 			function handle401() {
@@ -175,10 +206,10 @@ function requestWithAuth(params, resolve, reject, retried = false) {
 					return;
 				}
 				// 队列化请求，等待token刷新
-				requestQueue.push(() => {
+				requestQueue.push({ reject, retry: () => {
 					// 重新请求，retried设为true防止死循环
 					requestWithAuth(params, resolve, reject, true);
-				});
+				} });
 				if (!isRefreshing) {
 					isRefreshing = true;
 					refreshPromise = refreshToken()
@@ -188,12 +219,15 @@ function requestWithAuth(params, resolve, reject, retried = false) {
 							// 依次执行队列中的请求
 							const queue = requestQueue.slice();
 							requestQueue = [];
-							queue.forEach(cb => cb());
+							queue.forEach(item => item.retry());
 						})
 						.catch(err => {
 							isRefreshing = false;
 							refreshPromise = null;
+							const queue = requestQueue.slice();
 							requestQueue = [];
+							const failure = err && err.msg ? err : { code: 401, msg: t('request.FailedRefresh') };
+							queue.forEach(item => item.reject(failure));
 							uni.navigateTo({
 								url: "/pages/LoginPage/login",
 							});

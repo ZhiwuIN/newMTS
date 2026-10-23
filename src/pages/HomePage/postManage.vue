@@ -30,8 +30,7 @@
 			</view>
 
 			<view class="position-list">
-				<view v-for="(item, index) in postList" :key="item.pId ?? index" class="position-card"
-					@click.stop="toggleDetails(index)">
+				<view v-for="(item, index) in postList" :key="item.pId ?? index" class="position-card">
 					<view class="position-header">
 						<view class="position-badge" :class="{ 'position-badge-2': idx >= 0 && index === idx }">
 							<image class="position-image" :src="item.image" mode="aspectFit" />
@@ -53,13 +52,8 @@
 								<text>{{ $t('未达成') }}</text>
 							</view>
 						</view>
-						<view class="position-actions">
-							<button class="details-button" :aria-expanded="isExpanded(index)">
-								<text>{{ $t('View Details') }}</text>
-								<uni-icons type="right" size="13" color="#075cff" />
-							</button>
-							<button v-if="item.isItDone && index > idx" class="apply-button"
-								@click.stop="toApply(item)">
+						<view v-if="item.isItDone && index > idx" class="position-actions">
+							<button class="apply-button" @click.stop="toApply(item)">
 								{{ $t('post.apply') }}
 							</button>
 						</view>
@@ -90,7 +84,7 @@
 						</view>
 					</view>
 
-					<view v-if="isExpanded(index)" class="benefits-panel">
+					<view class="benefits-panel">
 						<view class="panel-heading benefits-heading">
 							<image class="panel-icon" src="/static/positions/JobAdvantages.png" mode="aspectFit" />
 							<view class="panel-title">{{ $t('post.jobBenefits') }}</view>
@@ -162,7 +156,6 @@ export default {
 				6: 'positionManage.weekdays.saturday',
 				7: 'positionManage.weekdays.sunday'
 			},
-			value: ['0'],
 			pop_message: "",
 			postList: [],
 			userInfo: {},
@@ -198,15 +191,6 @@ export default {
 		})
 	},
 	methods: {
-		isExpanded(index) {
-			return this.value.includes(String(index));
-		},
-		toggleDetails(index) {
-			const name = String(index);
-			this.value = this.isExpanded(index)
-				? this.value.filter(value => value !== name)
-				: [...this.value, name];
-		},
 		getProgress(item) {
 			const target = Number(item.numberAchievements);
 			const completed = Number(item.completed);
@@ -491,7 +475,6 @@ export default {
 	max-width: 34%;
 }
 
-.details-button,
 .apply-button {
 	display: flex;
 	align-items: center;

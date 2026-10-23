@@ -1165,5 +1165,6 @@
 	"task.favorited": "En favoris",
 	"task.favoriteRequired": "Veuillez marquer ce produit comme favori avant de terminer la commande.",
 	"task.allTasksCompleted": "Toutes les tâches d’aujourd’hui ont été terminées.",
-	"task.completedConfirm": "OK"
+	"task.completedConfirm": "OK",
+	"request.cryptoError": "La requête n’a pas pu être traitée. Veuillez réessayer."
 }

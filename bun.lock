@@ -22,9 +22,11 @@
         "@dcloudio/uni-quickapp-webview": "3.0.0-4080720251210001",
         "@mediapipe/tasks-vision": "^0.10.22",
         "@nutui/nutui-bingo": "^1.0.7",
+        "crypto-js": "4.2.0",
         "date-fns": "^4.1.0",
         "date-fns-tz": "^1.0.0",
         "echarts": "^6.1.0",
+        "jsencrypt": "3.5.4",
         "pinia": "2.1.7",
         "sass": "1.77.8",
         "tdesign-mobile-vue": "^1.10.1",
@@ -821,6 +823,8 @@
 
     "cross-spawn": ["cross-spawn@7.0.6", "https://registry.npmmirror.com/cross-spawn/-/cross-spawn-7.0.6.tgz", { "dependencies": { "path-key": "^3.1.0", "shebang-command": "^2.0.0", "which": "^2.0.1" } }, "sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA=="],
 
+    "crypto-js": ["crypto-js@4.2.0", "", {}, "sha512-KALDyEYgpY+Rlob/iriUtjV6d5Eq+Y191A5g4UqLAi8CyGP9N1+FdVbkc1SxKc2r4YAYqG8JzO2KGL+AizD70Q=="],
+
     "css-font-size-keywords": ["css-font-size-keywords@1.0.0", "https://registry.npmmirror.com/css-font-size-keywords/-/css-font-size-keywords-1.0.0.tgz", {}, "sha512-Q+svMDbMlelgCfH/RVDKtTDaf5021O486ZThQPIpahnIjUkMUslC+WuOQSWTgGSrNCH08Y7tYNEmmy0hkfMI8Q=="],
 
     "css-font-stretch-keywords": ["css-font-stretch-keywords@1.0.1", "https://registry.npmmirror.com/css-font-stretch-keywords/-/css-font-stretch-keywords-1.0.1.tgz", {}, "sha512-KmugPO2BNqoyp9zmBIUGwt58UQSfyk1X5DbOlkb2pckDXFSAfjsD5wenb88fNrD6fvS+vu90a/tsPpb9vb0SLg=="],
@@ -1142,6 +1146,8 @@
     "js-yaml": ["js-yaml@3.14.2", "https://registry.npmmirror.com/js-yaml/-/js-yaml-3.14.2.tgz", { "dependencies": { "argparse": "^1.0.7", "esprima": "^4.0.0" }, "bin": { "js-yaml": "bin/js-yaml.js" } }, "sha512-PMSmkqxr106Xa156c2M265Z+FTrPl+oxd/rgOQy2tijQeK5TxQ43psO1ZCwhVOSdnn+RzkzlRz/eY4BgJBYVpg=="],
 
     "jsdom": ["jsdom@16.7.0", "https://registry.npmmirror.com/jsdom/-/jsdom-16.7.0.tgz", { "dependencies": { "abab": "^2.0.5", "acorn": "^8.2.4", "acorn-globals": "^6.0.0", "cssom": "^0.4.4", "cssstyle": "^2.3.0", "data-urls": "^2.0.0", "decimal.js": "^10.2.1", "domexception": "^2.0.1", "escodegen": "^2.0.0", "form-data": "^3.0.0", "html-encoding-sniffer": "^2.0.1", "http-proxy-agent": "^4.0.1", "https-proxy-agent": "^5.0.0", "is-potential-custom-element-name": "^1.0.1", "nwsapi": "^2.2.0", "parse5": "6.0.1", "saxes": "^5.0.1", "symbol-tree": "^3.2.4", "tough-cookie": "^4.0.0", "w3c-hr-time": "^1.0.2", "w3c-xmlserializer": "^2.0.0", "webidl-conversions": "^6.1.0", "whatwg-encoding": "^1.0.5", "whatwg-mimetype": "^2.3.0", "whatwg-url": "^8.5.0", "ws": "^7.4.6", "xml-name-validator": "^3.0.0" }, "peerDependencies": { "canvas": "^2.5.0" }, "optionalPeers": ["canvas"] }, "sha512-u9Smc2G1USStM+s/x1ru5Sxrl6mPYCbByG1U/hUmqaVsm4tbNyS7CicOSRyuGQYZhTu0h84qkZZQ/I+dzizSVw=="],
+
+    "jsencrypt": ["jsencrypt@3.5.4", "", {}, "sha512-kNjfYEMNASxrDGsmcSQh/rUTmcoRfSUkxnAz+MMywM8jtGu+fFEZ3nJjHM58zscVnwR0fYmG9sGkTDjqUdpiwA=="],
 
     "jsesc": ["jsesc@3.1.0", "https://registry.npmmirror.com/jsesc/-/jsesc-3.1.0.tgz", { "bin": { "jsesc": "bin/jsesc" } }, "sha512-/sM3dO2FOzXjKQhJuo0Q173wf2KOo8t4I8vHy6lF9poUp7bKT0/NHE8fPX23PwfhnykfqnC2xRxOnVw5XuGIaA=="],
 

@@ -1165,5 +1165,6 @@
 	"task.favorited": "已收藏",
 	"task.favoriteRequired": "请在完成订单前先收藏此商品",
 	"task.allTasksCompleted": "今天的所有任务已经完成",
-	"task.completedConfirm": "确定"
+	"task.completedConfirm": "确定",
+	"request.cryptoError": "请求处理失败，请稍后重试。"
 }

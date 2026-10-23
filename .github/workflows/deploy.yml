@@ -20,8 +20,19 @@ jobs:
       - name: Install Dependencies
         run: bun install
 
+      - name: Check API crypto
+        run: node scripts/check-api-crypto.cjs
+
       - name: Build H5
-        run: bun run build:h5
+        env:
+          VITE_REQUEST_PUBLIC_KEY: ${{ secrets.VITE_REQUEST_PUBLIC_KEY }}
+          VITE_RESPONSE_PRIVATE_KEY: ${{ secrets.VITE_RESPONSE_PRIVATE_KEY }}
+        run: |
+          if [ -z "$VITE_REQUEST_PUBLIC_KEY" ] || [ -z "$VITE_RESPONSE_PRIVATE_KEY" ]; then
+            echo "::error::Configure VITE_REQUEST_PUBLIC_KEY and VITE_RESPONSE_PRIVATE_KEY repository secrets before deployment."
+            exit 1
+          fi
+          bun run build:h5
 
       - name: Publish to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3

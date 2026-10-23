@@ -1165,5 +1165,6 @@
 	"task.favorited": "В избранном",
 	"task.favoriteRequired": "Пожалуйста, добавьте этот товар в избранное перед завершением заказа.",
 	"task.allTasksCompleted": "Все задания на сегодня выполнены.",
-	"task.completedConfirm": "ОК"
+	"task.completedConfirm": "ОК",
+	"request.cryptoError": "Не удалось обработать запрос. Повторите попытку."
 }

@@ -1165,5 +1165,6 @@
 	"task.favorited": "Favorited",
 	"task.favoriteRequired": "Please favorite this product before completing the order.",
 	"task.allTasksCompleted": "All of today's tasks have been completed.",
-	"task.completedConfirm": "OK"
+	"task.completedConfirm": "OK",
+	"request.cryptoError": "Unable to process the request. Please try again."
 }
