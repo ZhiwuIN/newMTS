@@ -44,7 +44,7 @@
 				</view>
 
 				<!-- 抢购记录 -->
-				<view class="purchaseRecord">
+				<view class="purchaseRecord" v-if="false">
 					<view class="tag">{{ $t('SoldOutCraze') }}</view>
 					<swiper v-if="purchaseRecordList.length" circular :indicator-dots="false" :autoplay="true"
 						:interval='1500' :duration="1500" easing-function="linear" :acceleration="true"
@@ -237,7 +237,7 @@ export default {
 		this.currency = uni.getStorageSync('settings').currency
 		this.taskId = options.id
 		this.getTaskDetails()
-		this.getPurchaseRecordApi()
+		// this.getPurchaseRecordApi()
 	},
 	methods: {
 		toggleFavorite() {
