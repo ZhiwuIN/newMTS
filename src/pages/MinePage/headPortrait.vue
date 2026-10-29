@@ -265,7 +265,7 @@
 			&.active {
 				color: #fff;
 				font-weight: 400;
-				background: linear-gradient(180deg, $gradualColor2 0%, $gradualColor1 100%);
+				background: $themeColor;
 				border: 2rpx solid transparent;
 				border-radius: 36rpx;
 			}

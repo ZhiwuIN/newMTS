@@ -156,7 +156,7 @@ export default {
 	bottom: 0;
 	width: 100%;
 	height: 686rpx;
-	/* background: linear-gradient(180deg, $gradualColor2 0%, $gradualColor1 100%); */
+	/* background: $themeColor; */
 	background: linear-gradient(180deg, #3B89E9 0%, #03459B 100%);
 	border-radius: 76rpx 76rpx 0rpx 0rpx;
 	/* z-index: -1; */

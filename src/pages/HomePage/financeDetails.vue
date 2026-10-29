@@ -666,7 +666,7 @@ export default {
 	margin: 40rpx 0;
 	text-align: center;
 	height: 96rpx;
-	background: linear-gradient(180deg, $gradualColor2 0%, $gradualColor1 100%);
+	background: $themeColor;
 	border-radius: 12rpx;
 	font-family: "DINPro-Bold", sans-serif;
 	font-weight: bold;
@@ -850,7 +850,7 @@ export default {
 
 .pay_confirm_btn {
 	height: 96rpx;
-	background: linear-gradient(180deg, $gradualColor2 0%, $gradualColor1 100%);
+	background: $themeColor;
 	border-radius: 12rpx;
 	margin-top: 44rpx;
 	font-family: "DINPro-Bold", sans-serif;

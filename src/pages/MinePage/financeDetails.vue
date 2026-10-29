@@ -222,7 +222,7 @@
 		align-items: center;
 		justify-content: center;
 
-		background: linear-gradient(180deg, $gradualColor2 0%, $gradualColor1 100%);
+		background: $themeColor;
 		border-radius: 12rpx;
 		font-family: "DINPro-Bold", sans-serif;
 		font-weight: bold;

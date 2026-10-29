@@ -620,7 +620,7 @@ export default {
 		logout() {
 			uni.removeStorageSync('token');
 			uni.removeStorageSync('userInfo');
-			uni.reLaunch({ url: '/pages/HomePage/index' });
+			uni.reLaunch({ url: '/pages/LoginPage/login' });
 		},
 		mtop(e) {
 			// #ifdef H5

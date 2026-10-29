@@ -1,6 +1,6 @@
 <template>
 	<customnavbar
-		:title="type=='login'?$t('pages.SetLoginPwd'):type=='payment'?$t('pages.SetPayPwd'):$t('password.withdrawalTitle')">
+		:title="type == 'login' ? $t('pages.SetLoginPwd') : type == 'payment' ? $t('pages.SetPayPwd') : $t('password.withdrawalTitle')">
 		<view class="password-set">
 			<!-- 密码输入区域 -->
 			<view class="set_t1" v-if="!hasWithdrawalPassword && type == 'withdraw'">
@@ -10,16 +10,16 @@
 				{{ $t('password.withdrawalOld') }}
 			</view>
 			<view class="set_t1" v-if="type == 'login'">
-				{{ (type == 'withdraw' ? '' : $t('password.old'))+ " " +(type=='login'?$t('pages.SetLoginPwd'):type=='payment'?$t('pages.SetPayPwd'):$t('pages.SetLoginPwd'))}}
+				{{ (type == 'withdraw' ? '' : $t('password.old')) + " "
+					+ (type == 'login' ? $t('pages.SetLoginPwd') : type == 'payment' ? $t('pages.SetPayPwd') : $t('pages.SetLoginPwd')) }}
 			</view>
 			<view class="set_input" v-if="!hasWithdrawalPassword && type == 'withdraw'">
-				<input type="password" v-model="oldPassword"
-					:placeholder="$t('register.pwdPlaceHolder')"
-					password placeholder-style="color: #E4E4E4;font-size: 28rpx;font-weight: 500;" />
+				<input type="password" v-model="oldPassword" :placeholder="$t('register.pwdPlaceHolder')" password
+					placeholder-style="color: #E4E4E4;font-size: 28rpx;font-weight: 500;" />
 			</view>
 			<view class="set_input" v-if="hasWithdrawalPassword && type == 'withdraw'">
-				<input type="password" v-model="oldPassword" :placeholder="$t('password.withdrawalPlaceholderOld')" password
-					placeholder-style="color: #E4E4E4;font-size: 28rpx;font-weight: 500;" />
+				<input type="password" v-model="oldPassword" :placeholder="$t('password.withdrawalPlaceholderOld')"
+					password placeholder-style="color: #E4E4E4;font-size: 28rpx;font-weight: 500;" />
 			</view>
 			<view class="set_input" v-if="type == 'login'">
 				<input type="password" v-model="oldPassword"
@@ -27,237 +27,239 @@
 					password placeholder-style="color: #E4E4E4;font-size: 28rpx;font-weight: 500;" />
 			</view>
 			<view class="set_t1" style="margin-top: 53rpx;">
-				{{ type == 'withdraw' ? $t('password.withdrawalNew') : $t('password.new')+" "+(type=='login'?$t('pages.SetLoginPwd'):type=='payment'?$t('pages.SetPayPwd'):$t('pages.SetWithdrawPwd')) }}
+				{{ type == 'withdraw' ? $t('password.withdrawalNew') : $t('password.new') + " "+(type=='login'?$t('pages.SetLoginPwd'):type=='payment'?$t('pages.SetPayPwd'):$t('pages.SetWithdrawPwd'))}}
 			</view>
 			<view class="set_input">
 				<input type="password" v-model="newPassword"
-					:placeholder="type == 'withdraw' ? $t('password.withdrawalPlaceholderNew') : $t('password.placeholder2')" password
-					placeholder-style="color: #E4E4E4;font-size: 28rpx;font-weight: 500;" />
+					:placeholder="type == 'withdraw' ? $t('password.withdrawalPlaceholderNew') : $t('password.placeholder2')"
+					password placeholder-style="color: #E4E4E4;font-size: 28rpx;font-weight: 500;" />
 			</view>
 			<view class="set_t1" style="margin-top: 53rpx;">
 				{{ type == 'withdraw' ? $t('password.withdrawalConfirm') : $t('password.Confirmpassword') }}
 			</view>
 			<view class="set_input">
 				<input type="password" v-model="confirmPassword"
-					:placeholder="type == 'withdraw' ? $t('password.withdrawalPlaceholderConfirm') : $t('password.placeholder3')" password
-					placeholder-style="color: #E4E4E4;font-size: 28rpx;font-weight: 500;" />
+					:placeholder="type == 'withdraw' ? $t('password.withdrawalPlaceholderConfirm') : $t('password.placeholder3')"
+					password placeholder-style="color: #E4E4E4;font-size: 28rpx;font-weight: 500;" />
 			</view>
 
 			<!-- 确认按钮 -->
 			<view class="btn-section">
-				<button class="confirm-btn" :disabled="submitting" @click="handleConfirm">{{$t("password.Submit")}}</button>
+				<button class="confirm-btn" :disabled="submitting"
+					@click="handleConfirm">{{ $t("password.Submit") }}</button>
 			</view>
 		</view>
 	</customnavbar>
 </template>
 
 <script>
-	import customnavbar from '@/component/custom-navbar/custom-navbar.vue'
-	import {
-		changePasswordApi
-	} from "@/common/api/users.js";
-	import {
-		withdrawalPasswordApi
-	} from "@/common/api/withdrawal.js";
-	export default {
-		components: {
-			customnavbar: customnavbar
-		},
-		data() {
-			return {
-				oldPassword: '',
-				newPassword: '',
-				confirmPassword: '',
-				type: 'login', // login, payment, withdraw
-				hasWithdrawalPassword: false,
-				submitting: false // 防重复提交
+import customnavbar from '@/component/custom-navbar/custom-navbar.vue'
+import {
+	changePasswordApi
+} from "@/common/api/users.js";
+import {
+	withdrawalPasswordApi
+} from "@/common/api/withdrawal.js";
+export default {
+	components: {
+		customnavbar: customnavbar
+	},
+	data() {
+		return {
+			oldPassword: '',
+			newPassword: '',
+			confirmPassword: '',
+			type: 'login', // login, payment, withdraw
+			hasWithdrawalPassword: false,
+			submitting: false // 防重复提交
+		}
+	},
+	onLoad(options) {
+		// 获取路由参数
+		this.type = options.type || 'login';
+		// userInfo 可能为空，避免直接取属性报错
+		const userInfo = uni.getStorageSync('userInfo') || {};
+		this.hasWithdrawalPassword = !!userInfo.hasWithdrawalPassword;
+	},
+	methods: {
+		// 验证密码格式
+		validatePassword() {
+
+			if (!this.oldPassword) {
+				const placeholderKey = this.type == 'withdraw'
+					? (this.hasWithdrawalPassword ? 'password.withdrawalPlaceholderOld' : 'register.pwdPlaceHolder')
+					: 'password.placeholder1';
+				this.$showMessage('warning', this.$t(placeholderKey));
+				return false;
 			}
-		},
-		onLoad(options) {
-			// 获取路由参数
-			this.type = options.type || 'login';
-			// userInfo 可能为空，避免直接取属性报错
-			const userInfo = uni.getStorageSync('userInfo') || {};
-			this.hasWithdrawalPassword = !!userInfo.hasWithdrawalPassword;
-		},
-		methods: {
-			// 验证密码格式
-			validatePassword() {
-				
-				if (!this.oldPassword) {
-					const placeholderKey = this.type == 'withdraw'
-						? (this.hasWithdrawalPassword ? 'password.withdrawalPlaceholderOld' : 'register.pwdPlaceHolder')
-						: 'password.placeholder1';
-					this.$showMessage('warning', this.$t(placeholderKey));
+			if (!this.newPassword) {
+				this.$showMessage('warning', this.$t(this.type == 'withdraw' ? 'password.withdrawalPlaceholderNew' : 'password.placeholder2'));
+				return false;
+			}
+			if (this.type == 'login' && (this.newPassword.length < 6 || this.newPassword.length > 20)) {
+				this.$showMessage('warning', this.$t('password.passwordlength'));
+				return false;
+			}
+			if (this.newPassword !== this.confirmPassword) {
+				this.$showMessage('warning', this.$t(this.type == 'withdraw' ? 'password.withdrawalMismatch' : 'password.passworddiffer'));
+				return false;
+			}
+			if (this.type == 'withdraw') {
+				// 新提现密码：6 位纯数字
+				if (this.newPassword.length != 6) {
+					this.$showMessage('warning', this.$t('提现密码请输入六位'));
 					return false;
 				}
-				if (!this.newPassword) {
-					this.$showMessage('warning', this.$t(this.type == 'withdraw' ? 'password.withdrawalPlaceholderNew' : 'password.placeholder2'));
+				if (!(/^\d+$/.test(this.newPassword))) {
+					this.$showMessage('warning', this.$t('提现密码需要为纯数字'));
 					return false;
 				}
-				if (this.type == 'login' && (this.newPassword.length < 6 || this.newPassword.length > 20)) {
-					this.$showMessage('warning', this.$t('password.passwordlength'));
-					return false;
-				}
-				if (this.newPassword !== this.confirmPassword) {
-					this.$showMessage('warning', this.$t(this.type == 'withdraw' ? 'password.withdrawalMismatch' : 'password.passworddiffer'));
-					return false;
-				}
-				if (this.type == 'withdraw') {
-					// 新提现密码：6 位纯数字
-					if (this.newPassword.length != 6) {
+				// 修改场景：旧提现密码同样要求 6 位纯数字
+				if (this.hasWithdrawalPassword) {
+					if (this.oldPassword.length != 6) {
 						this.$showMessage('warning', this.$t('提现密码请输入六位'));
 						return false;
 					}
-					if (!(/^\d+$/.test(this.newPassword))) {
+					if (!(/^\d+$/.test(this.oldPassword))) {
 						this.$showMessage('warning', this.$t('提现密码需要为纯数字'));
 						return false;
 					}
-					// 修改场景：旧提现密码同样要求 6 位纯数字
+				}
+			}
+			return true;
+		},
+
+		// 确认修改密码
+		handleConfirm() {
+			if (this.submitting) return;
+			if (!this.validatePassword()) return;
+			let params = {}
+			switch (this.type) {
+				case 'withdraw':
+					this.submitting = true;
 					if (this.hasWithdrawalPassword) {
-						if (this.oldPassword.length != 6) {
-							this.$showMessage('warning', this.$t('提现密码请输入六位'));
-							return false;
+						params = {
+							"newWithdrawPassword": this.newPassword,
+							"oldWithdrawPassword": this.oldPassword,
+							"confirmWithdrawPassword": this.confirmPassword
 						}
-						if (!(/^\d+$/.test(this.oldPassword))) {
-							this.$showMessage('warning', this.$t('提现密码需要为纯数字'));
-							return false;
+					} else {
+						params = {
+							"newWithdrawPassword": this.newPassword,
+							"loginPassword": this.oldPassword,
+							"confirmWithdrawPassword": this.confirmPassword
 						}
 					}
-				}
-				return true;
-			},
-
-			// 确认修改密码
-			handleConfirm() {
-				if (this.submitting) return;
-				if (!this.validatePassword()) return;
-				let params = {}
-				switch (this.type) {
-					case 'withdraw':
-						this.submitting = true;
-						if(this.hasWithdrawalPassword) {
-							params = {
-								"newWithdrawPassword": this.newPassword,
-								"oldWithdrawPassword": this.oldPassword,
-								"confirmWithdrawPassword": this.confirmPassword
-							}
-						}else {
-							params = {
-								"newWithdrawPassword": this.newPassword,
-								"loginPassword": this.oldPassword,
-								"confirmWithdrawPassword": this.confirmPassword
-							}
-						}
-						this.changeWithdrawalPasswordApi(params)
-						break;
-					case 'login':
-						this.submitting = true;
-						params = {
-							"newPassword": this.newPassword,
-							"oldPassword": this.oldPassword,
-							"confirmPassword": this.confirmPassword
-						}
-						this.changeLoginPasswordApi(params)
-						break;
-					default:
-						break;
-				}
-
-			},
-			changeWithdrawalPasswordApi(params) {
-				withdrawalPasswordApi(params).then((res) => {
-					this.submitting = false;
-					this.$showMessage('success', this.$t('toast.success'));
-					// 返回上一页
-					setTimeout(() => {
-						this.$customizeBack()
-					}, 500);
-				}).catch((err) => {
-					this.submitting = false;
-					console.log('request fail', err);
-					this.$showMessage('warning', err.msg);
-					// uni.showToast({
-					// 	title: err.msg,
-					// 	icon: 'none'
-					// })
-				})
-			},
-			changeLoginPasswordApi(params) {
-				changePasswordApi(params).then((res) => {
-					this.submitting = false;
-					this.$showMessage('success', this.$t('toast.success'));
-					// uni.showToast({
-					// 	title: this.$t('toast.success'),
-					// 	icon: 'none'
-					// });
-					// 返回上一页
-					setTimeout(() => {
-						this.$customizeBack()
-					}, 1500);
-				}).catch((err) => {
-					this.submitting = false;
-					console.log('request fail', err);
-					this.$showMessage('warning', err.msg);
-
-					// uni.showToast({
-
-					// 	title: err.msg,
-
-					// 	icon: 'none'
-
-					// })
-				})
+					this.changeWithdrawalPasswordApi(params)
+					break;
+				case 'login':
+					this.submitting = true;
+					params = {
+						"newPassword": this.newPassword,
+						"oldPassword": this.oldPassword,
+						"confirmPassword": this.confirmPassword
+					}
+					this.changeLoginPasswordApi(params)
+					break;
+				default:
+					break;
 			}
-		}
 
+		},
+		changeWithdrawalPasswordApi(params) {
+			withdrawalPasswordApi(params).then((res) => {
+				this.submitting = false;
+				this.$showMessage('success', this.$t('toast.success'));
+				// 返回上一页
+				setTimeout(() => {
+					this.$customizeBack()
+				}, 500);
+			}).catch((err) => {
+				this.submitting = false;
+				console.log('request fail', err);
+				this.$showMessage('warning', err.msg);
+				this.$showMessage('warning', 'Inculpation')
+				// uni.showToast({
+				// 	title: err.msg,
+				// 	icon: 'none'
+				// })
+			})
+		},
+		changeLoginPasswordApi(params) {
+			changePasswordApi(params).then((res) => {
+				this.submitting = false;
+				this.$showMessage('success', this.$t('toast.success'));
+				// uni.showToast({
+				// 	title: this.$t('toast.success'),
+				// 	icon: 'none'
+				// });
+				// 返回上一页
+				setTimeout(() => {
+					this.$customizeBack()
+				}, 1500);
+			}).catch((err) => {
+				this.submitting = false;
+				console.log('request fail', err);
+				this.$showMessage('warning', err.msg);
+
+				// uni.showToast({
+
+				// 	title: err.msg,
+
+				// 	icon: 'none'
+
+				// })
+			})
+		}
 	}
+
+}
 </script>
 
 <style lang="scss" scoped>
-	.password-set {
-		padding: 70rpx 40rpx;
+.password-set {
+	padding: 70rpx 40rpx;
 
-		.btn-section {
-			margin-top: 92rpx;
+	.btn-section {
+		margin-top: 92rpx;
 
-			.confirm-btn {
-				height: 96rpx;
-				background: $themeColor;
-				border-radius: 12rpx;
-				font-family: "DINPro-Bold", sans-serif;
-				font-weight: bold;
-				font-size: 36rpx;
-				color: #FFFFFF;
-				line-height: 96rpx;
-				text-align: center;
-				font-style: normal;
-				text-transform: none;
-			}
+		.confirm-btn {
+			height: 96rpx;
+			background: $themeColor;
+			border-radius: 12rpx;
+			font-family: "DINPro-Bold", sans-serif;
+			font-weight: bold;
+			font-size: 36rpx;
+			color: #FFFFFF;
+			line-height: 96rpx;
+			text-align: center;
+			font-style: normal;
+			text-transform: none;
 		}
 	}
+}
 
-	.set_t1 {
-		font-family: "DINPro-Medium", sans-serif;
-		font-weight: 500;
-		font-size: 32rpx;
-		color: #000000;
-		line-height: 44rpx;
-		text-align: left;
-		font-style: normal;
-	}
+.set_t1 {
+	font-family: "DINPro-Medium", sans-serif;
+	font-weight: 500;
+	font-size: 32rpx;
+	color: #000000;
+	line-height: 44rpx;
+	text-align: left;
+	font-style: normal;
+}
 
-	.set_input {
-		padding: 0 34rpx;
-		background: #FFFFFF;
-		// box-shadow: 0rpx 22rpx 28rpx -6rpx #E9F3FF;
-		border-radius: 16rpx;
-		border: 2rpx solid rgb(228, 228, 228);
-		margin-top: 24rpx;
-	}
+.set_input {
+	padding: 0 34rpx;
+	background: #FFFFFF;
+	// box-shadow: 0rpx 22rpx 28rpx -6rpx #E9F3FF;
+	border-radius: 16rpx;
+	border: 2rpx solid rgb(228, 228, 228);
+	margin-top: 24rpx;
+}
 
-	input {
-		height: 112rpx;
-		font-size: 28rpx;
-	}
+input {
+	height: 112rpx;
+	font-size: 28rpx;
+}
 </style>

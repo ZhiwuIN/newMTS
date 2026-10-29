@@ -168,7 +168,7 @@ export default {
 	align-items: center;
 	justify-content: center;
 	gap: 10rpx;
-	background: linear-gradient(180deg, $gradualColor2 0%, $gradualColor1 100%);
+	background: $themeColor;
 	border-radius: 20rpx;
 	padding: 16rpx;
 	font-family: PingFangSC, PingFang SC;

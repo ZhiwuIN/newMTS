@@ -80,7 +80,7 @@ export default {
 			bottom: 0;
 			top: 0;
 			/* 背景色线性渐变 */
-			background: linear-gradient(180deg, $gradualColor2 0%, $gradualColor1 100%);
+			background: $themeColor;
 			border-radius: 12rpx;
 			box-shadow: 0 14px 28px rgba(33, 150, 243, 0), 0 10px 10px rgba(9, 188, 215, 0.08);
 

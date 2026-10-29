@@ -10,6 +10,9 @@ import tv from '../../locale/tv.json'
 import {
 	showMessage
 } from '@/utils/utils.js'
+import { base_url } from './config.js'
+import { getHeaderValue } from './errorReport.js'
+import { beginErrorReportRequest, finishErrorReportRequest } from './uiErrorReporting.js'
 const messages = {
 	'en': en,
 	'ru': ru,
@@ -45,9 +48,6 @@ function buildHandledError(error, msg) {
 		_messageShown: true
 	};
 }
-
-const base_url = import.meta.env.VITE_API_URL ?? 'https://app.back-system.link';
-// const base_url = 'https://app.back-system.link';
 
 // 请求超时设置
 const timeout = 30000;
@@ -117,6 +117,7 @@ function requestWithAuth(params, resolve, reject, retried = false) {
 	if (method === "post") {
 		header['Content-Type'] = 'application/json';
 	}
+	const reportContext = beginErrorReportRequest({ url, method, authorization: getHeaderValue(header, 'Authorization') })
 	uni.request({
 		url: base_url + url,
 		method: method,
@@ -124,6 +125,7 @@ function requestWithAuth(params, resolve, reject, retried = false) {
 		data: data,
 		timeout,
 		success(response) {
+			finishErrorReportRequest(reportContext, response)
 			const {
 				statusCode,
 				data,
@@ -206,6 +208,7 @@ function requestWithAuth(params, resolve, reject, retried = false) {
 			}
 		},
 		fail(err) {
+			finishErrorReportRequest(reportContext, { statusCode: err.statusCode })
 			console.log(err);
 			const isTimeoutError =
 				(err.errMsg && err.errMsg.includes('timeout')) ||

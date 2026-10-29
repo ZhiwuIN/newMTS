@@ -1,0 +1,314 @@
+diff --git a/src/common/api/request.js b/src/common/api/request.js
+index 12b803a..d43779b 100644
+--- a/src/common/api/request.js
++++ b/src/common/api/request.js
+@@ -70,6 +70,7 @@ function refreshToken() {
+ 		uni.request({
+ 			url: base_url + '/auth/refreshToken',
+ 			method: 'POST',
++			timeout,
+ 			header: {
+ 				'Content-Type': 'application/json;charset=UTF-8',
+ 				'Authorization': 'Bearer ' + Token
+@@ -78,14 +79,20 @@ function refreshToken() {
+ 				refreshToken: refresh_token
+ 			},
+ 			success(res) {
+-				if (res.statusCode == 200 && res.data.code == 0) {
+-					const newToken = res.data.data.token;
+-					const newRefreshToken = res.data.data.refreshToken;
+-					uni.setStorageSync('token', newToken);
+-					uni.setStorageSync('refresh_token', newRefreshToken);
+-					resolve(newToken);
+-				} else {
+-					reject(res.data.msg || t('request.FailedRefresh'));
++				try {
++					const payload = res.data;
++					if (res.statusCode == 200 && payload?.code == 0 && payload.data?.token) {
++						const newToken = payload.data.token;
++						const newRefreshToken = payload.data.refreshToken;
++						uni.setStorageSync('token', newToken);
++						uni.setStorageSync('refresh_token', newRefreshToken);
++						resolve(newToken);
++					} else {
++						reject(payload?.msg || t('request.FailedRefresh'));
++					}
++				} catch (error) {
++					// 异常响应或存储失败也必须结束刷新，释放等待队列。
++					reject(error);
+ 				}
+ 			},
+ 			fail(err) {
+@@ -130,6 +137,10 @@ function requestWithAuth(params, resolve, reject, retried = false) {
+ 				msg
+ 			} = response;
+ 			if (statusCode == 200) {
++				if (!data || typeof data !== 'object') {
++					reject(response);
++					return;
++				}
+ 				// 部分分页接口直接返回 { total, rows }，没有统一的 code 包装。
+ 				if (data.code === 200 || (Array.isArray(data.rows) && data.total !== undefined)) {
+ 					resolve(data); //需要根据后端实际接口返回数据层级去resolve
+@@ -175,9 +186,9 @@ function requestWithAuth(params, resolve, reject, retried = false) {
+ 					return;
+ 				}
+ 				// 队列化请求，等待token刷新
+-				requestQueue.push(() => {
+-					// 重新请求，retried设为true防止死循环
+-					requestWithAuth(params, resolve, reject, true);
++				requestQueue.push({
++					retry: () => requestWithAuth(params, resolve, reject, true),
++					reject
+ 				});
+ 				if (!isRefreshing) {
+ 					isRefreshing = true;
+@@ -188,47 +199,50 @@ function requestWithAuth(params, resolve, reject, retried = false) {
+ 							// 依次执行队列中的请求
+ 							const queue = requestQueue.slice();
+ 							requestQueue = [];
+-							queue.forEach(cb => cb());
++							queue.forEach(item => {
++								try {
++									item.retry();
++								} catch (error) {
++									item.reject(error);
++								}
++							});
+ 						})
+ 						.catch(err => {
+ 							isRefreshing = false;
+ 							refreshPromise = null;
++							const queue = requestQueue.slice();
+ 							requestQueue = [];
++							queue.forEach(item => item.reject({
++								code: 401,
++								msg: t('request.unAuthorization')
++							}));
+ 							uni.navigateTo({
+ 								url: "/pages/LoginPage/login",
+ 							});
+-							// reject({
+-							// 	code: 401,
+-							// 	msg: t('request.FailedRefresh')
+-							// });
+ 						});
+ 				}
+ 			}
+ 		},
+ 		fail(err) {
+ 			console.log(err);
++			const errorText = [err?.errMsg, err?.message, err?.msg]
++				.filter(value => typeof value === 'string')
++				.join(' ');
+ 			const isTimeoutError =
+-				(err.errMsg && err.errMsg.includes('timeout')) ||
+-				(err.message && err.message.includes('timeout')) ||
+-				(err.errMsg && err.errMsg.includes('time out')) ||
+-				(err.message && err.message.includes('time out'));
++				errorText.includes('timeout') || errorText.includes('time out');
+ 
+ 			// 判定是否为 502 错误（适配不同的 err 格式，覆盖常见场景）
+ 			const is502Error =
+ 				// 场景1：err 里有 statusCode 字段（如 axios/uni.request 等）
+-				err.statusCode === 502 ||
++				err?.statusCode === 502 ||
+ 				// 场景2：err.msg/err.message 包含 502 关键词（如自定义错误信息）
+-				(err.msg && err.msg.includes('502')) ||
+-				(err.message && err.message.includes('502')) ||
+-				(err.errMsg && err.errMsg.includes('502'));
++				errorText.includes('502');
+ 			// 判定是否为 429 错误（适配不同的 err 格式，覆盖常见场景）
+ 			const is429Error =
+ 				// 场景1：err 里有 statusCode 字段（如 axios/uni.request 等）
+-				err.statusCode === 429 ||
++				err?.statusCode === 429 ||
+ 				// 场景2：err.msg/err.message 包含 429 关键词（如自定义错误信息）
+-				(err.msg && err.msg.includes('429')) ||
+-				(err.message && err.message.includes('429')) ||
+-				(err.errMsg && err.errMsg.includes('429'));
++				errorText.includes('429');
+ 
+ 			// 超时错误处理
+ 			if (isTimeoutError) {
+diff --git a/tests/requestLifecycle.test.mjs b/tests/requestLifecycle.test.mjs
+new file mode 100644
+--- /dev/null
++++ b/tests/requestLifecycle.test.mjs
+@@ -0,0 +1,176 @@
++import assert from 'node:assert/strict'
++import { readFile } from 'node:fs/promises'
++import path from 'node:path'
++import vm from 'node:vm'
++import test from 'node:test'
++import esbuild from 'esbuild'
++
++const source = await readFile(new URL('../src/common/api/request.js', import.meta.url), 'utf8')
++const bundled = await esbuild.build({
++  stdin: { contents: source, sourcefile: 'request.js', resolveDir: path.resolve('src/common/api') },
++  bundle: true,
++  write: false,
++  format: 'iife',
++  globalName: 'requestModule',
++  define: { 'import.meta.env.VITE_API_URL': '"http://diagnostic.invalid"' },
++  plugins: [{
++    name: 'request-test-stubs',
++    setup(build) {
++      build.onResolve({ filter: /^@dcloudio\/uni-i18n$/ }, () => ({ path: 'i18n', namespace: 'stub' }))
++      build.onResolve({ filter: /^@\/utils\/utils\.js$/ }, () => ({ path: 'ui', namespace: 'stub' }))
++      build.onLoad({ filter: /.*/, namespace: 'stub' }, args => ({
++        contents: args.path === 'i18n'
++          ? 'export function initVueI18n(){return {t:key=>key}}'
++          : 'export function showMessage(){}'
++      }))
++    }
++  }]
++})
++
++function createHarness(onRequest, initialStorage = {}) {
++  const storage = new Map(Object.entries(initialStorage))
++  const requests = []
++  const callbackErrors = []
++  const timers = new Set()
++  let navigations = 0
++  const uni = {
++    getStorageSync: key => storage.get(key) || '',
++    setStorageSync: (key, value) => storage.set(key, value),
++    navigateTo: () => { navigations++ },
++    hideLoading() {},
++    $emit() {},
++    request(options) {
++      requests.push(options)
++      // A thrown error here models a synchronous bridge failure during a retry.
++      const response = onRequest(options, storage)
++      queueMicrotask(() => {
++        try {
++          if (response.failure) options.fail(response.failure)
++          else options.success(response)
++        } catch (error) {
++          callbackErrors.push(error)
++        } finally {
++          options.complete?.()
++        }
++      })
++    }
++  }
++  const context = {
++    uni,
++    setTimeout(fn, delay) {
++      const timer = setTimeout(() => { timers.delete(timer); fn() }, delay)
++      timers.add(timer)
++      return timer
++    },
++    clearTimeout,
++    console: { log() {} }
++  }
++  vm.runInNewContext(bundled.outputFiles[0].text, context)
++  return {
++    request: context.requestModule.default,
++    requests, storage, callbackErrors,
++    get navigations() { return navigations },
++    stop() { timers.forEach(clearTimeout) }
++  }
++}
++
++async function settle(promise) {
++  let timer
++  try {
++    return await Promise.race([
++      Promise.resolve(promise),
++      new Promise((_, reject) => { timer = setTimeout(() => reject(new Error('request stayed pending')), 200) })
++    ])
++  } finally {
++    clearTimeout(timer)
++  }
++}
++
++const unauthorized = { statusCode: 401, data: { code: 401 } }
++const refreshed = { statusCode: 200, data: { code: 0, data: { token: 'new-token', refreshToken: 'new-refresh' } } }
++const success = { statusCode: 200, data: { code: 200, data: { ok: true } } }
++const isRefresh = options => options.url.endsWith('/auth/refreshToken')
++
++test('missing refresh token rejects the request and releases the page submitting flag', async t => {
++  let businessCalls = 0
++  const context = createHarness(() => ++businessCalls === 1 ? unauthorized : success)
++  t.after(() => context.stop())
++  let submitting = true
++  const first = context.request({ url: '/test' }).finally(() => { submitting = false })
++  await assert.rejects(settle(first), error => error.code === 401)
++  assert.equal(submitting, false)
++  assert.equal(context.navigations, 1)
++  assert.equal((await settle(context.request({ url: '/test' }))).code, 200)
++})
++
++test('failed refresh rejects all queued HTTP and business-level 401 requests', async t => {
++  const context = createHarness(options => isRefresh(options)
++    ? { statusCode: 200, data: { code: 500, msg: 'expired' } }
++    : options.url.endsWith('/business') ? { statusCode: 200, data: { code: 401 } } : unauthorized,
++  { refresh_token: 'refresh' })
++  t.after(() => context.stop())
++  const results = await settle(Promise.allSettled([
++    context.request({ url: '/http' }), context.request({ url: '/business' })
++  ]))
++  assert.ok(results.every(item => item.status === 'rejected' && item.reason.code === 401))
++  assert.equal(context.requests.filter(isRefresh).length, 1)
++  assert.equal(context.navigations, 1)
++})
++
++test('malformed refresh response resets auth state so a later attempt works without reloading', async t => {
++  let refreshCalls = 0
++  const context = createHarness(options => {
++    if (isRefresh(options)) return ++refreshCalls === 1 ? { statusCode: 200, data: null } : refreshed
++    return options.header.Authorization === 'Bearer new-token' ? success : unauthorized
++  }, { refresh_token: 'refresh', token: 'expired-token' })
++  t.after(() => context.stop())
++  await assert.rejects(settle(context.request({ url: '/first' })), error => error.code === 401)
++  assert.equal((await settle(context.request({ url: '/second' }))).code, 200)
++  assert.equal(refreshCalls, 2)
++  assert.equal(context.callbackErrors.length, 0)
++})
++
++test('successful refresh remains single-flight and retries queued requests with the new token', async t => {
++  const context = createHarness(options => isRefresh(options) ? refreshed
++    : options.header.Authorization === 'Bearer new-token' ? success : unauthorized,
++  { refresh_token: 'refresh', token: 'expired-token' })
++  t.after(() => context.stop())
++  const results = await settle(Promise.all([
++    context.request({ url: '/one' }), context.request({ url: '/two' })
++  ]))
++  assert.ok(results.every(item => item.code === 200))
++  assert.equal(context.requests.filter(isRefresh).length, 1)
++  assert.equal(context.requests.find(isRefresh).timeout, 30000)
++  assert.equal(context.navigations, 0)
++})
++
++test('one synchronous retry failure does not orphan other queued requests', async t => {
++  const context = createHarness(options => {
++    if (isRefresh(options)) return refreshed
++    if (options.header.Authorization !== 'Bearer new-token') return unauthorized
++    if (options.url.endsWith('/throws')) throw new Error('bridge failure')
++    return success
++  }, { refresh_token: 'refresh', token: 'expired-token' })
++  t.after(() => context.stop())
++  const results = await settle(Promise.allSettled([
++    context.request({ url: '/throws' }), context.request({ url: '/ok' })
++  ]))
++  assert.equal(results[0].status, 'rejected')
++  assert.equal(results[0].reason.message, 'bridge failure')
++  assert.equal(results[1].status, 'fulfilled')
++})
++
++test('empty business response rejects instead of throwing inside the request callback', async t => {
++  const context = createHarness(() => ({ statusCode: 200, data: null }))
++  t.after(() => context.stop())
++  await assert.rejects(settle(context.request({ url: '/empty' })), error => error.statusCode === 200)
++  assert.equal(context.callbackErrors.length, 0)
++})
++
++test('non-string network error fields do not leave the caller pending', async t => {
++  const failure = { errMsg: { detail: 'network' }, message: 42 }
++  const context = createHarness(() => ({ failure }))
++  t.after(() => context.stop())
++  await assert.rejects(settle(context.request({ url: '/network' })), error => error === failure)
++  assert.equal(context.callbackErrors.length, 0)
++})

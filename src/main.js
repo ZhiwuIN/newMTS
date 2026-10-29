@@ -6,6 +6,9 @@ import fr from './locale/fr.json'
 import zh from './locale/zh.json'
 import tv from './locale/tv.json'
 import music from './utils/music.js'
+import { installUiDiagnostics } from './utils/uiDiagnostics.js'
+import { installUiMessageGuard } from './utils/uiMessageGuard.js'
+import { reportInculpation } from './common/api/uiErrorReporting.js'
 
 import './uni.scss'
 
@@ -14,6 +17,16 @@ import {
 	showWaitMessage,
 	getImToken
 } from './utils/utils.js'
+
+if (import.meta.env.DEV) {
+	installUiDiagnostics({
+		uni,
+		getPages: () => getCurrentPages(),
+		platform: process.env.UNI_PLATFORM,
+		getNativeUI: () => typeof plus === 'undefined' ? null : plus.nativeUI
+	})
+}
+
 const messages = {
 	'en': { ...en },
 	'ru': { ...ru },
@@ -34,6 +47,17 @@ let i18nConfig = {
 	locale: initialLocale,
 	messages
 }
+
+// 保留前面的开发诊断顺序，使原始 title 在拦截前被记录。
+installUiMessageGuard({
+	uni,
+	platform: process.env.UNI_PLATFORM,
+	getNativeUI: () => typeof plus === 'undefined' ? null : plus.nativeUI,
+	onBlock(event) {
+		reportInculpation(event)
+		if (import.meta.env.DEV) console.warn('[UI_GUARD]', JSON.stringify(event))
+	}
+})
 // #ifndef VUE3
 import Vue from 'vue'
 import './uni.promisify.adaptor'

@@ -140,7 +140,7 @@
 		width: 212rpx;
 		height: 72rpx;
 		background: $themeColor;
-		box-shadow: 0rpx 4rpx 16rpx 0rpx #B2C8FB;
+		// box-shadow: 0rpx 4rpx 16rpx 0rpx #B2C8FB;
 		border-radius: 16rpx;
 		font-family: "DINPro-Black", sans-serif;
 		font-family: DINPro, DINPro;
@@ -156,7 +156,7 @@
 		padding: 20rpx 0 26rpx;
 		display: flex;
 		justify-content: center;
-		background: linear-gradient(180deg, $gradualColor2 0%, $gradualColor1 100%);
+		background: $themeColor;
 		border-radius: 12rpx;
 		font-family: PingFangSC, PingFang SC;
 		font-weight: 600;
